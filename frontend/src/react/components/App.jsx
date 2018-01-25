@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link,Route, Switch, BrowserRouter} from 'react-router-dom';
+import Header from './Header.jsx'
 
 // import { example } from '../appRedux/reducers/exampleReducer';
 
@@ -30,9 +31,15 @@ const Products = () => (
     </div>
 );
 class App extends Component {
+    constructor(){
+        super()
+        this.state = {
+            userId :'',
+        }
+    }
 
   componentDidMount(){
-    window.onSignIn = function(googleUser) {
+    window.onSignIn = (googleUser)=> {
       var profile = googleUser.getBasicProfile();
 
       const newUser = {
@@ -41,7 +48,7 @@ class App extends Component {
         imageURL: profile.getImageUrl(),
         email: profile.getEmail()
       }
-
+      this.setState({userId: profile.getId()})
       fetch(url, {
         method: 'POST',
         body: JSON.stringify(newUser),
@@ -58,6 +65,7 @@ class App extends Component {
         return (
             <BrowserRouter>
                 <div className="App">
+                <Header/>
                     <h1>Hello World</h1>
                     <div className="g-signin2" ref="googleBtn" data-onsuccess="onSignIn"></div>
                     <div>
