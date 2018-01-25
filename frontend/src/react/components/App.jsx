@@ -59,7 +59,7 @@ class App extends Component {
             <BrowserRouter>
                 <div className="App">
                     <h1>Hello World</h1>
-                    <div class="g-signin2" ref="googleBtn" data-onsuccess="onSignIn"></div>
+                    <div className="g-signin2" ref="googleBtn" data-onsuccess="onSignIn"></div>
                     <div>
                         <nav className="navbar navbar-light">
                             <ul className="nav navbar-nav">
