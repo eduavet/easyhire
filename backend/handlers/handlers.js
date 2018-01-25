@@ -5,5 +5,21 @@ const usersModel = require('../models/usersModel.js')
 const Handlers = {};
 module.exports = Handlers;
 
+Handlers.apiAddUser = (req, res) => {
 
-// Handlers to be added
+  //if user doesn't exist in DB, add user
+  usersModel.find({googleID: req.body.googleID}, (err, docs) => {
+    if(docs.length < 1){
+      const newUser = new usersModel({
+          googleID: req.body.googleID,
+          name: req.body.name,
+          image: req.body.imageURL,
+          email: req.body.email,
+          lastSync: ''
+      })
+      newUser.save()
+      .catch(console.error)
+      console.log('user added in DB');
+    }
+  })
+}
