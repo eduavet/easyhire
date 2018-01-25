@@ -16,10 +16,15 @@
     "express": "^4.16.2",
     "express-session": "^1.15.6",
     "express-validator": "^4.3.0",
+    "googleapis": "^25.0.0",
     "jsonwebtoken": "^8.1.1",
     "mongodb": "^3.0.1",
     "mongoose": "^5.0.0",
+    "node-fetch": "^1.7.3",
     "passport": "^0.4.0",
     "passport-google-oauth2": "^0.1.6"
+  },
+  "devDependencies": {
+    "nodemon": "^1.14.11"
   }
 }
