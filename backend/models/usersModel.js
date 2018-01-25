@@ -5,9 +5,10 @@ const Schema = mongoose.Schema;
 
 const usersSchema = new Schema({
     id  : Schema.ObjectId,
+    googleID: String,
+    name: String,
+    image: String,
     email: String,
-    fname: String,
-    lname: String,
     lastSync: Date
 }, {
     versionKey: false

@@ -4,4 +4,4 @@ const handlers = require('../handlers/handlers');
 const router = Router();
 module.exports = router;
 
-// Routes to be added
+router.post('/api/addUser', handlers.apiAddUser);
