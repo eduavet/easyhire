@@ -11,7 +11,7 @@ export default class Header extends Component{
 
                 <Navbar color="faded" light expand="md" className="header navbar-dark">
                     <NavbarBrand href="/">
-                        <img src="/src/assets/images/logo.png" width="40" height="40" className="d-inline-block align-top" alt=""/>
+                        <img src="/src/assets/images/logo.png" width="60" height="40" className="d-inline-block align-top" alt=""/>
                         easyhire
                     </NavbarBrand>
                         <Nav className="ml-auto navbar-nav" navbar>
