@@ -25,6 +25,7 @@
     "passport-google-oauth2": "^0.1.6"
   },
   "devDependencies": {
+    "morgan": "^1.9.0",
     "nodemon": "^1.14.11"
   }
 }

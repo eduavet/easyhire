@@ -9,30 +9,28 @@ module.exports = router;
 
 router.post('/api/addUser', handlers.apiAddUser);
 router.post('/', gapiHandler.getEmails);
-router.get( '/auth/google',passport.authenticate( 'google',
+router.get( '/auth/google', passport.authenticate( 'google',
     { scope:
         ['https://mail.google.com/',
             // 'https://www.googleapis.com/auth/gmail.modify',
             // 'https://www.googleapis.com/auth/gmail.readonly',
             // 'https://www.googleapis.com/auth/gmail.metadata',
-            'profile', 'email', 'openid'] ,
-        successRedirect: '/auth/google/success',
-        failureRedirect: '/auth/google/failure',
+            'profile', 'email', 'openid']
     })
 );
-router.get( '/auth/google/callback',
+router.get('/auth/google/callback',
     passport.authenticate( 'google', {
         successRedirect: '/auth/google/success',
         failureRedirect: '/auth/google/failure'
     }));
-router.get( '/auth/google/success',function (req, res) {
+router.get('/auth/google/success',function (req, res) {
     console.log('/auth/google/success');
     // console.log(req.profile);
 
-    res.send('/auth/google/success')
+    res.send({ hello: 'world' });
 });
 
-router.get( '/auth/google/failure',function(req, res){
+router.get('/auth/google/failure',function(req, res){
     console.log('/auth/google/failure');
     res.send('/auth/google/failure')
 });
