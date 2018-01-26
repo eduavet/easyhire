@@ -17,7 +17,7 @@ export default class Logout extends Component {
     render() {
         return (
             <div>
-                <Button color="link" onClick={this.toggle}><i className="fas fa-sign-out-alt"></i></Button>
+                <Button color="link" onClick={this.toggle}><i className="fas fa-sign-out-alt logoutbtn"></i></Button>
                 <Modal isOpen={this.state.modal} toggle={this.toggle}>
                     <ModalHeader toggle={this.toggle}>Logout</ModalHeader>
                     <ModalBody>
