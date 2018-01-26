@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link, Route, Switch, BrowserRouter} from 'react-router-dom';
 import Dashboard from './Dashboard.jsx'
+import Sidebar from './sidebar.jsx';
+import jwt from 'jsonwebtoken';
 
 
 const url = 'http://localhost:3000/api/addUser/';
@@ -15,9 +17,8 @@ class App extends Component {
 
     }
     componentDidMount(){
-
-
     }
+
     render() {
         return (
             <BrowserRouter>

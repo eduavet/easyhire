@@ -31,6 +31,7 @@
   "dependencies": {
     "css-loader": "^0.28.9",
     "history": "^4.7.2",
+    "jsonwebtoken": "^8.1.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-redux": "^5.0.6",
