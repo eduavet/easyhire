@@ -20,21 +20,12 @@ router.get( '/auth/google', passport.authenticate( 'google',
 );
 router.get('/auth/google/callback',
     passport.authenticate( 'google', {
-        successRedirect: '/auth/google/success',
-        failureRedirect: '/auth/google/failure'
+        successRedirect: 'http://localhost:8080',
+        failureRedirect: '/auth/google'
     }));
-router.get('/auth/google/success',function (req, res) {
-    console.log('/auth/google/success');
-    // console.log(req.profile);
-
-    res.send({ hello: 'world' });
-});
-
-router.get('/auth/google/failure',function(req, res){
-    console.log('/auth/google/failure');
-    res.send('/auth/google/failure')
-});
-router.get( '/auth/google/test',function(req, res){
-    console.log('/auth/google/test');
-    res.send('/auth/google/test')
-});
+// router.get('/auth/google/success',function (req, res) {
+//     console.log('/auth/google/success');
+//     // console.log(req.profile);
+//     res.send({ hello: 'world' });
+// });
+router.get('/api/getEmails', handlers.getEmails);

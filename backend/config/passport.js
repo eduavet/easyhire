@@ -30,6 +30,10 @@ passport.use(new GoogleStrategy({
     function (request, accessToken, refreshToken, profile, done) {
      /* Emails --*/
      console.log('function is working !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+     request.session.userID = profile.id;
+     request.session.accessToken = accessToken;
+     request.session.name = profile.displayName;
+
         done(null, profile);
 
         // console.log(profile.emails, 'emails');//[ { value: 'simplyeasyhire@gmail.com', type: 'account' } ] 'emails'
@@ -102,4 +106,3 @@ passport.use(new GoogleStrategy({
         // });
     }
 ));
-
