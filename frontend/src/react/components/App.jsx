@@ -5,6 +5,7 @@ import { Link, Route, Switch, BrowserRouter} from 'react-router-dom';
 import Dashboard from './Dashboard.jsx'
 import Sidebar from './sidebar.jsx';
 import jwt from 'jsonwebtoken';
+import { asyncGetEmails } from '../../redux/reducers/emailsReducer';
 
 
 const url = 'http://localhost:3000/api/addUser/';
@@ -20,19 +21,18 @@ class App extends Component {
 
     }
     componentWillMount(){
-        console.log('didmount')
-        console.log('didmount')
-        fetch('http://localhost:3000/api/getEmails',{
-            credentials: 'include',
-        })
-            .then(res => {
-                return res.json();
-            })
-            .then(res => {
-                this.setState({ emails: res.emailsToSend })
-            }).catch(err => {
-                console.error(err)
-        })
+        this.props.getEmails();
+        // fetch('http://localhost:3000/api/getEmails',{
+        //     credentials: 'include',
+        // })
+        //     .then(res => {
+        //         return res.json();
+        //     })
+        //     .then(res => {
+        //         this.setState({ emails: res.emailsToSend })
+        //     }).catch(err => {
+        //         console.error(err)
+        // })
     }
 
     render() {
@@ -40,7 +40,7 @@ class App extends Component {
             <BrowserRouter>
                 <div className="App">
                     <a href="http://localhost:3000/auth/google">Log in</a>
-                <Dashboard emails={this.state.emails}/>
+                <Dashboard emails={this.props.emails}/>
                         {/*<div className="g-signin2" ref="googleBtn" data-onsuccess="onSignIn"></div>*/}
                 </div>
             </BrowserRouter>
@@ -50,12 +50,13 @@ class App extends Component {
 
 function mapStateToProps(state) {
     return {
-        // example: state.example
+        emails: state.emails
     };
 }
 
 function mapDispatchToProps(dispatch) {
     return {
+        getEmails: () => dispatch(asyncGetEmails()),
         // example2: (param) => dispatch(example(param)),
     };
 }

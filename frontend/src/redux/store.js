@@ -1,6 +1,6 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import reducer from './reducers/exampleReducer';
+import reducer from './reducers/emailsReducer';
 
 const store = createStore(
     reducer,
