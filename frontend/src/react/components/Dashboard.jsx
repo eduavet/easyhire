@@ -13,7 +13,7 @@ class Dashboard extends Component{
             <div>
                 <Header/>
                 <Toolbar/>
-                <Emails/>
+                <Emails emails={ this.props.emails }/>
             </div>
         </BrowserRouter>)
     }

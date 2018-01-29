@@ -30,9 +30,11 @@ passport.use(new GoogleStrategy({
     function (request, accessToken, refreshToken, profile, done) {
      /* Emails --*/
      console.log('function is working !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+     console.log(accessToken, 'accessToken function is working !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
      request.session.userID = profile.id;
      request.session.accessToken = accessToken;
      request.session.name = profile.displayName;
+     request.session.save();
 
         done(null, profile);
 

@@ -41,6 +41,9 @@ Handlers.getEmails = (req, response) => {
     .then(res => {
       const messages = res.messages
       const promises = [];
+        console.log(accessToken, 'accessToken111111111111111111111111111111111111111111111')
+        console.log(res, 'res2222222222222222222222222222222222222222222222222222')
+        console.log(req.session, 'req.session3333333333333333333333333')
 
 
       for(let i = 0; i < emailsOnPage; i++) {
