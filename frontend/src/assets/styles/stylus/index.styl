@@ -1,5 +1,7 @@
 main-color = #B9CC1B;
 header-color = #000099;
+sync-color = #007bff9c;
+sync-hover-color = #007bff9c;
 .header {
   background : header-color;
 }
@@ -26,6 +28,26 @@ li{
 
 .logoutbtn {
   color: white;
+}
+.mt-60{
+  margin-top: 60px;
+}
+.searchContainer{
+  flex-grow: 2;
+  form{
+    width: 52%;
+  }
+}
+.sync-btn{
+  width 100%;
+  margin 0px auto;
+  background: sync-color;
+  border-color: sync-color;
+  &:hover{
+    background sync-hover-color;
+    border-color: sync-hover-color;
+
+  }
 }
 
 //font-weight: bold

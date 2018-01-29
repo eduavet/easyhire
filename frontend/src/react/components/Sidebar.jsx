@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 
 export default function Sidebar(props) {
-    return <div className="col-4">
+    return <div className="col-2 mt-4">
         <div className="list-group">
             <a href="#" className="list-group-item active">
                 Cras justo odio

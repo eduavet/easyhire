@@ -27,7 +27,7 @@ export default class Toolbar extends Component{
         });
     }
     render(){
-        return (<div className="container">
+        return (<div className="col-10">
             <Nav pills>
                 <Dropdown nav isOpen={this.state.selectOpen} toggle={this.toggleSelect}>
                     <DropdownToggle nav caret>
@@ -55,10 +55,9 @@ export default class Toolbar extends Component{
                 <NavItem>
                     <NavLink href="#"><i className="fas fa-trash-alt"></i></NavLink>
                 </NavItem>
-                <NavItem>
-                    <form className="form-inline my-2 my-lg-0">
+                <NavItem className="searchContainer">
+                    <form className="my-2 my-lg-0">
                         <Input className="form-control mr-lg-2" type="search" placeholder="Search" aria-label="Search"></Input>
-                            <Button className="btn btn-outline-success my-2 my-sm-0" type="submit">Search</Button>
                     </form>
                 </NavItem>
             </Nav>
