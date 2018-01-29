@@ -57,14 +57,29 @@ li{
   }
 }
 .folders {
+  .folder-actions{
+    opacity  0;
+    pointer-events: none;
+    transition all 0.7s ease;
+  }
   a {
-    color folder-color;
+     color folder-color;
+     &:hover {
+       text-decoration none;
+     }
+   }
+  li {
     &:hover {
-      text-decoration none;
+      .folder-actions{
+        pointer-events: auto;
+        opacity  1 ;
+        cursor: pointer;
+      }
     }
   }
 
 }
+
 .inner-addon {
   position: relative;
 }
@@ -89,6 +104,7 @@ li{
   color white
 }
 .active-folder{
+  border-left 7px solid blue-1-color;
   a {
     color: blue-1-color;
   }
@@ -103,5 +119,20 @@ li{
     color blue-2-color;
   }
 }
-
+.bg-light-blue{
+  background blue-1-color;
+  color font-white-color;
+  &:hover{
+    background blue-2-color;
+    color font-white-color;
+  }
+}
+.bg-dark-blue{
+  color font-white-color
+  background blue-2-color;
+}
+.folder-actions{
+  padding 3px;
+  margin 3px;
+}
 //font-weight: bold

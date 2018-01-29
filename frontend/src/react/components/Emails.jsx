@@ -28,7 +28,7 @@ export default class Emails extends Component{
                 {this.props.emails.map(item => {
                     return <tr key={item.email+item.date}>
                         <td><div className="checkbox checkbox-success"><input type="checkbox" key={item.email+item.date}></input></div></td>
-                        <td>{item.sender}</td>
+                        <td className={"text-center"}>{item.sender}</td>
                         <td>{item.subject}<span className="snippet"> - {item.snippet}</span></td>
                         <td>status</td>
                         <td>{item.date}</td>
