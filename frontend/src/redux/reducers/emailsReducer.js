@@ -8,7 +8,8 @@ const initialState = {
         { name:'Interview Scheluded', count: 7, icon: 'fa-clock', isActive: false },
         { name:'Created', count: 7, icon: 'fa-folder', isActive: false },
         { name: 'Not reviewed', count: 3, icon: 'fa-question', isActive: false },
-    ]
+    ],
+    loading : true,
 };
 
 /**
@@ -73,6 +74,7 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 name : payload.name,
+                loading: false,
                 errors: payload.errors,
                 successMsgs: payload.successMsgs
             };

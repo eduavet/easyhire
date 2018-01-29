@@ -24,7 +24,7 @@ export default class Logout extends Component {
                         Are you sure you want to log out?
                     </ModalBody>
                     <ModalFooter>
-                        <Button color="primary" onClick={this.continue}>I'm sure!</Button>{' '}
+                        <Button color="primary" onClick={this.continue}>I'm sure!</Button>
                         <Button color="secondary" onClick={this.toggle}>Cancel</Button>
                     </ModalFooter>
                 </Modal>
