@@ -13,7 +13,7 @@ class Dashboard extends Component{
     render(){
         return(<BrowserRouter>
             <div>
-                <Header/>
+                <Header username={this.props.username}/>
                 <div className="container-fluid mt-4">
                     <div className='row'>
                         <Sync />

@@ -15,6 +15,7 @@ const initialState = {
  * Action
  */
 const GET_EMAILS = 'Get emails';
+const GET_USERNAME = 'Get username';
 
 /**
  * Action creator
@@ -25,6 +26,13 @@ function getEmails(emails) {
         payload: { emails }
     };
 }
+
+function getUsername(name) {
+    return {
+        type: GET_USERNAME,
+        payload: { name }
+    };
+}
 export function asyncGetEmails() {
     return function(dispatch) {
         fetch('http://localhost:3000/api/getEmails', {
@@ -32,9 +40,22 @@ export function asyncGetEmails() {
         })
             .then((res) => res.json())
             .then(result => {
-                console.log(result.emailsToSend)
                 dispatch(getEmails(result.emailsToSend))
             })
+    }
+}
+
+export function asyncGetUsername() {
+    console.log('async user');
+    return function(dispatch) {
+        fetch('http://localhost:3000/api/getEmails', {
+            credentials: 'include',
+        })
+            .then((res) => res.json())
+            .then(result => {
+                console.log(result.name)
+                dispatch(getUsername(result.name));
+            }).catch(console.error);
     }
 }
 /**
@@ -49,6 +70,13 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 emails: [...state.emails, ...payload.emails],
+            };
+        case GET_USERNAME:
+            return {
+                ...state,
+                name : payload.name,
+                errors: payload.errors,
+                successMsgs: payload.successMsgs
             };
         default:
             return state;

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link, Route, Switch, BrowserRouter} from 'react-router-dom';
 
-import { Button, Nav, NavItem, Dropdown, DropdownItem, DropdownToggle, DropdownMenu, NavLink, Input } from 'reactstrap';
+import { Button, Nav, NavItem, Dropdown, DropdownItem, DropdownToggle, DropdownMenu, NavLink, Input, InputGroup, InputGroupAddon } from 'reactstrap';
 
 
 export default class Toolbar extends Component{
@@ -57,7 +57,10 @@ export default class Toolbar extends Component{
                 </NavItem>
                 <NavItem className="searchContainer">
                     <form className="my-2 my-lg-0">
-                        <Input className="form-control mr-lg-2" type="search" placeholder="Search" aria-label="Search"></Input>
+                        <div className="inner-addon left-addon">
+                            <i className="fa fa-search"></i>
+                            <Input className="form-control mr-lg-2" type="search" placeholder="Search" aria-label="Search"></Input>
+                        </div>
                     </form>
                 </NavItem>
             </Nav>
