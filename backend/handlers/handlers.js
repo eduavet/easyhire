@@ -42,7 +42,8 @@ Handlers.emails = (req, response) => {
   const emailsToSend = [];
 
   if(!userId){
-    response.end('Error: user not logged in');
+    response.json({emailsToSend});
+    return;
   }
 
   fetch('https://www.googleapis.com/gmail/v1/users/' + userId + '/messages?access_token=' + accessToken)

@@ -15,7 +15,6 @@ connectMongo();
 require('./config/passport');
 const app = express();
 
-app.use(logger('combined'));
 app.use(cors());
 app.use((req, res, next) => {
     res.set('Access-Control-Allow-Origin', 'http://localhost:8080');

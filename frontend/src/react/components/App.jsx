@@ -17,10 +17,9 @@ class App extends Component {
 
     }
     componentWillMount(){
-        this.props.getEmails();
         this.props.getUsername();
+        this.props.getEmails();
     }
-
 
     render() {
         return (
