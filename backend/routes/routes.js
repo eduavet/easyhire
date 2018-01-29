@@ -28,4 +28,6 @@ router.get('/auth/google/callback',
 //     // console.log(req.profile);
 //     res.send({ hello: 'world' });
 // });
-router.get('/api/getEmails', handlers.getEmails);
+router.get('/api/emails', handlers.emails);
+router.get('/api/username', handlers.username);
+router.get('/auth/logout', handlers.logout);

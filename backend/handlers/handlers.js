@@ -25,13 +25,26 @@ Handlers.apiAddUser = (req, res) => {
   })
 }
 
-Handlers.getEmails = (req, response) => {
+Handlers.username = (req, res) => {
+  res.json(req.session);
+  if(req.session.name) {
+    res.end(req.session.name)
+  } else {
+    res.end('');
+  }
+}
+
+Handlers.emails = (req, response) => {
 
   const userId = req.session.userID;
   const accessToken = req.session.accessToken;
   const emailsOnPage = 5;
   const name = req.session.name;
-  const emailsToSend = []
+  const emailsToSend = [];
+
+  if(!userId){
+    response.end('Error: user not logged in');
+  }
 
   fetch('https://www.googleapis.com/gmail/v1/users/' + userId + '/messages?access_token=' + accessToken)
     .then(res => res.json())
@@ -74,6 +87,11 @@ Handlers.getEmails = (req, response) => {
     .catch(console.error);
 }
 
+Handlers.logout = (req, res) => {
+  ["userID", "accessToken", "name", "passport"].forEach(e => delete req.session[e]);
+  res.redirect("http://localhost:8080");
+}
+
 const decodeHtmlEntity = (str) => {
   return str.replace(/&#(\d+);/g, function(match, dec) {
     return String.fromCharCode(dec);
@@ -89,7 +107,7 @@ const extractEmailData = (res) => {
     return item.name == 'Subject'
   })[0].value
   const snippet = decodeHtmlEntity(res.snippet);
-  const date = moment.unix(res.internalDate / 1000).format('MMMM Do YYYY, h:mm:ss a');
+  const date = moment.unix(res.internalDate / 1000).format('DD/MM/YYYY, HH:mm:ss');
   return {emailID, sender, subject, snippet, date};
 }
 
