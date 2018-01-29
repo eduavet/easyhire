@@ -22,6 +22,7 @@ class App extends Component {
     }
     componentWillMount(){
         this.props.getEmails();
+        console.log(this.props.folders)
         // fetch('http://localhost:3000/api/getEmails',{
         //     credentials: 'include',
         // })
@@ -40,7 +41,7 @@ class App extends Component {
             <BrowserRouter>
                 <div className="App">
                     <a href="http://localhost:3000/auth/google">Log in</a>
-                <Dashboard emails={this.props.emails}/>
+                <Dashboard emails={this.props.emails} folders={ this.props.folders }/>
                         {/*<div className="g-signin2" ref="googleBtn" data-onsuccess="onSignIn"></div>*/}
                 </div>
             </BrowserRouter>
@@ -50,7 +51,8 @@ class App extends Component {
 
 function mapStateToProps(state) {
     return {
-        emails: state.emails
+        emails: state.emails,
+        folders: state.folders,
     };
 }
 
