@@ -5,7 +5,7 @@ import { Link, Route, Switch, BrowserRouter} from 'react-router-dom';
 import Dashboard from './Dashboard.jsx'
 import Sidebar from './sidebar.jsx';
 import jwt from 'jsonwebtoken';
-import { asyncGetEmails } from '../../redux/reducers/emailsReducer';
+import { asyncGetEmails, asyncGetUsername } from '../../redux/reducers/emailsReducer';
 
 
 const url = 'http://localhost:3000/api/addUser/';
@@ -22,6 +22,8 @@ class App extends Component {
     }
     componentWillMount(){
         this.props.getEmails();
+        this.props.getUsername();
+
         // fetch('http://localhost:3000/api/getEmails',{
         //     credentials: 'include',
         // })
@@ -40,7 +42,7 @@ class App extends Component {
             <BrowserRouter>
                 <div className="App">
                     <a href="http://localhost:3000/auth/google">Log in</a>
-                <Dashboard emails={this.props.emails}/>
+                <Dashboard emails={this.props.emails} username={this.props.username}/>
                         {/*<div className="g-signin2" ref="googleBtn" data-onsuccess="onSignIn"></div>*/}
                 </div>
             </BrowserRouter>
@@ -50,13 +52,15 @@ class App extends Component {
 
 function mapStateToProps(state) {
     return {
-        emails: state.emails
+        emails: state.emails,
+        username: state.name
     };
 }
 
 function mapDispatchToProps(dispatch) {
     return {
         getEmails: () => dispatch(asyncGetEmails()),
+        getUsername: ()=>dispatch(asyncGetUsername())
         // example2: (param) => dispatch(example(param)),
     };
 }

@@ -8,7 +8,6 @@ export default class Header extends Component{
 
     render() {
         return (<div>
-
                 <Navbar color="faded" light expand="md" className="header navbar-dark">
                     <NavbarBrand href="/">
                         <img src="/src/assets/images/logo.png" width="60" height="40" className="d-inline-block align-top" alt=""/>
@@ -16,7 +15,7 @@ export default class Header extends Component{
                     </NavbarBrand>
                         <Nav className="ml-auto navbar-nav" navbar>
                             <NavItem  className="navbar-text text-white">
-                                    Hi username!
+                                    Hi {this.props.username}!
                             </NavItem>
                             <NavItem>
                                 <Link to="/settings" className="nav-link">
