@@ -20,7 +20,7 @@ class Dashboard extends Component{
                         <Toolbar/>
                     </div>
                     <div className="row">
-                        <Sidebar />
+                        <Sidebar folders = { this.props.folders } />
                         <Emails emails={ this.props.emails }/>
                     </div>
                 </div>

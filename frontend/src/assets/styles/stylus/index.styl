@@ -1,9 +1,15 @@
 main-color = #B9CC1B;
 header-color = #000099;
+blue-1-color = #418fde;
+blue-2-color = #0855a6;
 sync-color = #007bff9c;
 sync-hover-color = #007bff9c;
+//folder-active-color = #FFFFFF;
+folder-color = #585353;
+folder-active-color = #7b7bc1;
+font-white-color = #FFFFFF;
 .header {
-  background : header-color;
+  background : blue-2-color;
 }
 
 li{
@@ -41,14 +47,22 @@ li{
 .sync-btn{
   width 100%;
   margin 0px auto;
-  background: sync-color;
-  border-color: sync-color;
+  background: blue-1-color;
+  border-color: blue-1-color;
+  color: font-white-color
   &:hover{
-    background sync-hover-color;
-    border-color: sync-hover-color;
+    background blue-2-color;
+    border-color: blue-2-color;
 
   }
 }
+.folders{
+  a{
+    color folder-color;
+    &:hover{
+      text-decoration none;
+    }
+  }
 
 
 .inner-addon {
@@ -68,4 +82,26 @@ li{
 .left-addon .fa  { left:  0px;}
 
 .left-addon input  { padding-left:  30px; }
+
+
+.folder-badge{
+  background folder-color;
+  color white
+}
+.active-folder{
+  a {
+    color: blue-1-color;
+  }
+  .folder-badge{
+    background blue-1-color;
+    color white
+  }
+}
+
+.toolbar{
+  a{
+    color blue-2-color;
+  }
+}
+
 //font-weight: bold

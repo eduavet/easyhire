@@ -28,9 +28,9 @@ export default class Toolbar extends Component{
     }
     render(){
         return (<div className="col-10">
-            <Nav pills>
+            <Nav pills className="toolbar">
                 <Dropdown nav isOpen={this.state.selectOpen} toggle={this.toggleSelect}>
-                    <DropdownToggle nav caret>
+                    <DropdownToggle nav caret >
                         Select
                     </DropdownToggle>
                     <DropdownMenu>

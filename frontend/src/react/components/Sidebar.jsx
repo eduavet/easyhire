@@ -4,14 +4,26 @@ import PropTypes from 'prop-types';
 
 export default function Sidebar(props) {
     return <div className="col-2 mt-4">
-        <div className="list-group">
-            <a href="#" className="list-group-item active">
-                Cras justo odio
-            </a>
-            <a href="#" className="list-group-item list-group-item-action">Dapibus ac facilisis in</a>
-            <a href="#" className="list-group-item list-group-item-action">Morbi leo risus</a>
-            <a href="#" className="list-group-item list-group-item-action">Porta ac consectetur ac</a>
-            <a href="#" className="list-group-item list-group-item-action disabled">Vestibulum at eros</a>
-        </div>
+        <ul className="list-group folders">
+            { props.folders.map((folder, i) => <Folder key = {i} folder = { folder } />)}
+            <li className={ "list-group-item list-group-item-action " }>
+                <a href="#" >
+                    <i className="fa fa-plus-circle" aria-hidden="true"></i>
+                    &nbsp; New Folder
+                </a>
+            </li>
+        </ul>
     </div>
+}
+
+function Folder(props) {
+    const isActive = props.folder.isActive ? 'active-folder' : '';
+    const icon = props.folder.icon;
+    return <li className={ "list-group-item list-group-item-action " +  isActive }>
+        <a href="#" >
+            <i className={ "fa " + icon} aria-hidden="true"></i>
+            &nbsp; {props.folder.name}
+            &nbsp;({props.folder.count})
+            </a>
+    </li>
 }
