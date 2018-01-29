@@ -58,7 +58,7 @@ export default class Toolbar extends Component{
                 <NavItem className="searchContainer">
                     <form className="my-2 my-lg-0">
                         <div className="inner-addon left-addon">
-                            <i className="fa fa-search"></i>
+                            <i className="fa fa-search search-icon"></i>
                             <Input className="form-control mr-lg-2" type="search" placeholder="Search" aria-label="Search"></Input>
                         </div>
                     </form>

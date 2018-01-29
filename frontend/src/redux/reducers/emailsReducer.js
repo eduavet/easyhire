@@ -35,25 +35,23 @@ function getUsername(name) {
 }
 export function asyncGetEmails() {
     return function(dispatch) {
-        fetch('http://localhost:3000/api/getEmails', {
+        fetch('http://localhost:3000/api/emails', {
             credentials: 'include',
         })
             .then((res) => res.json())
             .then(result => {
                 dispatch(getEmails(result.emailsToSend))
-            })
+            }).catch(console.error);
     }
 }
 
 export function asyncGetUsername() {
-    console.log('async user');
     return function(dispatch) {
-        fetch('http://localhost:3000/api/getEmails', {
+        fetch('http://localhost:3000/api/username', {
             credentials: 'include',
         })
-            .then((res) => res.json())
+            .then(res=>res.json())
             .then(result => {
-                console.log(result.name)
                 dispatch(getUsername(result.name));
             }).catch(console.error);
     }

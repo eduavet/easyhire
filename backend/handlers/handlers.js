@@ -26,11 +26,10 @@ Handlers.apiAddUser = (req, res) => {
 }
 
 Handlers.username = (req, res) => {
-  res.json(req.session);
   if(req.session.name) {
-    res.end(req.session.name)
+    res.json({name : req.session.name});
   } else {
-    res.end('');
+      res.json({name : ''});
   }
 }
 

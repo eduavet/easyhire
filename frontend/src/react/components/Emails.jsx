@@ -12,7 +12,7 @@ export default class Emails extends Component{
         }
     }
     render(){
-        return(<div className="col -10 mt-  4">
+        return(<div className="col-10 mt-4">
             <Table size="sm">
                 <thead>
                 <tr>
