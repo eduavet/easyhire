@@ -5,7 +5,7 @@ const initialState = {
         { name:'Inbox', count: 9, icon: 'fa-inbox', isActive: true },
         { name:'Approved', count: 3, icon: 'fa-check-square', isActive: false },
         { name:'Rejected', count: 1, icon: 'fa-times-circle', isActive: false },
-        { name:'Interview Scheluded', count: 7, icon: 'fa-clock', isActive: false },
+        { name:'Interview Scheduled', count: 7, icon: 'fa-clock', isActive: false },
         { name:'Created', count: 7, icon: 'fa-folder', isActive: false },
         { name: 'Not reviewed', count: 3, icon: 'fa-question', isActive: false },
     ],
