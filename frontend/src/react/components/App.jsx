@@ -5,7 +5,7 @@ import { Link, Route, Switch, BrowserRouter} from 'react-router-dom';
 import Dashboard from './Dashboard.jsx'
 import Sidebar from './sidebar.jsx';
 import { asyncGetEmails, asyncGetUsername } from '../../redux/reducers/emailsReducer';
-
+import Login from './Login.jsx'
 
 const url = 'http://localhost:3000/api/addUser/';
 
@@ -14,23 +14,22 @@ const url = 'http://localhost:3000/api/addUser/';
 class App extends Component {
     constructor(){
         super();
-        this.state = {
-            emails: [],
-        }
 
     }
     componentWillMount(){
         this.props.getEmails();
         this.props.getUsername();
-
     }
+
 
     render() {
         return (
             <BrowserRouter>
                 <div className="App">
-                    <a href="http://localhost:3000/auth/google">Log in</a>
-                    <Dashboard emails={this.props.emails} username={this.props.username} folders={ this.props.folders }/>
+                    {
+                        !this.props.loading?this.props.username?<Dashboard emails={this.props.emails} username={this.props.username} folders={ this.props.folders }/>:<Login/>:''
+                    }
+
                 </div>
             </BrowserRouter>
         );
@@ -42,6 +41,7 @@ function mapStateToProps(state) {
         emails: state.emails,
         username: state.name,
         folders: state.folders,
+        loading: state.loading,
 
     };
 }
