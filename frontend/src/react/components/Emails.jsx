@@ -8,8 +8,13 @@ export default class Emails extends Component{
     constructor(){
         super();
         this.state = {
+            value: false,
             emails: [{sender: "Alice", subject: "JS developer", snippet: "Dear Tatevik", status: "Approved", date: '12/02/18', attachment: true}]
         }
+    }
+    toggleCheckbox=(item)=>{
+        this.props.isChecked(item)
+
     }
     render(){
         return(<div className="col-10 mt-4">
@@ -27,7 +32,9 @@ export default class Emails extends Component{
                 <tbody>
                 {this.props.emails.map(item => {
                     return <tr key={item.email+item.date}>
-                        <td><div className="checkbox checkbox-success"><input type="checkbox" key={item.email+item.date}></input></div></td>
+                        <td><div className="checkbox checkbox-success">
+                            <input type="checkbox" key={item.email+item.date} checked={!!item.isChecked} onClick={()=>this.toggleCheckbox(item)} ref={(a) => {this._inputElement = a}}>
+                            </input></div></td>
                         <td className={"text-center"}>{item.sender}</td>
                         <td>{item.subject}<span className="snippet"> - {item.snippet}</span></td>
                         <td>status</td>
