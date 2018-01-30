@@ -34,4 +34,4 @@ router.get('/auth/logout', handlers.logout);
 router.post('/api/folders', handlers.createFolder);
 router.post('/api/emails/move', handlers.emailsMoveToFolder);
 router.put('/api/folders/:ID', handlers.updateFolder);
-
+router.delete('/api/folders/:ID', handlers.deleteFolder);

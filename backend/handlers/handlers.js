@@ -4,6 +4,7 @@ const moment = require('moment');
 const emailsModel = require('../models/emailsModel.js')
 const usersModel = require('../models/usersModel.js')
 const Handlers = {};
+
 module.exports = Handlers;
 
 Handlers.apiAddUser = (req, res) => {
@@ -173,25 +174,47 @@ Handlers.createFolder = (req, res) => {
 
 Handlers.updateFolder = (req, res) => {
   req.checkBody('folderName').notEmpty().withMessage('Folder name is required');
-  emailsModel.find({userId: req.session.userID})
-    .then((doc) => {
-      console.log(req.session);
-      // console.log(doc);
-      res.json({yo: req.session.userID})
-      // , "allEmails._id": req.params.ID
-      // doc.allEmail[0].icon = 123;
-      // return doc.save()
+  const errors = req.validationErrors();
+  if (errors) {
+    return res.json({ errors, updatedFolderName: '' });
+  }
+  emailsModel.findOne({userId: req.session.userID})
+    .then((result) => {
+      result.allEmails.forEach((item) => {
+        if(item._id == req.params.ID) {
+          item.status = req.body.folderName
+        }
+      })
+      result.save();
+      return res.json({updatedFolderName: req.body.folderName, errors: []})
     })
-    // .then(r => res.json(r));
-  // emailsModel.update({userId: req.session.userID, "allEmails._id": req.params.ID}, {$set: {"allEmails._status": req.body.folderName}})
-  // req.params.ID
-
+    .catch(err => res.json({ errors: [{ msg: 'Something went wrong' }], updatedFolderName: '' }))
 }
-// console.log(util.inspect(res, { depth: 8 }));
-// console.log(res.payload.parts, 'payload parts')
-// console.log(Buffer.from(res.payload.parts[0].body.data, 'base64').toString()) //actual email text
+
+Handlers.deleteFolder = (req, res) => {
+  emailsModel.findOne({userId: req.session.userID})
+    .then((result) => {
+      result.allEmails.forEach((item, index, object) => {
+        if(item._id == req.params.ID) {
+          if(item.emails.length < 1) {
+            object.splice(index, 1);
+          } else {
+            return res.json({ errors: [{ msg: 'Folder contains emails and cannot be deleted' }], deletedFolderID: '' });
+          }
+        }
+      })
+      result.save();
+      return res.json({deletedFolderID: req.params.ID, errors: []})
+    })
+    .catch(err => res.json({errors: err, deletedFolderID: ''}))
+}
 
 Handlers.emailsMoveToFolder = (req, res)=>{
     console.log(req.body)
     res.send()
 }
+
+
+// console.log(util.inspect(res, { depth: 8 }));
+// console.log(res.payload.parts, 'payload parts')
+// console.log(Buffer.from(res.payload.parts[0].body.data, 'base64').toString()) //actual email text

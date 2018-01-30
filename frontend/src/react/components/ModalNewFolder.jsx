@@ -11,7 +11,7 @@ class ModalNewFolder extends Component {
       modal: false
     };
   }
-  
+
   toggle = () => {
     this.setState({ modal: !this.state.modal });
   };
@@ -19,7 +19,7 @@ class ModalNewFolder extends Component {
   createFolder = (e) => {
     e.preventDefault();
     const body  = { folderName: this.refs.createFolder.value };
-      this.setState({ modal: false });
+    this.setState({ modal: false });
     this.props.createFolder(body)
   };
 
