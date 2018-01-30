@@ -2,12 +2,12 @@ const initialState = {
     emails: [],
     name: '',
     folders: [
-        { name:'Inbox', count: 9, icon: 'fa-inbox', isActive: true },
-        { name:'Approved', count: 3, icon: 'fa-check-square', isActive: false },
-        { name:'Rejected', count: 1, icon: 'fa-times-circle', isActive: false },
-        { name:'Interview Scheduled', count: 7, icon: 'fa-clock', isActive: false },
-        { name:'Created', count: 7, icon: 'fa-folder', isActive: false },
-        { name: 'Not reviewed', count: 3, icon: 'fa-question', isActive: false },
+        // { name:'Inbox', count: 9, icon: 'fa-inbox', isActive: true },
+        // { name:'Approved', count: 5, icon: 'fa-check-square', isActive: false },
+        // { name:'Rejected', count: 1, icon: 'fa-times-circle', isActive: false },
+        // { name:'Interview Scheduled', count: 7, icon: 'fa-clock', isActive: false },
+        // { name:'Created', count: 7, icon: 'fa-folder', isActive: false },
+        // { name: 'Not reviewed', count: 3, icon: 'fa-question', isActive: false },
     ],
     loading : true,
     errors: [],
@@ -25,10 +25,10 @@ const DELETE_FOLDER = 'Delete folder';
 /**
  * Action creator
  */
-function getEmails(emails) {
+function getEmails(result) {
     return {
         type: GET_EMAILS,
-        payload: { emails }
+        payload: { emails: result.emailsToSend, folders: result.folders }
     };
 }
 
@@ -63,7 +63,7 @@ export function asyncGetEmails() {
         })
             .then((res) => res.json())
             .then(result => {
-                dispatch(getEmails(result.emailsToSend))
+                dispatch(getEmails(result))
             }).catch(console.error);
     }
 }
@@ -92,7 +92,6 @@ export function asyncCreateFolder(body) {
         })
             .then((res) => res.json())
             .then(result => {
-                console.log(result)
                 dispatch(createFolder(result))
             }).catch(console.error);
     }
@@ -141,6 +140,7 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 emails: [...state.emails, ...payload.emails],
+                folders: payload.folders
             };
         case GET_USERNAME:
             return {

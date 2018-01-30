@@ -71,7 +71,7 @@ Handlers.emails = (req, response) => {
                     .then(res => {
                       if(res.length < 1) {
                         console.log('email not found');
-                        emailsModel.update({userId:userId, "allEmails.status": "Approved"},{ $push: { "allEmails.$.emails": { emailId: id, isRead: false }}}, (err, docs) => {
+                        emailsModel.update({userId:userId, "allEmails.status": "Not reviewed"},{ $push: { "allEmails.$.emails": { emailId: id, isRead: false }}}, (err, docs) => {
                           if(err) console.error(err);
                         })
                       }
@@ -89,7 +89,8 @@ Handlers.emails = (req, response) => {
                 id: item._id,
                 name: item.status,
                 count: item.emails.length,
-                icon: item.icon
+                icon: item.icon,
+                isActive: false
               })
             });
           }

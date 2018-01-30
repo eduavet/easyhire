@@ -19,7 +19,7 @@ app.use(cors());
 app.use((req, res, next) => {
     res.set('Access-Control-Allow-Origin', 'http://localhost:8080');
     res.set('Access-Control-Allow-Credentials', true);
-    res.set("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE");
+    // res.set("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE");
     next();
 });
 app.use(bodyParser.urlencoded({ extended: false }));
