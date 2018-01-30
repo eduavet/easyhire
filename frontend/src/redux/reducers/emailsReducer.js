@@ -10,6 +10,7 @@ const initialState = {
         { name: 'Not reviewed', count: 3, icon: 'fa-question', isActive: false },
     ],
     loading : true,
+    errors: [],
 };
 
 /**
@@ -17,6 +18,9 @@ const initialState = {
  */
 const GET_EMAILS = 'Get emails';
 const GET_USERNAME = 'Get username';
+const CREATE_FOLDER = 'Create folder';
+const UPDATE_FOLDER = 'Update folder';
+const DELETE_FOLDER = 'Delete folder';
 
 /**
  * Action creator
@@ -32,6 +36,24 @@ function getUsername(name) {
     return {
         type: GET_USERNAME,
         payload: { name }
+    };
+}
+function createFolder(response) {
+    return {
+        type: CREATE_FOLDER,
+        payload: { response }
+    };
+}
+function updateFolder(response) {
+    return {
+        type: UPDATE_FOLDER,
+        payload: { response }
+    };
+}
+function deleteFolder(response) {
+    return {
+        type: DELETE_FOLDER,
+        payload: { response }
     };
 }
 export function asyncGetEmails() {
@@ -57,6 +79,56 @@ export function asyncGetUsername() {
             }).catch(console.error);
     }
 }
+export function asyncCreateFolder(body) {
+    return function(dispatch) {
+        fetch('http://localhost:3000/api/folders', {
+            method: 'POST',
+            body: JSON.stringify(body),
+            headers: {
+                "Content-Type": "application/json",
+                credentials: 'include',
+            },
+
+        })
+            .then((res) => res.json())
+            .then(result => {
+                console.log(result)
+                dispatch(createFolder(result))
+            }).catch(console.error);
+    }
+}
+export function asyncUpdateFolder(body) {
+    return function(dispatch) {
+        fetch('http://localhost:3000/api/folders/', {
+            method: 'PUT',
+            body: JSON.stringify(body),
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: 'include',
+        })
+            .then((res) => res.json())
+            .then(result => {
+                dispatch(createFolder(result))
+            }).catch(console.error);
+    }
+}
+export function asyncDeleteFolder(body) {
+    return function(dispatch) {
+        fetch('http://localhost:3000/api/folders/', {
+            method: 'DELETE',
+            body: JSON.stringify(body),
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: 'include',
+        })
+            .then((res) => res.json())
+            .then(result => {
+                dispatch(createFolder(result))
+            }).catch(console.error);
+    }
+}
 /**
  * Reducer
  */
@@ -78,6 +150,12 @@ export default function(state = initialState, action) {
                 errors: payload.errors,
                 successMsgs: payload.successMsgs
             };
+        case CREATE_FOLDER:
+            return state;
+        case UPDATE_FOLDER:
+            return state;
+        case DELETE_FOLDER:
+            return state;
         default:
             return state;
     }

@@ -123,6 +123,22 @@ const buildNewEmailModel = (userId, id) => {
   });
 }
 
+Handlers.createFolder = (req, res) => {
+    req.checkBody('folderName').notEmpty().withMessage('Folder name is required');
+    const errors = req.validationErrors();
+    if (errors) {
+        return res.send({ ok:0, errors: errors });
+    }
+    const userId = req.session.userID;
+    emailsModel.update({userId:userId},{ $push: { allEmails: [{emails: [], status :req.body.folderName} ]}})
+        .then(res => {
+            console.log(res);
+            res.send({ ok:1, errors: [ { msg: 'Success' }]});
+        })
+        .catch(err => {
+            res.send({ ok:0, errors: [ { msg: 'Something went wrong' }]});
+        })
+};
 // console.log(util.inspect(res, { depth: 8 }));
 // console.log(res.payload.parts, 'payload parts')
 // console.log(Buffer.from(res.payload.parts[0].body.data, 'base64').toString()) //actual email text

@@ -5,28 +5,30 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
 
 export default function Sidebar(props) {
-    return <div className="col-2 mt-4">
-        <ul className="list-group folders">
-            { props.folders.map((folder, i) => <Folder key = {i} folder = { folder } />)}
-            <NewFolderModal />
-        </ul>
-    </div>
+    return (
+        <div className="col-2 mt-4">
+            <ul className="list-group folders">
+                { props.folders.map((folder, i) => <Folder key = {i} folder = { folder } />)}
+                <NewFolderModal createFolder={props.createFolder} inputFolderNameRef={ props.inputFolderNameRef} />
+            </ul>
+        </div>
+    )
 }
 
-function Folder(props) {
+function Folder (props) {
     const isActive = props.folder.isActive ? 'active-folder' : '';
     const icon = props.folder.icon;
-    return <li className={ "list-group-item list-group-item-action " +  isActive }>
-        <a href="#" >
-            <i className={ "fa " + icon} aria-hidden="true"></i>
-            &nbsp; {props.folder.name}
-            &nbsp;({props.folder.count})
-        </a>
-        <DeleteFolderModal />
-        {/*<i className="fa fa-trash float-right folder-actions" aria-hidden="true"></i>*/}
-        <EditFolderModal />
-        {/*<i className="fa fa-pencil-alt float-right folder-actions" aria-hidden="true"></i>*/}
-    </li>
+    return (
+        <li className={ "list-group-item list-group-item-action " +  isActive }>
+            <a href="#" >
+                <i className={ "fa " + icon} aria-hidden="true"></i>
+                &nbsp; {props.folder.name}
+                &nbsp;({props.folder.count})
+            </a>
+            <DeleteFolderModal />
+            <EditFolderModal />
+        </li>
+    )
 }
 
 class NewFolderModal extends Component {
@@ -41,6 +43,7 @@ class NewFolderModal extends Component {
         this.setState({ modal: !this.state.modal });
     };
     continue=()=>{
+
     };
     render() {
         return (
@@ -52,17 +55,18 @@ class NewFolderModal extends Component {
                 <Modal isOpen={this.state.modal} toggle={this.toggle}>
                     <ModalHeader toggle={this.toggle}>Create New Folder</ModalHeader>
                     <ModalBody>
-                        <form>
+                        <form action={"http://localhost:3000/api/folders"} method={"post"}>
                             <div className="form-group">
                                 <label htmlFor="folderName">Folder Name</label>
-                                <input type="text" className="form-control" id="folderName"  placeholder="Enter folder name" />
+                                <input type="text" ref={ this.props.inputFolderNameRef} className="form-control" id="folderName"  placeholder="Enter folder name" />
+                            </div>
+                            <hr className={"mt-4"}/>
+                            <div className="form-group">
+                                <Button color="secondary float-right" onClick={this.toggle}>Cancel</Button>
+                                <button className="btn bg-light-blue float-right mr-2" onClick={this.props.createFolder}>Save!</button>
                             </div>
                         </form>
                     </ModalBody>
-                    <ModalFooter>
-                        <button className="btn bg-light-blue" onClick={this.continue}>Save!</button>
-                        <Button color="secondary" onClick={this.toggle}>Cancel</Button>
-                    </ModalFooter>
                 </Modal>
             </li>
         )
