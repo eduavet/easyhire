@@ -2,14 +2,15 @@ const initialState = {
     emails: [],
     name: '',
     folders: [
-        { name:'Inbox', count: 9, icon: 'fa-inbox', isActive: true },
-        { name:'Approved', count: 3, icon: 'fa-check-square', isActive: false },
-        { name:'Rejected', count: 1, icon: 'fa-times-circle', isActive: false },
-        { name:'Interview Scheduled', count: 7, icon: 'fa-clock', isActive: false },
-        { name:'Created', count: 7, icon: 'fa-folder', isActive: false },
-        { name: 'Not reviewed', count: 3, icon: 'fa-question', isActive: false },
+        // { name:'Inbox', count: 9, icon: 'fa-inbox', isActive: true },
+        // { name:'Approved', count: 5, icon: 'fa-check-square', isActive: false },
+        // { name:'Rejected', count: 1, icon: 'fa-times-circle', isActive: false },
+        // { name:'Interview Scheduled', count: 7, icon: 'fa-clock', isActive: false },
+        // { name:'Created', count: 7, icon: 'fa-folder', isActive: false },
+        // { name: 'Not reviewed', count: 3, icon: 'fa-question', isActive: false },
     ],
     loading : true,
+    errors: [],
 };
 
 /**
@@ -17,16 +18,21 @@ const initialState = {
  */
 const GET_EMAILS = 'Get emails';
 const GET_USERNAME = 'Get username';
+
 const IS_CHECKED = 'Is checked';
 const SELECT_ALL = 'Select all';
 const SELECT_NONE = 'Select none';
+const CREATE_FOLDER = 'Create folder';
+const UPDATE_FOLDER = 'Update folder';
+const DELETE_FOLDER = 'Delete folder';
+
 /**
  * Action creator
  */
-function getEmails(emails) {
+function getEmails(result) {
     return {
         type: GET_EMAILS,
-        payload: { emails }
+        payload: { emails: result.emailsToSend, folders: result.folders }
     };
 }
 
@@ -37,6 +43,24 @@ function getUsername(name) {
         payload: { name }
     };
 }
+function createFolder(response) {
+    return {
+        type: CREATE_FOLDER,
+        payload: { response }
+    };
+}
+function updateFolder(response) {
+    return {
+        type: UPDATE_FOLDER,
+        payload: { response }
+    };
+}
+function deleteFolder(response) {
+    return {
+        type: DELETE_FOLDER,
+        payload: { response }
+    };
+}
 export function asyncGetEmails() {
     return function(dispatch) {
         fetch('http://localhost:3000/api/emails', {
@@ -44,7 +68,7 @@ export function asyncGetEmails() {
         })
             .then((res) => res.json())
             .then(result => {
-                dispatch(getEmails(result.emailsToSend))
+                dispatch(getEmails(result))
             }).catch(console.error);
     }
 }
@@ -60,6 +84,7 @@ export function asyncGetUsername() {
             }).catch(console.error);
     }
 }
+
 export function isChecked(item){
     return {
         type: IS_CHECKED,
@@ -70,18 +95,71 @@ export function selectAll(emails){
     return {
         type: SELECT_ALL,
         payload: {emails : emails.map(email=>{
-            email.isChecked=true
-            return email}
-            )}
+            email.isChecked=true;
+            return email;
+        }
+        )}
     }
 }
-export function selectNone(emails){
+export function selectNone(emails) {
     return {
         type: SELECT_NONE,
-        payload: {emails : emails.map(email=>{
-            email.isChecked=false
-            return email}
-        )}
+        payload: {
+            emails: emails.map(email => {
+                    email.isChecked = false;
+                    return email;
+                }
+            )
+        }
+    }
+}
+export function asyncCreateFolder(body) {
+    return function(dispatch) {
+        fetch('http://localhost:3000/api/folders', {
+            method: 'POST',
+            body: JSON.stringify(body),
+            headers: {
+                "Content-Type": "application/json",
+                credentials: 'include',
+            },
+
+        })
+            .then((res) => res.json())
+            .then(result => {
+                dispatch(createFolder(result))
+            }).catch(console.error);
+    }
+}
+export function asyncUpdateFolder(body) {
+    return function(dispatch) {
+        fetch('http://localhost:3000/api/folders/', {
+            method: 'PUT',
+            body: JSON.stringify(body),
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: 'include',
+        })
+            .then((res) => res.json())
+            .then(result => {
+                dispatch(createFolder(result))
+            }).catch(console.error);
+    }
+}
+export function asyncDeleteFolder(body) {
+    return function(dispatch) {
+        fetch('http://localhost:3000/api/folders/', {
+            method: 'DELETE',
+            body: JSON.stringify(body),
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: 'include',
+        })
+            .then((res) => res.json())
+            .then(result => {
+                dispatch(createFolder(result))
+            }).catch(console.error);
     }
 }
 /**
@@ -96,6 +174,7 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 emails: [...state.emails, ...payload.emails.map(email=>Object.assign({}, email, {isChecked: !!email.isChecked}))],
+                folders: payload.folders
             };
         case GET_USERNAME:
             return {
@@ -114,17 +193,23 @@ export default function(state = initialState, action) {
                     }
                     return email;
                 })
-            }
+            };
         case SELECT_ALL:
             return {
                 ...state,
                 emails: payload.emails
-            }
+            };
         case SELECT_NONE:
             return {
                 ...state,
                 emails: payload.emails
-            }
+            };
+        case CREATE_FOLDER:
+            return state;
+        case UPDATE_FOLDER:
+            return state;
+        case DELETE_FOLDER:
+            return state;
         default:
             return state;
     }

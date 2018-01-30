@@ -37,7 +37,7 @@ Handlers.emails = (req, response) => {
 
   const userId = req.session.userID;
   const accessToken = req.session.accessToken;
-  const emailsOnPage = 5;
+  const emailsOnPage = 3;
   const name = req.session.name;
   const emailsToSend = [];
 
@@ -50,6 +50,7 @@ Handlers.emails = (req, response) => {
     .then(res => res.json())
     .then(res => {
       const messages = res.messages
+      const folders = [];
       const promises = [];
 
       for(let i = 0; i < emailsOnPage; i++) {
@@ -61,26 +62,48 @@ Handlers.emails = (req, response) => {
             emailsModel.find({"userId": userId})
               .then(res => {
                 if(res.length < 1) {
+                  console.log('user not found');
                   const newEmail = buildNewEmailModel(userId, id);
                   newEmail.save();
                 } else {
+                  // console.log('user found');
                   emailsModel.find({userId:userId, "allEmails.emails.emailId": id})
                     .then(res => {
                       if(res.length < 1) {
-                        emailsModel.update({userId:userId, "allEmails.status": "Not reviewed"},{ $push: { "allEmails.$.emails": { emailId: id, isRead: false }}})
+                        console.log('email not found');
+                        emailsModel.update({userId:userId, "allEmails.status": "Not reviewed"},{ $push: { "allEmails.$.emails": { emailId: id, isRead: false }}}, (err, docs) => {
+                          if(err) console.error(err);
+                        })
                       }
                     })
                 }
               })
           }))
       }
+      promises.push(emailsModel.find({"userId": userId})
+        .then(res => {
+          if(res.length > 0) {
+            res[0].allEmails.forEach((_item) => {
+              const item = _item.toJSON();
+              folders.push({
+                id: item._id,
+                name: item.status,
+                count: item.emails.length,
+                icon: item.icon,
+                isActive: false
+              })
+            });
+          }
+        }))
 
       return Promise.all(promises)
         .then(() => {
           const packed = {
             name,
-            emailsToSend
+            emailsToSend,
+            folders
           }
+          // console.log(packed);
           response.json(packed)
         })
     })
@@ -123,6 +146,22 @@ const buildNewEmailModel = (userId, id) => {
   });
 }
 
+Handlers.createFolder = (req, res) => {
+    req.checkBody('folderName').notEmpty().withMessage('Folder name is required');
+    const errors = req.validationErrors();
+    if (errors) {
+        return res.send({ ok:0, errors: errors });
+    }
+    const userId = req.session.userID;
+    emailsModel.update({userId:userId},{ $push: { allEmails: [{emails: [], status :req.body.folderName} ]}})
+        .then(res => {
+            console.log(res);
+            res.send({ ok:1, errors: [ { msg: 'Success' }]});
+        })
+        .catch(err => {
+            res.send({ ok:0, errors: [ { msg: 'Something went wrong' }]});
+        })
+};
 // console.log(util.inspect(res, { depth: 8 }));
 // console.log(res.payload.parts, 'payload parts')
 // console.log(Buffer.from(res.payload.parts[0].body.data, 'base64').toString()) //actual email text

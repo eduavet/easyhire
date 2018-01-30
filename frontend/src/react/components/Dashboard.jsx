@@ -20,8 +20,8 @@ class Dashboard extends Component{
                         <Toolbar emails={this.props.emails} selectAll={this.props.selectAll} selectNone={this.props.selectNone}/>
                     </div>
                     <div className="row">
-                        <Sidebar folders = { this.props.folders } />
                         <Emails emails={ this.props.emails } isChecked={this.props.isChecked}/>
+                        <Sidebar folders = { this.props.folders } createFolder={this.props.createFolder} inputFolderNameRef={ this.props.inputFolderNameRef} />
                     </div>
                 </div>
             </div>
