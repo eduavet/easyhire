@@ -11,61 +11,50 @@ const url = 'http://localhost:3000/api/addUser/';
 
 
 class App extends Component {
-    constructor(){
-        super();
 
-    }
-    componentWillMount(){
-        this.props.getUsername();
-        this.props.getEmails();
-    }
-    createFolder = (evt) => {
-        evt.preventDefault();
-        const body  = { folderName: this.inputFolderName.value };
-        this.props.createFolder(body);
-        console.log(body, 'create folder submit')
-    };
-    render() {
-        return (
-            <BrowserRouter>
-                <div className="App">
-                    {
-                        !this.props.loading ?
-                            this.props.username ?
-                                <Dashboard emails={this.props.emails} username={this.props.username} selectNone={this.props.selectNone} selectAll={this.props.selectAll} isChecked={this.props.isChecked} folders={ this.props.folders } createFolder={this.createFolder} inputFolderNameRef={el => this.inputFolderName = el}/>
-                                :
-                                <Login/>
-                            :''
-                    }
-                </div>
-            </BrowserRouter>
-        );
-    }
+  componentWillMount(){
+    this.props.getUsername();
+    this.props.getEmails();
+  }
+
+  render() {
+    return (
+      <BrowserRouter>
+        <div className="App">
+          {
+            !this.props.loading ?
+              this.props.username ?
+                <Dashboard emails={this.props.emails} username={this.props.username} selectNone={this.props.selectNone} selectAll={this.props.selectAll} isChecked={this.props.isChecked} folders={ this.props.folders }/>
+                :
+                <Login/>
+              :''
+          }
+        </div>
+      </BrowserRouter>
+    );
+  }
 }
 
 function mapStateToProps(state) {
-    return {
-        emails: state.emails,
-        username: state.name,
-        folders: state.folders,
-        loading: state.loading,
-    };
+  return {
+    emails: state.emails,
+    username: state.name,
+    folders: state.folders,
+    loading: state.loading,
+  };
 }
 
 function mapDispatchToProps(dispatch) {
-    return {
-        getEmails: () => dispatch(asyncGetEmails()),
-        getUsername: ()=>dispatch(asyncGetUsername()),
-        isChecked: (bool, item)=>dispatch(isChecked(bool, item)),
-        selectAll: (emails)=>dispatch(selectAll(emails)),
-        selectNone: (emails)=>dispatch(selectNone(emails)),
-        createFolder: (param)=>dispatch(asyncCreateFolder(param)),
-        updateFolder: (param)=>dispatch(asyncUpdateFolder(param)),
-        deleteFolder: (param)=>dispatch(asyncDeleteFolder(param))
-    };
+  return {
+    getEmails: () => dispatch(asyncGetEmails()),
+    getUsername: ()=>dispatch(asyncGetUsername()),
+    isChecked: (bool, item)=>dispatch(isChecked(bool, item)),
+    selectAll: (emails)=>dispatch(selectAll(emails)),
+    selectNone: (emails)=>dispatch(selectNone(emails)),
+  };
 }
 
 export default connect(
-    mapStateToProps,
-    mapDispatchToProps
+  mapStateToProps,
+  mapDispatchToProps
 )(App);

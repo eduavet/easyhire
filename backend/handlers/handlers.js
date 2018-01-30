@@ -46,6 +46,8 @@ Handlers.emails = (req, response) => {
     return;
   }
 
+  console.log(accessToken);
+
   fetch('https://www.googleapis.com/gmail/v1/users/' + userId + '/messages?access_token=' + accessToken)
     .then(res => res.json())
     .then(res => {

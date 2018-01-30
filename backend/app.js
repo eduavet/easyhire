@@ -14,13 +14,19 @@ const mongoose = require('mongoose');
 connectMongo();
 require('./config/passport');
 const app = express();
-// app.use(cors());
+app.use(cors({
+  "origin": "http://localhost:8080",
+  "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+  "preflightContinue": false,
+  "optionsSuccessStatus": 204,
+  "credentials": true
+}));
 
 app.use((req, res, next) => {
     res.set('Access-Control-Allow-Origin', 'http://localhost:8080');
     res.set('Access-Control-Allow-Credentials', true);
-    res.set("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE");
-    res.set('Access-Control-Allow-Headers', "Origin, X-Requested-With, Content-Type, Accept");
+    // res.set("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE");
+    // res.set('Access-Control-Allow-Headers', "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
 app.use(bodyParser.urlencoded({ extended: false }));
