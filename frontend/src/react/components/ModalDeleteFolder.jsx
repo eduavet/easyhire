@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
-import { asyncCreateFolder } from '../../redux/reducers/emailsReducer';
+import { asyncDeleteFolder } from '../../redux/reducers/emailsReducer';
 
 class ModalDeleteFolder extends Component {
   constructor(props) {
@@ -16,7 +16,10 @@ class ModalDeleteFolder extends Component {
     this.setState({modal: !this.state.modal});
   };
 
-  delete = () => {
+  delete = (e) => {
+    e.preventDefault();
+    this.setState({ modal: false });
+    this.props.deleteFolder("ID WILL BE HERE");
   };
 
   render() {

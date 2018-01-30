@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
-import { asyncCreateFolder } from '../../redux/reducers/emailsReducer';
+import { asyncUpdateFolder } from '../../redux/reducers/emailsReducer';
 
 class ModalUpdateFolder extends Component {
   constructor(props) {
@@ -16,8 +16,11 @@ class ModalUpdateFolder extends Component {
     this.setState({modal: !this.state.modal});
   };
 
-  update = () => {
-    alert('hi')
+  update = (e) => {
+    e.preventDefault();
+    const body  = {test: "test"};
+    this.setState({ modal: false });
+    this.props.updateFolder(body);
   };
 
   render() {
