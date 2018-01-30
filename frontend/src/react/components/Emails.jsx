@@ -17,6 +17,7 @@ export default class Emails extends Component{
 
     }
     render(){
+        console.log(this.props.emails)
         return(<div className="col-10 mt-4">
             <Table size="sm">
                 <thead>

@@ -165,3 +165,8 @@ Handlers.createFolder = (req, res) => {
 // console.log(util.inspect(res, { depth: 8 }));
 // console.log(res.payload.parts, 'payload parts')
 // console.log(Buffer.from(res.payload.parts[0].body.data, 'base64').toString()) //actual email text
+
+Handlers.emailsMoveToFolder = (req, res)=>{
+    console.log(req.body)
+    res.send()
+}

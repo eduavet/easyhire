@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Link, Route, Switch, BrowserRouter} from 'react-router-dom';
 import Dashboard from './Dashboard.jsx'
 import Sidebar from './sidebar.jsx';
-import { asyncGetEmails, asyncGetUsername, asyncCreateFolder, asyncUpdateFolder, asyncDeleteFolder, isChecked, selectAll, selectNone } from '../../redux/reducers/emailsReducer';
+import { asyncGetEmails, asyncGetUsername, asyncCreateFolder, asyncUpdateFolder, asyncDeleteFolder, isChecked, selectAll, selectNone,asyncPostEmailsToFolder } from '../../redux/reducers/emailsReducer';
 import Login from './Login.jsx'
 
 const url = 'http://localhost:3000/api/addUser/';
@@ -32,7 +32,7 @@ class App extends Component {
                     {
                         !this.props.loading ?
                             this.props.username ?
-                                <Dashboard emails={this.props.emails} username={this.props.username} selectNone={this.props.selectNone} selectAll={this.props.selectAll} isChecked={this.props.isChecked} folders={ this.props.folders } createFolder={this.createFolder} inputFolderNameRef={el => this.inputFolderName = el}/>
+                                <Dashboard emails={this.props.emails} username={this.props.username} selectNone={this.props.selectNone} selectAll={this.props.selectAll} isChecked={this.props.isChecked} folders={ this.props.folders } createFolder={this.createFolder} postEmailsToFolder={this.props.postEmailsToFolder} inputFolderNameRef={el => this.inputFolderName = el}/>
                                 :
                                 <Login/>
                             :''
@@ -61,7 +61,8 @@ function mapDispatchToProps(dispatch) {
         selectNone: (emails)=>dispatch(selectNone(emails)),
         createFolder: (param)=>dispatch(asyncCreateFolder(param)),
         updateFolder: (param)=>dispatch(asyncUpdateFolder(param)),
-        deleteFolder: (param)=>dispatch(asyncDeleteFolder(param))
+        deleteFolder: (param)=>dispatch(asyncDeleteFolder(param)),
+        postEmailsToFolder: (emailIds, folderId) =>dispatch(asyncPostEmailsToFolder(emailIds, folderId))
     };
 }
 
