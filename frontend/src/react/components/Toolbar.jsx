@@ -21,6 +21,7 @@ export default class Toolbar extends Component{
             selectOpen: !this.state.selectOpen
         });
     }
+
     toggleAction=()=> {
         this.setState({
             actionOpen: !this.state.actionOpen
@@ -30,19 +31,22 @@ export default class Toolbar extends Component{
         return (<div className="col-10">
             <Nav pills className="toolbar">
                 <Dropdown nav isOpen={this.state.selectOpen} toggle={this.toggleSelect}>
-                    <DropdownToggle nav caret >
+                    <DropdownToggle className="selectbtn" nav caret >
                         Select
                     </DropdownToggle>
                     <DropdownMenu>
                         <DropdownItem>
-                            <div onClick={ () => console.log('This will fire!') }>Select All</div></DropdownItem>
+                            <div onClick={ () => this.props.selectAll(this.props.emails) }>Select All</div>
+                        </DropdownItem>
                         <DropdownItem divider />
-                        <DropdownItem>Select none</DropdownItem>
+                        <DropdownItem>
+                            <div onClick={ () => this.props.selectNone(this.props.emails) }> Select none</div>
+                        </DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
 
                 <Dropdown nav isOpen={this.state.actionOpen} toggle={this.toggleAction}>
-                    <DropdownToggle nav caret>
+                    <DropdownToggle className="actionbtn" nav caret>
                         Action
                     </DropdownToggle>
                     <DropdownMenu>

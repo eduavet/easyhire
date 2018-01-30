@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Link, Route, Switch, BrowserRouter} from 'react-router-dom';
 import Dashboard from './Dashboard.jsx'
 import Sidebar from './sidebar.jsx';
-import { asyncGetEmails, asyncGetUsername } from '../../redux/reducers/emailsReducer';
+import { asyncGetEmails, asyncGetUsername, isChecked, selectAll, selectNone } from '../../redux/reducers/emailsReducer';
 import Login from './Login.jsx'
 
 const url = 'http://localhost:3000/api/addUser/';
@@ -26,7 +26,7 @@ class App extends Component {
             <BrowserRouter>
                 <div className="App">
                     {
-                        !this.props.loading?this.props.username?<Dashboard emails={this.props.emails} username={this.props.username} folders={ this.props.folders }/>:<Login/>:''
+                        !this.props.loading?this.props.username?<Dashboard emails={this.props.emails} selectNone={this.props.selectNone} selectAll={this.props.selectAll} isChecked={this.props.isChecked} username={this.props.username} folders={ this.props.folders }/>:<Login/>:''
                     }
 
                 </div>
@@ -41,14 +41,16 @@ function mapStateToProps(state) {
         username: state.name,
         folders: state.folders,
         loading: state.loading,
-
     };
 }
 
 function mapDispatchToProps(dispatch) {
     return {
         getEmails: () => dispatch(asyncGetEmails()),
-        getUsername: ()=>dispatch(asyncGetUsername())
+        getUsername: ()=>dispatch(asyncGetUsername()),
+        isChecked: (bool, item)=>dispatch(isChecked(bool, item)),
+        selectAll: (emails)=>dispatch(selectAll(emails)),
+        selectNone: (emails)=>dispatch(selectNone(emails)),
     };
 }
 

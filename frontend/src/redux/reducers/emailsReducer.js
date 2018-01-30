@@ -17,7 +17,9 @@ const initialState = {
  */
 const GET_EMAILS = 'Get emails';
 const GET_USERNAME = 'Get username';
-
+const IS_CHECKED = 'Is checked';
+const SELECT_ALL = 'Select all';
+const SELECT_NONE = 'Select none';
 /**
  * Action creator
  */
@@ -27,6 +29,7 @@ function getEmails(emails) {
         payload: { emails }
     };
 }
+
 
 function getUsername(name) {
     return {
@@ -57,6 +60,30 @@ export function asyncGetUsername() {
             }).catch(console.error);
     }
 }
+export function isChecked(item){
+    return {
+        type: IS_CHECKED,
+        payload: {isChecked: !item.isChecked, id: item.emailID}
+    }
+}
+export function selectAll(emails){
+    return {
+        type: SELECT_ALL,
+        payload: {emails : emails.map(email=>{
+            email.isChecked=true
+            return email}
+            )}
+    }
+}
+export function selectNone(emails){
+    return {
+        type: SELECT_NONE,
+        payload: {emails : emails.map(email=>{
+            email.isChecked=false
+            return email}
+        )}
+    }
+}
 /**
  * Reducer
  */
@@ -68,7 +95,7 @@ export default function(state = initialState, action) {
         case GET_EMAILS:
             return {
                 ...state,
-                emails: [...state.emails, ...payload.emails],
+                emails: [...state.emails, ...payload.emails.map(email=>Object.assign({}, email, {isChecked: !!email.isChecked}))],
             };
         case GET_USERNAME:
             return {
@@ -78,6 +105,26 @@ export default function(state = initialState, action) {
                 errors: payload.errors,
                 successMsgs: payload.successMsgs
             };
+        case IS_CHECKED:
+            return {
+                ...state,
+                emails: state.emails.map(email=>{
+                    if(email.emailID===payload.id){
+                        Object.assign(email, {isChecked: payload.isChecked});
+                    }
+                    return email;
+                })
+            }
+        case SELECT_ALL:
+            return {
+                ...state,
+                emails: payload.emails
+            }
+        case SELECT_NONE:
+            return {
+                ...state,
+                emails: payload.emails
+            }
         default:
             return state;
     }
