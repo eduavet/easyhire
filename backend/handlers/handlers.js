@@ -150,18 +150,41 @@ Handlers.createFolder = (req, res) => {
     req.checkBody('folderName').notEmpty().withMessage('Folder name is required');
     const errors = req.validationErrors();
     if (errors) {
-        return res.send({ ok:0, errors: errors });
+        return res.json({ errors });
     }
     const userId = req.session.userID;
-    emailsModel.update({userId:userId},{ $push: { allEmails: [{emails: [], status :req.body.folderName} ]}})
-        .then(res => {
-            console.log(res);
-            res.send({ ok:1, errors: [ { msg: 'Success' }]});
+    const status = req.body.folderName;
+    const icon = req.body.icon ? req.body.icon : 'fa-folder' ;
+    emailsModel.update({userId:userId},{ $push: { allEmails: {emails: [], status, icon  }    }})
+        .then(result => {
+            if(!result.nModified){
+                res.json({ errors: [ { msg: 'User not found' }]});
+                res.end();
+            }
+            res.json();
+            res.end();
         })
         .catch(err => {
-            res.send({ ok:0, errors: [ { msg: 'Something went wrong' }]});
+            res.json({ errors: [{ msg: 'Something went wrong' }] });
         })
 };
+
+Handlers.updateFolder = (req, res) => {
+  req.checkBody('folderName').notEmpty().withMessage('Folder name is required');
+  emailsModel.find({userId: req.session.userID})
+    .then((doc) => {
+      console.log(req.session);
+      // console.log(doc);
+      res.json({yo: req.session.userID})
+      // , "allEmails._id": req.params.ID
+      // doc.allEmail[0].icon = 123;
+      // return doc.save()
+    })
+    // .then(r => res.json(r));
+  // emailsModel.update({userId: req.session.userID, "allEmails._id": req.params.ID}, {$set: {"allEmails._status": req.body.folderName}})
+  // req.params.ID
+
+}
 // console.log(util.inspect(res, { depth: 8 }));
 // console.log(res.payload.parts, 'payload parts')
 // console.log(Buffer.from(res.payload.parts[0].body.data, 'base64').toString()) //actual email text

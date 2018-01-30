@@ -1,4 +1,4 @@
-require('dotenv').config()
+require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const expressValidator = require('express-validator');
@@ -14,8 +14,9 @@ const mongoose = require('mongoose');
 connectMongo();
 require('./config/passport');
 const app = express();
+// app.use(cors());
 
-//app.use(cors());
+
 app.use((req, res, next) => {
     res.set('Access-Control-Allow-Origin', 'http://localhost:8080');
     res.set('Access-Control-Allow-Credentials', true);
