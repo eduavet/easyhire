@@ -17,11 +17,11 @@ class Dashboard extends Component{
                 <div className="container-fluid mt-4">
                     <div className='row'>
                         <Sync />
-                        <Toolbar/>
+                        <Toolbar emails={this.props.emails} selectAll={this.props.selectAll} selectNone={this.props.selectNone}/>
                     </div>
                     <div className="row">
                         <Sidebar folders = { this.props.folders } createFolder={this.props.createFolder} inputFolderNameRef={ this.props.inputFolderNameRef} />
-                        <Emails emails={ this.props.emails }/>
+                        <Emails emails={ this.props.emails } isChecked={this.props.isChecked}/>
                     </div>
                 </div>
             </div>

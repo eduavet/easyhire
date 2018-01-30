@@ -18,6 +18,10 @@ const initialState = {
  */
 const GET_EMAILS = 'Get emails';
 const GET_USERNAME = 'Get username';
+
+const IS_CHECKED = 'Is checked';
+const SELECT_ALL = 'Select all';
+const SELECT_NONE = 'Select none';
 const CREATE_FOLDER = 'Create folder';
 const UPDATE_FOLDER = 'Update folder';
 const DELETE_FOLDER = 'Delete folder';
@@ -31,6 +35,7 @@ function getEmails(result) {
         payload: { emails: result.emailsToSend, folders: result.folders }
     };
 }
+
 
 function getUsername(name) {
     return {
@@ -79,6 +84,35 @@ export function asyncGetUsername() {
             }).catch(console.error);
     }
 }
+
+export function isChecked(item){
+    return {
+        type: IS_CHECKED,
+        payload: {isChecked: !item.isChecked, id: item.emailID}
+    }
+}
+export function selectAll(emails){
+    return {
+        type: SELECT_ALL,
+        payload: {emails : emails.map(email=>{
+            email.isChecked=true;
+            return email;
+        }
+        )}
+    }
+}
+export function selectNone(emails) {
+    return {
+        type: SELECT_NONE,
+        payload: {
+            emails: emails.map(email => {
+                    email.isChecked = false;
+                    return email;
+                }
+            )
+        }
+    }
+}
 export function asyncCreateFolder(body) {
     return function(dispatch) {
         fetch('http://localhost:3000/api/folders', {
@@ -86,13 +120,14 @@ export function asyncCreateFolder(body) {
             body: JSON.stringify(body),
             headers: {
                 "Content-Type": "application/json",
-                credentials: 'include',
+                // credentials: 'include',
             },
-
+            credentials: 'include',
         })
-            .then((res) => res.json())
+            // .then((res) => res.json())
             .then(result => {
-                dispatch(createFolder(result))
+                console.log(result)
+                // dispatch(createFolder(result))
             }).catch(console.error);
     }
 }
@@ -139,7 +174,7 @@ export default function(state = initialState, action) {
         case GET_EMAILS:
             return {
                 ...state,
-                emails: [...state.emails, ...payload.emails],
+                emails: [...state.emails, ...payload.emails.map(email=>Object.assign({}, email, {isChecked: !!email.isChecked}))],
                 folders: payload.folders
             };
         case GET_USERNAME:
@@ -149,6 +184,26 @@ export default function(state = initialState, action) {
                 loading: false,
                 errors: payload.errors,
                 successMsgs: payload.successMsgs
+            };
+        case IS_CHECKED:
+            return {
+                ...state,
+                emails: state.emails.map(email=>{
+                    if(email.emailID===payload.id){
+                        Object.assign(email, {isChecked: payload.isChecked});
+                    }
+                    return email;
+                })
+            };
+        case SELECT_ALL:
+            return {
+                ...state,
+                emails: payload.emails
+            };
+        case SELECT_NONE:
+            return {
+                ...state,
+                emails: payload.emails
             };
         case CREATE_FOLDER:
             return state;
