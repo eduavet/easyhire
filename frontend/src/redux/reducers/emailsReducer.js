@@ -146,11 +146,10 @@ export function asyncUpdateFolder(body) {
             }).catch(console.error);
     }
 }
-export function asyncDeleteFolder(body) {
+export function asyncDeleteFolder(id) {
     return function(dispatch) {
-        fetch('http://localhost:3000/api/folders/', {
+        fetch('http://localhost:3000/api/folders/' + id , {
             method: 'DELETE',
-            body: JSON.stringify(body),
             headers: {
                 "Content-Type": "application/json"
             },
@@ -158,7 +157,7 @@ export function asyncDeleteFolder(body) {
         })
             .then((res) => res.json())
             .then(result => {
-                dispatch(createFolder(result))
+                dispatch(deleteFolder(result))
             }).catch(console.error);
     }
 }
@@ -232,7 +231,12 @@ export default function(state = initialState, action) {
         case UPDATE_FOLDER:
             return state;
         case DELETE_FOLDER:
-            return state;
+            const foldersAfterDelete = state.folders.filter(folder => folder._id !== payload.deletedFolderID);
+            return {
+                ...state,
+                folders:foldersAfterDelete,
+                errors: payload.errors,
+            };
         default:
             return state;
     }
