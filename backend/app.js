@@ -22,6 +22,7 @@ app.use(cors({
   "credentials": true
 }));
 
+
 app.use((req, res, next) => {
     res.set('Access-Control-Allow-Origin', 'http://localhost:8080');
     res.set('Access-Control-Allow-Credentials', true);

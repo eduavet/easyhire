@@ -20,13 +20,21 @@ export default class Toolbar extends Component{
         this.setState({
             selectOpen: !this.state.selectOpen
         });
-    }
+    };
 
     toggleAction=()=> {
         this.setState({
             actionOpen: !this.state.actionOpen
         });
+    };
+
+    moveToFolder=(id)=>{
+        const emailsToMove = this.props.emails.filter(email=>email.isChecked).map(email=>email.emailID);
+        this.props.postEmailsToFolder(emailsToMove, id)
     }
+
+
+
     render(){
         return (<div className="col-10">
             <Nav pills className="toolbar">
@@ -50,11 +58,15 @@ export default class Toolbar extends Component{
                         Action
                     </DropdownToggle>
                     <DropdownMenu>
-                        <DropdownItem>
-                            <div onClick={ () => console.log('This will fire!') }>Move to Approved</div></DropdownItem>
-                        <DropdownItem divider />
-                        <DropdownItem>Move to Rejected</DropdownItem>
+                        {
+                            this.props.folders.map(folder => {
+                                return <DropdownItem key={folder.id}>
+                                    <div onClick={ () => this.moveToFolder(folder.id) }>Move to {folder.name}</div>
+                                </DropdownItem>
+                            })
+                        }
                     </DropdownMenu>
+
                 </Dropdown>
                 <NavItem>
                     <NavLink href="#"><i className="fas fa-trash-alt"></i></NavLink>

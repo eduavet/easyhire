@@ -17,7 +17,7 @@ class Dashboard extends Component{
                 <div className="container-fluid mt-4">
                     <div className='row'>
                         <Sync />
-                        <Toolbar emails={this.props.emails} selectAll={this.props.selectAll} selectNone={this.props.selectNone}/>
+                        <Toolbar emails={this.props.emails} selectAll={this.props.selectAll} selectNone={this.props.selectNone} folders = { this.props.folders } postEmailsToFolder={this.props.postEmailsToFolder}/>
                     </div>
                     <div className="row">
                         <Sidebar folders = { this.props.folders } createFolder={this.props.createFolder} inputFolderNameRef={ this.props.inputFolderNameRef} />

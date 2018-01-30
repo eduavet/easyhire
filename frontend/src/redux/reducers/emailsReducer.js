@@ -163,6 +163,24 @@ export function asyncDeleteFolder(body) {
             }).catch(console.error);
     }
 }
+
+export function asyncPostEmailsToFolder(emailIds, folderId){
+    return function(dispatch) {
+        fetch('http://localhost:3000/api/emails/move', {
+            method: 'POST',
+            body: JSON.stringify({emailIds, folderId}),
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: 'include',
+        })
+            //.then((res) => res.json())
+            .then(result => {
+                console.log(result)
+                //dispatch(createFolder(result))
+            }).catch(console.error);
+    }
+}
 /**
  * Reducer
  */

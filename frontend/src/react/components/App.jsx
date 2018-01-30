@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Link, Route, Switch, BrowserRouter} from 'react-router-dom';
 import Dashboard from './Dashboard.jsx'
 import Sidebar from './sidebar.jsx';
-import { asyncGetEmails, asyncGetUsername, asyncCreateFolder, asyncUpdateFolder, asyncDeleteFolder, isChecked, selectAll, selectNone } from '../../redux/reducers/emailsReducer';
+import { asyncGetEmails, asyncGetUsername, asyncCreateFolder, asyncUpdateFolder, asyncDeleteFolder, isChecked, selectAll, selectNone,asyncPostEmailsToFolder } from '../../redux/reducers/emailsReducer';
 import Login from './Login.jsx'
 
 const url = 'http://localhost:3000/api/addUser/';
@@ -24,7 +24,7 @@ class App extends Component {
           {
             !this.props.loading ?
               this.props.username ?
-                <Dashboard emails={this.props.emails} username={this.props.username} selectNone={this.props.selectNone} selectAll={this.props.selectAll} isChecked={this.props.isChecked} folders={ this.props.folders }/>
+                <Dashboard emails={this.props.emails} username={this.props.username} selectNone={this.props.selectNone} selectAll={this.props.selectAll} isChecked={this.props.isChecked} folders={ this.props.folders } postEmailsToFolder={this.props.postEmailsToFolder}/>
                 :
                 <Login/>
               :''
@@ -51,6 +51,7 @@ function mapDispatchToProps(dispatch) {
     isChecked: (bool, item)=>dispatch(isChecked(bool, item)),
     selectAll: (emails)=>dispatch(selectAll(emails)),
     selectNone: (emails)=>dispatch(selectNone(emails)),
+    postEmailsToFolder: (emailIds, folderId) =>dispatch(asyncPostEmailsToFolder(emailIds, folderId))
   };
 }
 
