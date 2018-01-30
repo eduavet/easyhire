@@ -32,3 +32,4 @@ router.get('/api/emails', handlers.emails);
 router.get('/api/username', handlers.username);
 router.get('/auth/logout', handlers.logout);
 router.post('/api/folders', handlers.createFolder);
+router.put('/api/folders/:ID', handlers.updateFolder);

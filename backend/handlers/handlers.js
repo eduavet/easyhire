@@ -162,6 +162,23 @@ Handlers.createFolder = (req, res) => {
             res.send({ ok:0, errors: [ { msg: 'Something went wrong' }]});
         })
 };
+
+Handlers.updateFolder = (req, res) => {
+  req.checkBody('folderName').notEmpty().withMessage('Folder name is required');
+  emailsModel.find({userId: req.session.userID})
+    .then((doc) => {
+      console.log(req.session);
+      // console.log(doc);
+      res.json({yo: req.session.userID})
+      // , "allEmails._id": req.params.ID
+      // doc.allEmail[0].icon = 123;
+      // return doc.save()
+    })
+    // .then(r => res.json(r));
+  // emailsModel.update({userId: req.session.userID, "allEmails._id": req.params.ID}, {$set: {"allEmails._status": req.body.folderName}})
+  // req.params.ID
+
+}
 // console.log(util.inspect(res, { depth: 8 }));
 // console.log(res.payload.parts, 'payload parts')
 // console.log(Buffer.from(res.payload.parts[0].body.data, 'base64').toString()) //actual email text
