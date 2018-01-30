@@ -9,7 +9,8 @@ const emailsSchema = new Schema({
     allEmails : [
         {
             status: String,
-            emails: [{ emailId: String, isRead: Boolean }]
+            emails: [{ emailId: String, isRead: Boolean }],
+            icon: String,
         }
     ]
 }, {

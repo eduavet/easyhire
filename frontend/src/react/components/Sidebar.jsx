@@ -25,7 +25,7 @@ function Folder (props) {
                 &nbsp; {props.folder.name}
                 &nbsp;({props.folder.count})
             </a>
-            <DeleteFolderModal />
+            <DeleteFolderModal name={props.folder.name}/>
             <EditFolderModal />
         </li>
     )
@@ -126,7 +126,7 @@ class DeleteFolderModal extends Component {
                 <Modal isOpen={this.state.modal} toggle={this.toggle}>
                     <ModalHeader toggle={this.toggle}>Delete Folder</ModalHeader>
                     <ModalBody>
-                        Are you sure you want to delete this folder?
+                        Are you sure you want to delete this folder?{this.props.name}
                     </ModalBody>
                     <ModalFooter>
                         <button className="btn bg-light-blue" onClick={this.continue}>I'm sure!</button>

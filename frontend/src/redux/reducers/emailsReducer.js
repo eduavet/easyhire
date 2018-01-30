@@ -86,14 +86,14 @@ export function asyncCreateFolder(body) {
             body: JSON.stringify(body),
             headers: {
                 "Content-Type": "application/json",
-                credentials: 'include',
+                // credentials: 'include',
             },
-
+            credentials: 'include',
         })
-            .then((res) => res.json())
+            // .then((res) => res.json())
             .then(result => {
                 console.log(result)
-                dispatch(createFolder(result))
+                // dispatch(createFolder(result))
             }).catch(console.error);
     }
 }
