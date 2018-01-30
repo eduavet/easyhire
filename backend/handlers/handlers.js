@@ -199,7 +199,7 @@ Handlers.deleteFolder = (req, res) => {
           if(item.emails.length < 1) {
             object.splice(index, 1);
           } else {
-            return res.json({error: "Folder contains emails and cannot be deleted"});
+            return res.json({ errors: [{ msg: 'Folder contains emails and cannot be deleted' }], deletedFolderID: '' });
           }
         }
       })
