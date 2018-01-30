@@ -31,8 +31,8 @@ passport.use(new GoogleStrategy({
      request.session.accessToken = accessToken;
      request.session.name = profile.displayName;
      request.session.save()
-         .then(() => done(null, profile));
-
+         // .then(() => done(null, profile));
+     done(null, profile);
 
         // console.log(profile.emails, 'emails');//[ { value: 'simplyeasyhire@gmail.com', type: 'account' } ] 'emails'
         // console.log(accessToken, 'accessToken'); //ya29.GltNBR0... accessToken

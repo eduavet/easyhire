@@ -8,7 +8,7 @@ export default function Sidebar(props) {
     return (
         <div className="col-2 mt-4">
             <ul className="list-group folders">
-                { props.folders.map((folder, i) => <Folder key = {i} folder = { folder } />)}
+                { props.folders.map((folder, i) => <Folder key = {folder.id} folder = { folder } />)}
                 <NewFolderModal createFolder={props.createFolder} inputFolderNameRef={ props.inputFolderNameRef} />
             </ul>
         </div>
@@ -42,8 +42,10 @@ class NewFolderModal extends Component {
     toggle=()=> {
         this.setState({ modal: !this.state.modal });
     };
-    continue=()=>{
-
+    continue=(evt)=>{
+        evt.preventDefault();
+        this.props.createFolder(evt);
+        this.setState({ modal: false });
     };
     render() {
         return (
@@ -52,7 +54,7 @@ class NewFolderModal extends Component {
                     <i className="fa fa-plus-circle" aria-hidden="true"></i>
                     &nbsp; New Folder
                 </a>
-                <Modal isOpen={this.state.modal} toggle={this.toggle}>
+                <Modal isOpen={this.state.modal} toggle={this.toggle} id={"mod"}>
                     <ModalHeader toggle={this.toggle}>Create New Folder</ModalHeader>
                     <ModalBody>
                         <form action={"http://localhost:3000/api/folders"} method={"post"}>
@@ -63,7 +65,7 @@ class NewFolderModal extends Component {
                             <hr className={"mt-4"}/>
                             <div className="form-group">
                                 <Button color="secondary float-right" onClick={this.toggle}>Cancel</Button>
-                                <button className="btn bg-light-blue float-right mr-2" onClick={this.props.createFolder}>Save!</button>
+                                <button className="btn bg-light-blue float-right mr-2" onClick={this.continue}>Save!</button>
                             </div>
                         </form>
                     </ModalBody>

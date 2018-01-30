@@ -20,7 +20,8 @@ class App extends Component {
         this.props.getEmails();
     }
     createFolder = (evt) => {
-        evt.preventDefault();
+        // evt.preventDefault();
+        console.log(evt.target)
         const body  = { folderName: this.inputFolderName.value };
         this.props.createFolder(body);
         console.log(body, 'create folder submit')

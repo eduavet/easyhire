@@ -8,8 +8,8 @@ const store = createStore(
         thunk
     )
 );
-// store.subscribe(() => {
-//     console.log('Store has been changed');
-//     console.log(store.getState());
-// });
+store.subscribe(() => {
+    console.log('Store has been changed');
+    console.log(store.getState());
+});
 export default store;

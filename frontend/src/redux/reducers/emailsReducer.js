@@ -46,7 +46,7 @@ function getUsername(name) {
 function createFolder(response) {
     return {
         type: CREATE_FOLDER,
-        payload: { response }
+        payload: { createdFolder: response.createdFolder, errors: response.errors }
     };
 }
 function updateFolder(response) {
@@ -124,10 +124,9 @@ export function asyncCreateFolder(body) {
             },
             credentials: 'include',
         })
-            // .then((res) => res.json())
+            .then((res) => res.json())
             .then(result => {
-                console.log(result)
-                // dispatch(createFolder(result))
+                dispatch(createFolder(result))
             }).catch(console.error);
     }
 }
@@ -224,7 +223,12 @@ export default function(state = initialState, action) {
                 emails: payload.emails
             };
         case CREATE_FOLDER:
-            return state;
+            const folders =  payload.createdFolder.id ? [...state.folders, payload.createdFolder] : state.folders
+            return {
+                ...state,
+                folders:folders,
+                errors: payload.errors,
+            };
         case UPDATE_FOLDER:
             return state;
         case DELETE_FOLDER:

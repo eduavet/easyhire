@@ -150,22 +150,22 @@ Handlers.createFolder = (req, res) => {
     req.checkBody('folderName').notEmpty().withMessage('Folder name is required');
     const errors = req.validationErrors();
     if (errors) {
-        return res.json({ errors });
+        return res.json({ errors, createdFolder: {} });
     }
     const userId = req.session.userID;
     const status = req.body.folderName;
     const icon = req.body.icon ? req.body.icon : 'fa-folder' ;
-    emailsModel.update({userId:userId},{ $push: { allEmails: {emails: [], status, icon  }    }})
+    emailsModel.findOne({userId:userId})
         .then(result => {
-            if(!result.nModified){
-                res.json({ errors: [ { msg: 'User not found' }]});
-                res.end();
-            }
-            res.json();
-            res.end();
+            result.allEmails.push({ emails: [], status, icon });
+            const createdFolder = result.allEmails[result.allEmails.length - 1];
+            const createdFolderToSend = { id: createdFolder._id, name: createdFolder.status, count: 0, icon: createdFolder.icon, isActive: false }
+            result.save().then(result => {
+                return res.json({ createdFolder: createdFolderToSend, errors: [] });
+            });
         })
         .catch(err => {
-            res.json({ errors: [{ msg: 'Something went wrong' }] });
+            return res.json({ errors: [{ msg: 'Something went wrong' }],  createdFolder: {} });
         })
 };
 
