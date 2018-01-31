@@ -1,8 +1,10 @@
 const util = require('util');
+const mongoose = require('mongoose');
 const fetch = require('node-fetch');
 const moment = require('moment');
 const emailsModel = require('../models/emailsModel.js')
 const usersModel = require('../models/usersModel.js')
+const foldersModel = require('../models/foldersModel.js')
 const Handlers = {};
 
 module.exports = Handlers;
@@ -10,15 +12,14 @@ module.exports = Handlers;
 Handlers.apiAddUser = (req, res) => {
 
   //if user doesn't exist in DB, add user
-  usersModel.find({googleID: req.body.googleID}, (err, docs) => {
+  usersModel.find({google_id: req.body.googleID}, (err, docs) => {
     if(docs.length < 1){
       const newUser = new usersModel({
-          googleID: req.body.googleID,
+          google_id: req.body.googleID,
           name: req.body.name,
           image: req.body.imageURL,
           email: req.body.email,
-          lastSync: ''
-      })
+      });
       newUser.save()
       .catch(console.error)
       console.log('user added in DB');
@@ -36,81 +37,68 @@ Handlers.username = (req, res) => {
 
 Handlers.emails = (req, response) => {
 
-  const userId = req.session.userID;
-  const accessToken = req.session.accessToken;
-  const emailsOnPage = 3;
-  const name = req.session.name;
-  const emailsToSend = [];
+    const userId = req.session.userID;
+    const accessToken = req.session.accessToken;
+    const emailsOnPage = 3;
+    const name = req.session.name;
+    const emailsToSend = [];
 
-  if(!userId){
-    response.json({emailsToSend});
-    return;
-  }
+     if(!userId){
+        response.json({emailsToSend});
+        return;
+    }
 
-  console.log(accessToken);
-
-  fetch('https://www.googleapis.com/gmail/v1/users/' + userId + '/messages?access_token=' + accessToken)
-    .then(res => res.json())
-    .then(res => {
-      const messages = res.messages
-      const folders = [];
-      const promises = [];
-
-      for(let i = 0; i < emailsOnPage; i++) {
-        const id = messages[i].id;
-        promises.push(fetch('https://www.googleapis.com/gmail/v1/users/' + userId + '/messages/' + id + '?access_token=' + accessToken)
-          .then(res => res.json())
-          .then(res => {
-            emailsToSend[i] = extractEmailData(res);
-            emailsModel.find({"userId": userId})
-              .then(res => {
-                if(res.length < 1) {
-                  console.log('user not found');
-                  const newEmail = buildNewEmailModel(userId, id);
-                  newEmail.save();
-                } else {
-                  // console.log('user found');
-                  emailsModel.find({userId:userId, "allEmails.emails.emailId": id})
-                    .then(res => {
-                      if(res.length < 1) {
-                        console.log('email not found');
-                        emailsModel.update({userId:userId, "allEmails.status": "Not reviewed"},{ $push: { "allEmails.$.emails": { emailId: id, isRead: false }}}, (err, docs) => {
-                          if(err) console.error(err);
-                        })
-                      }
-                    })
-                }
-              })
-          }))
-      }
-      promises.push(emailsModel.find({"userId": userId})
+    fetch('https://www.googleapis.com/gmail/v1/users/' + userId + '/messages?access_token=' + accessToken)
+        .then(res => res.json())
         .then(res => {
-          if(res.length > 0) {
-            res[0].allEmails.forEach((_item) => {
-              const item = _item.toJSON();
-              folders.push({
-                id: item._id,
-                name: item.status,
-                count: item.emails.length,
-                icon: item.icon,
-                isActive: false
-              })
-            });
-          }
-        }))
-
-      return Promise.all(promises)
-        .then(() => {
-          const packed = {
-            name,
-            emailsToSend,
-            folders
-          }
-          // console.log(packed);
-          response.json(packed)
+            const messages = res.messages;
+            const folders = [];
+            const promises = [];
+            for(let i = 0; i < emailsOnPage; i++) {
+                const id = messages[i].id;
+                promises.push(fetch('https://www.googleapis.com/gmail/v1/users/' + userId + '/messages/' + id + '?access_token=' + accessToken)
+                    .then(res => res.json())
+                    .then(msgRes => {
+                        return emailsModel
+                            .findOne({email_id: id})
+                            .populate('folder')
+                            .then(res => {
+                                if (res) {
+                                    emailsToSend[i] = extractEmailData(msgRes, res.folder._id, res.folder.name);
+                                } else{
+                                    return foldersModel.findOne({name: 'Not Reviewed'}, '_id').then(folder => {
+                                        const newEmail = new emailsModel({
+                                            user_id: userId,
+                                            email_id: id,
+                                            folder: mongoose.Types.ObjectId(folder._id),
+                                            isRead: false
+                                        });
+                                        return newEmail.save().then((email)=>{
+                                            return emailsModel
+                                                .findOne({email_id: email.email_id})
+                                                .populate('folder').then((res) => {
+                                                    emailsToSend[i] = extractEmailData(msgRes, res.folder._id, res.folder.name);
+                                                })
+                                        })
+                                    });
+                                }
+                            })
+                    })
+                )
+            }
+            return Promise.all(promises)
+                .then(() => {
+                    const packed = {
+                        name,
+                        emailsToSend,
+                        folders
+                    }
+                    response.json(packed)
+                })
         })
-    })
-    .catch(console.error);
+        .catch(err => {
+            response.json({ name: '', emailsToSend: '', folders: [], errors: [{ msg: 'Something went wrong, try again later' }]})
+        })
 }
 
 Handlers.logout = (req, res) => {
@@ -124,7 +112,7 @@ const decodeHtmlEntity = (str) => {
   });
 };
 
-const extractEmailData = (res) => {
+const extractEmailData = (res, folderId, folderName) => {
   const emailID = res.id;
   const sender = res.payload.headers.filter((item) => {
     return item.name == 'From'
@@ -134,7 +122,7 @@ const extractEmailData = (res) => {
   })[0].value
   const snippet = decodeHtmlEntity(res.snippet);
   const date = moment.unix(res.internalDate / 1000).format('DD/MM/YYYY, HH:mm:ss');
-  return {emailID, sender, subject, snippet, date};
+  return { emailID, sender, subject, snippet, date, folderId, folderName };
 }
 
 const buildNewEmailModel = (userId, id) => {
@@ -210,7 +198,6 @@ Handlers.deleteFolder = (req, res) => {
 }
 
 Handlers.emailsMoveToFolder = (req, res)=>{
-    console.log(req.body)
     res.send()
 }
 
