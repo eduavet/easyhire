@@ -47,7 +47,6 @@ Handlers.emails = (req, response) => {
         response.json({emailsToSend});
         return;
     }
-
     fetch('https://www.googleapis.com/gmail/v1/users/' + userId + '/messages?access_token=' + accessToken)
         .then(res => res.json())
         .then(res => {
@@ -164,7 +163,7 @@ Handlers.updateFolder = (req, res) => {
   req.checkBody('folderName').notEmpty().withMessage('Folder name is required');
   const errors = req.validationErrors();
   if (errors) {
-    return res.json({ errors, updatedFolderName: '' });
+    return res.json({ errors, updatedFolder: {} });
   }
   emailsModel.findOne({userId: req.session.userID})
     .then((result) => {
@@ -174,9 +173,9 @@ Handlers.updateFolder = (req, res) => {
         }
       })
       result.save();
-      return res.json({updatedFolderName: req.body.folderName, errors: []})
+      return res.json({updatedFolder: {id: req.params.ID, name: req.body.folderName}, errors: []})
     })
-    .catch(err => res.json({ errors: [{ msg: 'Something went wrong' }], updatedFolderName: '' }))
+    .catch(err => res.json({ errors: [{ msg: 'Something went wrong' }], updatedFolder: {} }))
 }
 
 Handlers.deleteFolder = (req, res) => {

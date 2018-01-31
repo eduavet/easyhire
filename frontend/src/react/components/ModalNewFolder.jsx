@@ -8,7 +8,8 @@ class ModalNewFolder extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      modal: false
+      modal: false,
+      input: ''
     };
   }
 
@@ -23,25 +24,27 @@ class ModalNewFolder extends Component {
     this.props.createFolder(body)
   };
 
+  handleChange = (e) => {
+    this.setState({input: e.target.value});
+  }
+
   render() {
     return (
-      <li className={ "list-group-item list-group-item-action " }>
-        <a href="#" onClick={this.toggle}>
+      <li className={ "list-group-item list-group-item-action " } onClick={this.toggle}>
           <i className="fa fa-plus-circle" aria-hidden="true"></i>
           &nbsp; New Folder
-        </a>
         <Modal isOpen={this.state.modal} toggle={this.toggle}>
           <ModalHeader toggle={this.toggle}>Create New Folder</ModalHeader>
           <ModalBody>
             <form action={"http://localhost:3000/api/folders"} method={"post"}>
               <div className="form-group">
                 <label htmlFor="folderName">Folder Name</label>
-                <input type="text" ref="createFolder" className="form-control" id="folderName" placeholder="Enter folder name" />
+                <input type="text" ref="createFolder" className="form-control" id="folderName" placeholder="Enter folder name" onChange={this.handleChange}/>
               </div>
               <hr className={"mt-4"}/>
               <div className="form-group">
                 <Button color="secondary float-right" onClick={this.toggle}>Cancel</Button>
-                <button className="btn bg-light-blue float-right mr-2" onClick={this.createFolder}>Save!</button>
+                <Button className="btn bg-light-blue float-right mr-2" onClick={this.createFolder} disabled={!this.state.input}>Create</Button>
               </div>
             </form>
           </ModalBody>
