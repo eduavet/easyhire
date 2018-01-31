@@ -155,7 +155,7 @@ export function asyncDeleteFolder(id) {
 }
 
 export function asyncPostEmailsToFolder(emailIds, folderId){
-    console.log(folderId)
+    console.log(folderId, emailIds)
     return function(dispatch) {
         fetch('http://localhost:3000/api/emails/move', {
             method: 'POST',

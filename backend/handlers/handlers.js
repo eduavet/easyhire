@@ -2,9 +2,9 @@ const util = require('util');
 const mongoose = require('mongoose');
 const fetch = require('node-fetch');
 const moment = require('moment');
-const emailsModel = require('../models/emailsModel.js')
-const usersModel = require('../models/usersModel.js')
-const foldersModel = require('../models/foldersModel.js')
+const emailsModel = require('../models/emailsModel.js');
+const usersModel = require('../models/usersModel.js');
+const foldersModel = require('../models/foldersModel.js');
 const Handlers = {};
 
 module.exports = Handlers;
@@ -12,10 +12,10 @@ ObjectId = require('mongodb').ObjectID;
 Handlers.apiAddUser = (req, res) => {
 
   //if user doesn't exist in DB, add user
-  usersModel.find({google_id: req.body.googleID}, (err, docs) => {
+  usersModel.find({googleUser_id: req.body.googleID}, (err, docs) => {
     if(docs.length < 1){
       const newUser = new usersModel({
-          google_id: req.body.googleID,
+          googleUser_id: req.body.googleID,
           name: req.body.name,
           image: req.body.imageURL,
           email: req.body.email,
@@ -66,12 +66,7 @@ Handlers.emails = (req, response) => {
                                     emailsToSend[i] = extractEmailData(msgRes, res.folder._id, res.folder.name);
                                 } else{
                                     return foldersModel.findOne({name: 'Not Reviewed'}, '_id').then(folder => {
-                                        const newEmail = new emailsModel({
-                                            user_id: userId,
-                                            email_id: id,
-                                            folder: mongoose.Types.ObjectId(folder._id),
-                                            isRead: false
-                                        });
+                                        const newEmail= buildNewEmailModel(userId, id, folder);
                                         return newEmail.save().then((email)=>{
                                             return emailsModel
                                                 .findOne({email_id: email.email_id})
@@ -87,12 +82,17 @@ Handlers.emails = (req, response) => {
             }
             return Promise.all(promises)
                 .then(() => {
-                    const packed = {
-                        name,
-                        emailsToSend,
-                        folders
-                    }
-                    response.json(packed)
+                    return foldersModel
+
+                        .find({ $or:[ {'user_id':null}, {'user_id':userId}]})
+                        .then((folders) => {
+                            const packed = {
+                                name,
+                                emailsToSend,
+                                folders
+                            };
+                            response.json(packed)
+                        })
                 })
         })
         .catch(err => {
@@ -124,17 +124,14 @@ const extractEmailData = (res, folderId, folderName) => {
   return { emailID, sender, subject, snippet, date, folderId, folderName };
 }
 
-const buildNewEmailModel = (userId, id) => {
+const buildNewEmailModel = (userId, id, folder) => {
   return new emailsModel({
-    userId: userId,
-    allEmails : [
-      {
-        status: 'Not reviewed',
-        emails: [{ emailId: id, isRead: false }]
-      }
-    ]
+      user_id: userId,
+      email_id: id,
+      folder: mongoose.Types.ObjectId(folder._id),
+      isRead: false
   });
-}
+};
 
 Handlers.createFolder = (req, res) => {
     req.checkBody('folderName').notEmpty().withMessage('Folder name is required');
@@ -198,7 +195,12 @@ Handlers.deleteFolder = (req, res) => {
 
 Handlers.emailsMoveToFolder = (req, res)=> {
     const userId = req.session.userID;
-    const ids = req.body.emailIds;
+    const emailsToMove = req.body.emailIds;
+    const folderToMove=req.body.folderId;
+    emailsModel.update({email_id: {$in: emailsToMove}}, { $set: {folder: mongoose.Types.ObjectId(folderToMove)}})
+        .then(res=>{
+
+        })
 };
 
 // console.log(util.inspect(res, { depth: 8 }));
