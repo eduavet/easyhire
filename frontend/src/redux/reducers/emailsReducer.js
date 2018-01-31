@@ -235,7 +235,7 @@ export default function(state = initialState, action) {
           };
             return state;
         case DELETE_FOLDER:
-            const foldersAfterDelete = state.folders.filter(folder => folder.id !== payload.deletedFolderID);
+            const foldersAfterDelete = state.folders.filter(folder => folder._id !== payload.deletedFolderID);
             return {
                 ...state,
                 folders:foldersAfterDelete,
