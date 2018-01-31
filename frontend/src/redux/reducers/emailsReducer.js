@@ -216,7 +216,8 @@ export default function(state = initialState, action) {
                 emails: payload.emails
             };
         case CREATE_FOLDER:
-            const folders =  payload.createdFolder.id ? [...state.folders, payload.createdFolder] : state.folders
+            console.log(payload.createdFolder)
+            const folders =  payload.createdFolder._id ? [...state.folders, payload.createdFolder] : state.folders
             return {
                 ...state,
                 folders:folders,
@@ -226,7 +227,7 @@ export default function(state = initialState, action) {
           return {
             ...state,
             folders: state.folders.map(folder => {
-              if(folder.id == payload.updatedFolder.id) {
+              if(folder._id == payload.updatedFolder._id) {
                 folder.name = payload.updatedFolder.name
               }
               return folder
@@ -235,7 +236,7 @@ export default function(state = initialState, action) {
           };
             return state;
         case DELETE_FOLDER:
-            const foldersAfterDelete = state.folders.filter(folder => folder.id !== payload.deletedFolderID);
+            const foldersAfterDelete = state.folders.filter(folder => folder._id !== payload.deletedFolderID);
             return {
                 ...state,
                 folders:foldersAfterDelete,

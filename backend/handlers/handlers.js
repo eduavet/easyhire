@@ -12,15 +12,22 @@ ObjectId = require('mongodb').ObjectID;
 Handlers.apiAddUser = (req, res) => {
 
   //if user doesn't exist in DB, add user
-  usersModel.find({googleUser_id: req.body.googleID}, (err, docs) => {
-    if(docs.length < 1){
+  usersModel.findOne({googleUser_id: req.body.googleID}, (err, user) => {
+    if(user){
       const newUser = new usersModel({
           googleUser_id: req.body.googleID,
           name: req.body.name,
           image: req.body.imageURL,
           email: req.body.email,
       });
-      newUser.save()
+      newUser.save().then(user => {
+          // foldersModel.insertMany( [
+          //     { name: "Approved", icon: 'fa-check-square', user_id: user._id },
+          //     { item: "Rejected", icon: "fa-times-circle", user_id: user._id  },
+          //     { item: "Interview Scheduled" , icon: "fa-clock", user_id: user._id  },
+          //     { item: "Not Reviewed" , icon: 'fa-question', user_id: user._id  }
+          // ] );
+      })
       .catch(console.error);
       console.log('user added in DB');
     }
@@ -39,7 +46,7 @@ Handlers.emails = (req, response) => {
 
     const userId = req.session.userID;
     const accessToken = req.session.accessToken;
-    const emailsOnPage = 3;
+    const emailsOnPage = 7;
     const name = req.session.name;
     const emailsToSend = [];
 
@@ -83,6 +90,7 @@ Handlers.emails = (req, response) => {
             return Promise.all(promises)
                 .then(() => {
                     return foldersModel
+
                         .aggregate([
                             { $match: { $or:[ { 'user_id':null}, { 'user_id':userId }] } },
                             {
@@ -103,6 +111,7 @@ Handlers.emails = (req, response) => {
                             },
                         ])
                         .then((folders) => {
+                            console.log(folders,'folders')
                             const packed = {
                                 name,
                                 emailsToSend,
@@ -166,7 +175,7 @@ Handlers.createFolder = (req, res) => {
     });
     newFolder.save()
         .then((createdFolder)=>{
-            const createdFolderToSend = { id: createdFolder._id, name: createdFolder.name, count: 0, icon: createdFolder.icon, isActive: false }
+            const createdFolderToSend = { _id: createdFolder._id, name: createdFolder.name, count: 0, icon: createdFolder.icon, isActive: false }
             return res.json({ createdFolder: createdFolderToSend, errors: [] });
         })
         .catch(err => {
@@ -175,20 +184,15 @@ Handlers.createFolder = (req, res) => {
 };
 
 Handlers.updateFolder = (req, res) => {
-  req.checkBody('folderName').notEmpty().withMessage('Folder name is required');
-  const errors = req.validationErrors();
-  if (errors) {
-    return res.json({ errors, updatedFolder: {} });
-  }
-  emailsModel.findOne({userId: req.session.userID})
-    .then((result) => {
-      result.allEmails.forEach((item) => {
-        if(item._id == req.params.ID) {
-          item.status = req.body.folderName
-        }
-      });
-      result.save();
-      return res.json({updatedFolder: {id: req.params.ID, name: req.body.folderName}, errors: []})
+    req.checkBody('folderName').notEmpty().withMessage('Folder name is required');
+    const errors = req.validationErrors();
+    if (errors) {
+        return res.json({ errors, updatedFolder: {} });
+    }
+    const folderId = req.params.ID ? req.params.ID : '';
+    const folderNewName = req.body.folderName;
+    foldersModel.findByIdAndUpdate(folderId, { $set: { name: folderNewName }}, { new: true }).then((folder) =>{
+        res.json({ updatedFolder: folder, errors: []})
     })
     .catch(err => res.json({ errors: [{ msg: 'Something went wrong' }], updatedFolder: {} }))
 };

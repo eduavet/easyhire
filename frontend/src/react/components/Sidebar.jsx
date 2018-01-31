@@ -41,7 +41,7 @@ class Sidebar extends Component {
         return (
             <div className="col-2 mt-4">
                 <ul className="list-group folders">
-                    { this.props.folders.map((folder, i) => <Folder key = {folder.id} folder = { folder } toggleUpdateModal={this.toggleUpdateModal} toggleDeleteModal={this.toggleDeleteModal} />)}
+                    { this.props.folders.map((folder, i) => <Folder key = {folder._id} folder = { folder } toggleUpdateModal={this.toggleUpdateModal} toggleDeleteModal={this.toggleDeleteModal} />)}
                     <ModalNewFolder/>
                 </ul>
                 <ModalUpdateFolder isOpenUpdate={this.state.updateModal} toggleUpdateModal={this.toggleUpdateModal} updateFolder={this.updateFolder} updateFolderName={this.state.updateFolderName}/>
@@ -59,9 +59,9 @@ function Folder (props) {
         <i className={ "fa " + icon} aria-hidden="true"></i>
         &nbsp; {props.folder.name}
         &nbsp;({props.folder.count})
-        <div>
-          <i className="fa fa-trash float-right folder-actions" aria-hidden="true" data-id={props.folder._id} data-name={props.folder.name} onClick={props.toggleDeleteModal} ></i>
-          <i className="fa fa-pencil-alt float-right folder-actions" aria-hidden="true" data-id={props.folder._id} data-name={props.folder.name} onClick={props.toggleUpdateModal}></i>
+        <div className="d-inline float-right">
+          <i className="fa fa-trash folder-actions" aria-hidden="true" data-id={props.folder._id} data-name={props.folder.name} onClick={props.toggleDeleteModal} ></i>
+          <i className="fa fa-pencil-alt folder-actions" aria-hidden="true" data-id={props.folder._id} data-name={props.folder.name} onClick={props.toggleUpdateModal}></i>
         </div>
     </li>
   )
