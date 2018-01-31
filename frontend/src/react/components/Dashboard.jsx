@@ -4,7 +4,7 @@ import Header from './Header.jsx'
 import Toolbar from './Toolbar.jsx';
 import Sidebar from './sidebar.jsx';
 import Emails from './Emails.jsx';
-import Sync from './Sync.jsx';
+import Refresh from './Refresh.jsx';
 
 export default class Dashboard extends Component{
     render(){
@@ -13,7 +13,7 @@ export default class Dashboard extends Component{
                 <Header/>
                 <div className="container-fluid mt-4">
                     <div className='row'>
-                        <Sync/>
+                        <Refresh/>
                         <Toolbar/>
                     </div>
                     <div className="row">

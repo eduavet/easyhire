@@ -35,9 +35,7 @@ class Toolbar extends Component{
         event.preventDefault();
         const emailsToDelete = this.props.emails.filter(email=>email.isChecked).map(email=>email.emailID);
         this.props.deleteEmails(emailsToDelete);
-    }
-
-
+    };
 
     render(){
         return (<div className="col-10">
@@ -63,8 +61,8 @@ class Toolbar extends Component{
                     </DropdownToggle>
                     <DropdownMenu>
                         {
-                            this.props.folders.map((folder, i) => {
-                                return <DropdownItem key={i}>
+                            this.props.folders.map((folder) => {
+                                return <DropdownItem key={folder._id}>
                                     <div onClick={ () => this.moveToFolder(folder._id) }>Move to {folder.name}</div>
                                 </DropdownItem>
                             })
