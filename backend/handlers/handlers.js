@@ -198,19 +198,21 @@ Handlers.updateFolder = (req, res) => {
 };
 
 Handlers.deleteFolder = (req, res) => {
-  emailsModel.findOne({userId: req.session.userID})
-    .then((result) => {
-      result.allEmails.forEach((item, index, object) => {
-        if(item._id == req.params.ID) {
-          if(item.emails.length < 1) {
-            object.splice(index, 1);
-          } else {
-            return res.json({ errors: [{ msg: 'Folder contains emails and cannot be deleted' }], deletedFolderID: '' });
-          }
-        }
-      });
-      result.save();
-      return res.json({deletedFolderID: req.params.ID, errors: []})
+  foldersModel.findOne({user_id: req.session.userID, _id: req.params.ID})
+    .then((folder) => {
+      if(folder) {
+        return emailsModel.find({folder: folder.id})
+          .then((emails) => {
+            if(emails.length > 0) {
+              res.json({ errors: [{ msg: 'Folder contains emails and cannot be deleted' }], deletedFolderID: '' });
+            } else {
+              foldersModel.findOne({user_id: req.session.userID, _id: req.params.ID}).remove().exec()
+              res.json({deletedFolderID: req.params.ID, errors: []})
+            }
+          })
+      } else {
+        return res.json({ errors: [{ msg: 'Main folders "Approved", "Rejected", "Interview Scheduled" and "Not Reviewed" cannot be deleted' }], deletedFolderID: '' })
+      }
     })
     .catch(err => res.json({errors: err, deletedFolderID: ''}))
 };
@@ -228,4 +230,3 @@ Handlers.emailsMoveToFolder = (req, res)=> {
 // console.log(util.inspect(res, { depth: 8 }));
 // console.log(res.payload.parts, 'payload parts')
 // console.log(Buffer.from(res.payload.parts[0].body.data, 'base64').toString()) //actual email text
-

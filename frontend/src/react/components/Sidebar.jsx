@@ -4,6 +4,7 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import ModalNewFolder from './ModalNewFolder.jsx'
 import ModalUpdateFolder from './ModalUpdateFolder.jsx'
 import ModalDeleteFolder from './ModalDeleteFolder.jsx'
+import ModalCannotDeleteFolder from './ModalCannotDeleteFolder.jsx'
 import { asyncDeleteFolder, asyncUpdateFolder } from '../../redux/reducers/emailsReducer';
 
 const deleteId = { value: ''};
@@ -15,6 +16,7 @@ class Sidebar extends Component {
         this.state = {
             updateModal: false,
             deleteModal: false,
+            cannotDeleteModal: false,
             updateFolderName: '',
             deleteFolderName: ''
         }
@@ -29,6 +31,10 @@ class Sidebar extends Component {
       deleteId.value = evt.target.dataset ? evt.target.dataset.id : '';
       this.setState({ deleteModal: !this.state.deleteModal, deleteFolderName: evt.target.dataset.name });
     };
+    toggleCannotDeleteModal = (evt) => {
+      evt.stopPropagation();
+      this.setState({ cannotDeleteModal: !this.state.cannotDeleteModal, cannotDeleteFolderName: evt.target.dataset.name });
+    };
     updateFolder = (folderName) => {
       this.props.updateFolder({id: updateId.value, folderName: folderName.value});
       this.setState({updateModal: false, updateFolderName: ''});
@@ -41,11 +47,14 @@ class Sidebar extends Component {
         return (
             <div className="col-2 mt-4">
                 <ul className="list-group folders">
-                    { this.props.folders.map((folder, i) => <Folder key = {folder._id} folder = { folder } toggleUpdateModal={this.toggleUpdateModal} toggleDeleteModal={this.toggleDeleteModal} />)}
+                    { this.props.folders.map((folder) =>
+                      <Folder key = {folder._id} folder = { folder } toggleUpdateModal={this.toggleUpdateModal} toggleDeleteModal={this.toggleDeleteModal} toggleCannotDeleteModal={this.toggleCannotDeleteModal} />
+                    )}
                     <ModalNewFolder/>
                 </ul>
                 <ModalUpdateFolder isOpenUpdate={this.state.updateModal} toggleUpdateModal={this.toggleUpdateModal} updateFolder={this.updateFolder} updateFolderName={this.state.updateFolderName}/>
                 <ModalDeleteFolder isOpenDelete={this.state.deleteModal} toggleDeleteModal={this.toggleDeleteModal}  deleteFolder={this.deleteFolder} deleteFolderName={this.state.deleteFolderName}/>
+                <ModalCannotDeleteFolder isOpenCannotDelete={this.state.cannotDeleteModal} toggleCannotDeleteModal={this.toggleCannotDeleteModal} cannotDeleteFolderName={this.state.cannotDeleteFolderName}/>
             </div>
         )
     }
@@ -60,7 +69,7 @@ function Folder (props) {
         &nbsp; {props.folder.name}
         &nbsp;({props.folder.count})
         <div className="d-inline float-right">
-          <i className="fa fa-trash folder-actions" aria-hidden="true" data-id={props.folder._id} data-name={props.folder.name} onClick={props.toggleDeleteModal} ></i>
+          <i className="fa fa-trash folder-actions" aria-hidden="true" data-id={props.folder._id} data-name={props.folder.name} onClick={props.folder.count ? props.toggleCannotDeleteModal : props.toggleDeleteModal} ></i>
           <i className="fa fa-pencil-alt folder-actions" aria-hidden="true" data-id={props.folder._id} data-name={props.folder.name} onClick={props.toggleUpdateModal}></i>
         </div>
     </li>
