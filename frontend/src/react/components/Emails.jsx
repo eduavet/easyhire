@@ -30,7 +30,7 @@ class Emails extends Component{
                             </input></div></td>
                         <td className={"text-center"}>{item.sender}</td>
                         <td>{item.subject}<span className="snippet"> - {item.snippet}</span></td>
-                        <td>status</td>
+                        <td>{item.folderName}</td>
                         <td>{item.date}</td>
                         <td>{item.attachment?<i className="fas fa-paperclip"></i>:""}</td>
                     </tr>
