@@ -21,10 +21,12 @@ class Sidebar extends Component {
         }
     }
     toggleUpdateModal = (evt) => {
+      evt.stopPropagation();
       updateId.value = evt.target.dataset ? evt.target.dataset.id : '';
       this.setState({updateModal: !this.state.updateModal, updateFolderName: evt.target.dataset.name});
     };
     toggleDeleteModal = (evt) => {
+      evt.stopPropagation();
       deleteId.value = evt.target.dataset ? evt.target.dataset.id : '';
       this.setState({ deleteModal: !this.state.deleteModal, deleteFolderName: evt.target.dataset.name });
     };
@@ -55,14 +57,14 @@ function Folder (props) {
   const isActive = props.folder.isActive ? 'active-folder' : '';
   const icon = props.folder.icon;
   return (
-    <li className={ "list-group-item list-group-item-action " +  isActive }>
-      <a href="#" >
+    <li className={ "list-group-item list-group-item-action " +  isActive } onClick={() => alert("opens folder")}>
         <i className={ "fa " + icon} aria-hidden="true"></i>
         &nbsp; {props.folder.name}
         &nbsp;({props.folder.count})
-      </a>
-        <i className="fa fa-trash float-right folder-actions" aria-hidden="true" data-id={props.folder.id} data-name={props.folder.name} onClick={props.toggleDeleteModal}></i>
-        <i className="fa fa-pencil-alt float-right folder-actions" aria-hidden="true" data-id={props.folder.id} data-name={props.folder.name} onClick={props.toggleUpdateModal}></i>
+        <div>
+          <i className="fa fa-trash float-right folder-actions" aria-hidden="true" data-id={props.folder.id} data-name={props.folder.name} onClick={props.toggleDeleteModal} ></i>
+          <i className="fa fa-pencil-alt float-right folder-actions" aria-hidden="true" data-id={props.folder.id} data-name={props.folder.name} onClick={props.toggleUpdateModal}></i>
+        </div>
     </li>
   )
 

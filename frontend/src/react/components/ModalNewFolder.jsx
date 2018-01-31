@@ -30,11 +30,9 @@ class ModalNewFolder extends Component {
 
   render() {
     return (
-      <li className={ "list-group-item list-group-item-action " }>
-        <a href="#" onClick={this.toggle}>
+      <li className={ "list-group-item list-group-item-action " } onClick={this.toggle}>
           <i className="fa fa-plus-circle" aria-hidden="true"></i>
           &nbsp; New Folder
-        </a>
         <Modal isOpen={this.state.modal} toggle={this.toggle}>
           <ModalHeader toggle={this.toggle}>Create New Folder</ModalHeader>
           <ModalBody>
