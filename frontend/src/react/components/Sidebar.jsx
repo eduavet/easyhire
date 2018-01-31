@@ -1,138 +1,87 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import ModalNewFolder from './ModalNewFolder.jsx'
+import ModalUpdateFolder from './ModalUpdateFolder.jsx'
+import ModalDeleteFolder from './ModalDeleteFolder.jsx'
+import { asyncDeleteFolder, asyncUpdateFolder } from '../../redux/reducers/emailsReducer';
 
+const deleteId = { value: ''};
+const updateId = { value: ''};
 
+class Sidebar extends Component {
+    constructor(...args) {
+        super(...args);
+        this.state = {
+            updateModal: false,
+            deleteModal: false,
+            updateFolderName: '',
+            deleteFolderName: ''
+        }
+    }
+    toggleUpdateModal = (evt) => {
+      evt.stopPropagation();
+      updateId.value = evt.target.dataset ? evt.target.dataset.id : '';
+      this.setState({updateModal: !this.state.updateModal, updateFolderName: evt.target.dataset.name});
+    };
+    toggleDeleteModal = (evt) => {
+      evt.stopPropagation();
+      deleteId.value = evt.target.dataset ? evt.target.dataset.id : '';
+      this.setState({ deleteModal: !this.state.deleteModal, deleteFolderName: evt.target.dataset.name });
+    };
+    updateFolder = (folderName) => {
+      this.props.updateFolder({id: updateId.value, folderName: folderName.value});
+      this.setState({updateModal: false, updateFolderName: ''});
+    };
+    deleteFolder = () => {
+      this.props.deleteFolder(deleteId.value);
+      this.setState({deleteModal: false, deleteFolderName: ''});
+    };
+    render() {
+        return (
+            <div className="col-2 mt-4">
+                <ul className="list-group folders">
+                    { this.props.folders.map((folder, i) => <Folder key = {folder.id} folder = { folder } toggleUpdateModal={this.toggleUpdateModal} toggleDeleteModal={this.toggleDeleteModal} />)}
+                    <ModalNewFolder createFolder={this.props.createFolder} updateFolder={this.updateFolder}/>
+                </ul>
+                <ModalUpdateFolder isOpenUpdate={this.state.updateModal} toggleUpdateModal={this.toggleUpdateModal} updateFolder={this.updateFolder} updateFolderName={this.state.updateFolderName}/>
+                <ModalDeleteFolder isOpenDelete={this.state.deleteModal} toggleDeleteModal={this.toggleDeleteModal}  deleteFolder={this.deleteFolder} deleteFolderName={this.state.deleteFolderName}/>
+            </div>
+        )
+    }
 
-export default function Sidebar(props) {
-    return (
-        <div className="col-2 mt-4">
-            <ul className="list-group folders">
-                { props.folders.map((folder, i) => <Folder key = {i} folder = { folder } />)}
-                <NewFolderModal createFolder={props.createFolder} inputFolderNameRef={ props.inputFolderNameRef} />
-            </ul>
-        </div>
-    )
 }
 
 function Folder (props) {
-    const isActive = props.folder.isActive ? 'active-folder' : '';
-    const icon = props.folder.icon;
-    return (
-        <li className={ "list-group-item list-group-item-action " +  isActive }>
-            <a href="#" >
-                <i className={ "fa " + icon} aria-hidden="true"></i>
-                &nbsp; {props.folder.name}
-                &nbsp;({props.folder.count})
-            </a>
-            <DeleteFolderModal name={props.folder.name}/>
-            <EditFolderModal />
-        </li>
-    )
+  const isActive = props.folder.isActive ? 'active-folder' : '';
+  const icon = props.folder.icon;
+  return (
+    <li className={ "list-group-item list-group-item-action " +  isActive } onClick={() => alert("opens folder")}>
+        <i className={ "fa " + icon} aria-hidden="true"></i>
+        &nbsp; {props.folder.name}
+        &nbsp;({props.folder.count})
+        <div>
+          <i className="fa fa-trash float-right folder-actions" aria-hidden="true" data-id={props.folder.id} data-name={props.folder.name} onClick={props.toggleDeleteModal} ></i>
+          <i className="fa fa-pencil-alt float-right folder-actions" aria-hidden="true" data-id={props.folder.id} data-name={props.folder.name} onClick={props.toggleUpdateModal}></i>
+        </div>
+    </li>
+  )
+
 }
 
-class NewFolderModal extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            modal: false
-        };
-
-    }
-    toggle=()=> {
-        this.setState({ modal: !this.state.modal });
-    };
-    continue=()=>{
-
-    };
-    render() {
-        return (
-            <li className={ "list-group-item list-group-item-action " }>
-                <a href="#" onClick={this.toggle}>
-                    <i className="fa fa-plus-circle" aria-hidden="true"></i>
-                    &nbsp; New Folder
-                </a>
-                <Modal isOpen={this.state.modal} toggle={this.toggle}>
-                    <ModalHeader toggle={this.toggle}>Create New Folder</ModalHeader>
-                    <ModalBody>
-                        <form action={"http://localhost:3000/api/folders"} method={"post"}>
-                            <div className="form-group">
-                                <label htmlFor="folderName">Folder Name</label>
-                                <input type="text" ref={ this.props.inputFolderNameRef} className="form-control" id="folderName"  placeholder="Enter folder name" />
-                            </div>
-                            <hr className={"mt-4"}/>
-                            <div className="form-group">
-                                <Button color="secondary float-right" onClick={this.toggle}>Cancel</Button>
-                                <button className="btn bg-light-blue float-right mr-2" onClick={this.props.createFolder}>Save!</button>
-                            </div>
-                        </form>
-                    </ModalBody>
-                </Modal>
-            </li>
-        )
-    }
+function mapStateToProps(state) {
+  return {};
 }
-class EditFolderModal extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            modal: false
-        };
-    }
-    toggle=()=> {
-        this.setState({modal: !this.state.modal});
-    };
-    continue=()=>{
-    };
-    render() {
-        return (
-            <div className="d-inline">
-                <i className="fa fa-pencil-alt float-right folder-actions" aria-hidden="true" onClick={this.toggle}></i>
-                <Modal isOpen={this.state.modal} toggle={this.toggle}>
-                    <ModalHeader toggle={this.toggle}>Edit folder name</ModalHeader>
-                    <ModalBody>
-                        <form>
-                            <div className="form-group">
-                                <label htmlFor="folderName">Folder Name</label>
-                                <input type="text" className="form-control" id="folderName"  placeholder="Enter folder name" value=""/>
-                            </div>
-                        </form>
-                    </ModalBody>
-                    <ModalFooter>
-                        <button className="btn bg-light-blue" onClick={this.continue}>Save</button>
-                        <Button color="secondary" onClick={this.toggle}>Cancel</Button>
-                    </ModalFooter>
-                </Modal>
-            </div>)
-    }
-}
-class DeleteFolderModal extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            modal: false
-        };
 
-    }
-    toggle=()=> {
-        this.setState({modal: !this.state.modal});
-    };
-    continue=()=>{
-    };
-    render() {
-        return (
-            <div className="d-inline">
-                <i className="fa fa-trash float-right folder-actions" aria-hidden="true" onClick={this.toggle}></i>
-                <Modal isOpen={this.state.modal} toggle={this.toggle}>
-                    <ModalHeader toggle={this.toggle}>Delete Folder</ModalHeader>
-                    <ModalBody>
-                        Are you sure you want to delete this folder?{this.props.name}
-                    </ModalBody>
-                    <ModalFooter>
-                        <button className="btn bg-light-blue" onClick={this.continue}>I'm sure!</button>
-                        <Button color="secondary" onClick={this.toggle}>Cancel</Button>
-                    </ModalFooter>
-                </Modal>
-            </div>)
-    }
+function mapDispatchToProps(dispatch) {
+  return {
+    deleteFolder: (param) => dispatch(asyncDeleteFolder(param)),
+    updateFolder: (param) => dispatch(asyncUpdateFolder(param))
+  };
 }
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Sidebar);

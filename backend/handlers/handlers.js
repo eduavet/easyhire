@@ -1,23 +1,25 @@
 const util = require('util');
+const mongoose = require('mongoose');
 const fetch = require('node-fetch');
 const moment = require('moment');
 const emailsModel = require('../models/emailsModel.js')
 const usersModel = require('../models/usersModel.js')
+const foldersModel = require('../models/foldersModel.js')
 const Handlers = {};
+
 module.exports = Handlers;
 ObjectId = require('mongodb').ObjectID;
 Handlers.apiAddUser = (req, res) => {
 
   //if user doesn't exist in DB, add user
-  usersModel.find({googleID: req.body.googleID}, (err, docs) => {
+  usersModel.find({google_id: req.body.googleID}, (err, docs) => {
     if(docs.length < 1){
       const newUser = new usersModel({
-          googleID: req.body.googleID,
+          google_id: req.body.googleID,
           name: req.body.name,
           image: req.body.imageURL,
           email: req.body.email,
-          lastSync: ''
-      })
+      });
       newUser.save()
       .catch(console.error)
       console.log('user added in DB');
@@ -35,79 +37,67 @@ Handlers.username = (req, res) => {
 
 Handlers.emails = (req, response) => {
 
-  const userId = req.session.userID;
-  const accessToken = req.session.accessToken;
-  const emailsOnPage = 3;
-  const name = req.session.name;
-  const emailsToSend = [];
+    const userId = req.session.userID;
+    const accessToken = req.session.accessToken;
+    const emailsOnPage = 3;
+    const name = req.session.name;
+    const emailsToSend = [];
 
-  if(!userId){
-    response.json({emailsToSend});
-    return;
-  }
-
-  fetch('https://www.googleapis.com/gmail/v1/users/' + userId + '/messages?access_token=' + accessToken)
-    .then(res => res.json())
-    .then(res => {
-      const messages = res.messages
-      const folders = [];
-      const promises = [];
-
-      for(let i = 0; i < emailsOnPage; i++) {
-        const id = messages[i].id;
-        promises.push(fetch('https://www.googleapis.com/gmail/v1/users/' + userId + '/messages/' + id + '?access_token=' + accessToken)
-          .then(res => res.json())
-          .then(res => {
-            emailsToSend[i] = extractEmailData(res);
-            emailsModel.find({"userId": userId})
-              .then(res => {
-                if(res.length < 1) {
-                  console.log('user not found');
-                  const newEmail = buildNewEmailModel(userId, id);
-                  newEmail.save();
-                } else {
-                  // console.log('user found');
-                  emailsModel.find({userId:userId, "allEmails.emails.emailId": id})
-                    .then(res => {
-                      if(res.length < 1) {
-                        console.log('email not found');
-                        emailsModel.update({userId:userId, "allEmails.status": "Not reviewed"},{ $push: { "allEmails.$.emails": { emailId: id, isRead: false }}}, (err, docs) => {
-                          if(err) console.error(err);
-                        })
-                      }
-                    })
-                }
-              })
-          }))
-      }
-      promises.push(emailsModel.find({"userId": userId})
+     if(!userId){
+        response.json({emailsToSend});
+        return;
+    }
+    fetch('https://www.googleapis.com/gmail/v1/users/' + userId + '/messages?access_token=' + accessToken)
+        .then(res => res.json())
         .then(res => {
-          if(res.length > 0) {
-            res[0].allEmails.forEach((_item) => {
-              const item = _item.toJSON();
-              folders.push({
-                id: item._id,
-                name: item.status,
-                count: item.emails.length,
-                icon: item.icon,
-                isActive: false
-              })
-            });
-          }
-        }))
-
-      return Promise.all(promises)
-        .then(() => {
-          const packed = {
-            name,
-            emailsToSend,
-            folders
-          }
-          // console.log(packed);
-          response.json(packed)
+            const messages = res.messages;
+            const folders = [];
+            const promises = [];
+            for(let i = 0; i < emailsOnPage; i++) {
+                const id = messages[i].id;
+                promises.push(fetch('https://www.googleapis.com/gmail/v1/users/' + userId + '/messages/' + id + '?access_token=' + accessToken)
+                    .then(res => res.json())
+                    .then(msgRes => {
+                        return emailsModel
+                            .findOne({email_id: id})
+                            .populate('folder')
+                            .then(res => {
+                                if (res) {
+                                    emailsToSend[i] = extractEmailData(msgRes, res.folder._id, res.folder.name);
+                                } else{
+                                    return foldersModel.findOne({name: 'Not Reviewed'}, '_id').then(folder => {
+                                        const newEmail = new emailsModel({
+                                            user_id: userId,
+                                            email_id: id,
+                                            folder: mongoose.Types.ObjectId(folder._id),
+                                            isRead: false
+                                        });
+                                        return newEmail.save().then((email)=>{
+                                            return emailsModel
+                                                .findOne({email_id: email.email_id})
+                                                .populate('folder').then((res) => {
+                                                    emailsToSend[i] = extractEmailData(msgRes, res.folder._id, res.folder.name);
+                                                })
+                                        })
+                                    });
+                                }
+                            })
+                    })
+                )
+            }
+            return Promise.all(promises)
+                .then(() => {
+                    const packed = {
+                        name,
+                        emailsToSend,
+                        folders
+                    }
+                    response.json(packed)
+                })
         })
-    })
-    .catch(console.error);
+        .catch(err => {
+            response.json({ name: '', emailsToSend: '', folders: [], errors: [{ msg: 'Something went wrong, try again later' }]})
+        })
 }
 
 Handlers.logout = (req, res) => {
@@ -121,7 +111,7 @@ const decodeHtmlEntity = (str) => {
   });
 };
 
-const extractEmailData = (res) => {
+const extractEmailData = (res, folderId, folderName) => {
   const emailID = res.id;
   const sender = res.payload.headers.filter((item) => {
     return item.name == 'From'
@@ -131,7 +121,7 @@ const extractEmailData = (res) => {
   })[0].value
   const snippet = decodeHtmlEntity(res.snippet);
   const date = moment.unix(res.internalDate / 1000).format('DD/MM/YYYY, HH:mm:ss');
-  return {emailID, sender, subject, snippet, date};
+  return { emailID, sender, subject, snippet, date, folderId, folderName };
 }
 
 const buildNewEmailModel = (userId, id) => {
@@ -150,46 +140,68 @@ Handlers.createFolder = (req, res) => {
     req.checkBody('folderName').notEmpty().withMessage('Folder name is required');
     const errors = req.validationErrors();
     if (errors) {
-        return res.json({ errors });
+        return res.json({ errors, createdFolder: {} });
     }
     const userId = req.session.userID;
     const status = req.body.folderName;
     const icon = req.body.icon ? req.body.icon : 'fa-folder' ;
-    emailsModel.update({userId:userId},{ $push: { allEmails: {emails: [], status, icon  }    }})
+    emailsModel.findOne({userId:userId})
         .then(result => {
-            if(!result.nModified){
-                res.json({ errors: [ { msg: 'User not found' }]});
-                res.end();
-            }
-            res.json();
-            res.end();
+            result.allEmails.push({ emails: [], status, icon });
+            const createdFolder = result.allEmails[result.allEmails.length - 1];
+            const createdFolderToSend = { id: createdFolder._id, name: createdFolder.status, count: 0, icon: createdFolder.icon, isActive: false }
+            result.save().then(result => {
+                return res.json({ createdFolder: createdFolderToSend, errors: [] });
+            });
         })
         .catch(err => {
-            res.json({ errors: [{ msg: 'Something went wrong' }] });
+            return res.json({ errors: [{ msg: 'Something went wrong' }],  createdFolder: {} });
         })
 };
 
 Handlers.updateFolder = (req, res) => {
   req.checkBody('folderName').notEmpty().withMessage('Folder name is required');
-  emailsModel.find({userId: req.session.userID})
-    .then((doc) => {
-      console.log(req.session);
-      // console.log(doc);
-      res.json({yo: req.session.userID})
-      // , "allEmails._id": req.params.ID
-      // doc.allEmail[0].icon = 123;
-      // return doc.save()
+  const errors = req.validationErrors();
+  if (errors) {
+    return res.json({ errors, updatedFolder: {} });
+  }
+  emailsModel.findOne({userId: req.session.userID})
+    .then((result) => {
+      result.allEmails.forEach((item) => {
+        if(item._id == req.params.ID) {
+          item.status = req.body.folderName
+        }
+      })
+      result.save();
+      return res.json({updatedFolder: {id: req.params.ID, name: req.body.folderName}, errors: []})
     })
-    // .then(r => res.json(r));
-  // emailsModel.update({userId: req.session.userID, "allEmails._id": req.params.ID}, {$set: {"allEmails._status": req.body.folderName}})
-  // req.params.ID
-
+    .catch(err => res.json({ errors: [{ msg: 'Something went wrong' }], updatedFolder: {} }))
 }
-// console.log(util.inspect(res, { depth: 8 }));
-// console.log(res.payload.parts, 'payload parts')
-// console.log(Buffer.from(res.payload.parts[0].body.data, 'base64').toString()) //actual email text
+
+Handlers.deleteFolder = (req, res) => {
+  emailsModel.findOne({userId: req.session.userID})
+    .then((result) => {
+      result.allEmails.forEach((item, index, object) => {
+        if(item._id == req.params.ID) {
+          if(item.emails.length < 1) {
+            object.splice(index, 1);
+          } else {
+            return res.json({ errors: [{ msg: 'Folder contains emails and cannot be deleted' }], deletedFolderID: '' });
+          }
+        }
+      })
+      result.save();
+      return res.json({deletedFolderID: req.params.ID, errors: []})
+    })
+    .catch(err => res.json({errors: err, deletedFolderID: ''}))
+}
 
 Handlers.emailsMoveToFolder = (req, res)=> {
     const userId = req.session.userID;
     const ids = req.body.emailIds;
 };
+
+// console.log(util.inspect(res, { depth: 8 }));
+// console.log(res.payload.parts, 'payload parts')
+// console.log(Buffer.from(res.payload.parts[0].body.data, 'base64').toString()) //actual email text
+

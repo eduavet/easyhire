@@ -1,14 +1,7 @@
 const initialState = {
     emails: [],
     name: '',
-    folders: [
-        // { name:'Inbox', count: 9, icon: 'fa-inbox', isActive: true },
-        // { name:'Approved', count: 5, icon: 'fa-check-square', isActive: false },
-        // { name:'Rejected', count: 1, icon: 'fa-times-circle', isActive: false },
-        // { name:'Interview Scheduled', count: 7, icon: 'fa-clock', isActive: false },
-        // { name:'Created', count: 7, icon: 'fa-folder', isActive: false },
-        // { name: 'Not reviewed', count: 3, icon: 'fa-question', isActive: false },
-    ],
+    folders: [],
     loading : true,
     errors: [],
 };
@@ -36,7 +29,6 @@ function getEmails(result) {
     };
 }
 
-
 function getUsername(name) {
     return {
         type: GET_USERNAME,
@@ -46,19 +38,19 @@ function getUsername(name) {
 function createFolder(response) {
     return {
         type: CREATE_FOLDER,
-        payload: { response }
+        payload: { createdFolder: response.createdFolder, errors: response.errors }
     };
 }
 function updateFolder(response) {
     return {
         type: UPDATE_FOLDER,
-        payload: { response }
+        payload: { updatedFolder: response.updatedFolder, errors: response.errors }
     };
 }
 function deleteFolder(response) {
     return {
         type: DELETE_FOLDER,
-        payload: { response }
+        payload: { deletedFolderID: response.deletedFolderID, errors: response.errors  }
     };
 }
 export function asyncGetEmails() {
@@ -120,22 +112,21 @@ export function asyncCreateFolder(body) {
             body: JSON.stringify(body),
             headers: {
                 "Content-Type": "application/json",
-                // credentials: 'include',
             },
             credentials: 'include',
         })
-            // .then((res) => res.json())
+            .then((res) => res.json())
             .then(result => {
-                console.log(result)
-                // dispatch(createFolder(result))
+                dispatch(createFolder(result))
             }).catch(console.error);
     }
 }
 export function asyncUpdateFolder(body) {
+  const updatedFolder = {id: body.id, folderName: body.folderName}
     return function(dispatch) {
-        fetch('http://localhost:3000/api/folders/', {
+        fetch('http://localhost:3000/api/folders/' + updatedFolder.id, {
             method: 'PUT',
-            body: JSON.stringify(body),
+            body: JSON.stringify(updatedFolder),
             headers: {
                 "Content-Type": "application/json"
             },
@@ -143,15 +134,14 @@ export function asyncUpdateFolder(body) {
         })
             .then((res) => res.json())
             .then(result => {
-                dispatch(createFolder(result))
+              dispatch(updateFolder(result))
             }).catch(console.error);
     }
 }
-export function asyncDeleteFolder(body) {
+export function asyncDeleteFolder(id) {
     return function(dispatch) {
-        fetch('http://localhost:3000/api/folders/', {
+        fetch('http://localhost:3000/api/folders/' + id , {
             method: 'DELETE',
-            body: JSON.stringify(body),
             headers: {
                 "Content-Type": "application/json"
             },
@@ -159,7 +149,7 @@ export function asyncDeleteFolder(body) {
         })
             .then((res) => res.json())
             .then(result => {
-                dispatch(createFolder(result))
+                dispatch(deleteFolder(result))
             }).catch(console.error);
     }
 }
@@ -226,11 +216,31 @@ export default function(state = initialState, action) {
                 emails: payload.emails
             };
         case CREATE_FOLDER:
-            return state;
+            const folders =  payload.createdFolder.id ? [...state.folders, payload.createdFolder] : state.folders
+            return {
+                ...state,
+                folders:folders,
+                errors: payload.errors,
+            };
         case UPDATE_FOLDER:
+          return {
+            ...state,
+            folders: state.folders.map(folder => {
+              if(folder.id == payload.updatedFolder.id) {
+                folder.name = payload.updatedFolder.name
+              }
+              return folder
+            }),
+            errors: payload.errors,
+          };
             return state;
         case DELETE_FOLDER:
-            return state;
+            const foldersAfterDelete = state.folders.filter(folder => folder.id !== payload.deletedFolderID);
+            return {
+                ...state,
+                folders:foldersAfterDelete,
+                errors: payload.errors,
+            };
         default:
             return state;
     }
