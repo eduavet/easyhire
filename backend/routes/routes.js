@@ -35,3 +35,4 @@ router.post('/api/folders', handlers.createFolder);
 router.post('/api/emails/move', handlers.emailsMoveToFolder);
 router.put('/api/folders/:ID', handlers.updateFolder);
 router.delete('/api/folders/:ID', handlers.deleteFolder);
+router.delete('/api/emails/:ID', handlers.deleteEmails);

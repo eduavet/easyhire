@@ -50,7 +50,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    isChecked: (bool, item) => dispatch(isChecked(bool, item)),
+    isChecked: (item) => dispatch(isChecked(item)),
   };
 }
 

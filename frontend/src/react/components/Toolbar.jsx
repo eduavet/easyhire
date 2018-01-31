@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link, Route, Switch, BrowserRouter} from 'react-router-dom';
-import { selectAll, selectNone, asyncPostEmailsToFolder } from '../../redux/reducers/emailsReducer';
+import { selectAll, selectNone, asyncPostEmailsToFolder, asyncDeleteEmails } from '../../redux/reducers/emailsReducer';
 import { Button, Nav, NavItem, Dropdown, DropdownItem, DropdownToggle, DropdownMenu, NavLink, Input, InputGroup, InputGroupAddon } from 'reactstrap';
 
 class Toolbar extends Component{
@@ -29,6 +29,12 @@ class Toolbar extends Component{
     moveToFolder=(id)=>{
         const emailsToMove = this.props.emails.filter(email=>email.isChecked).map(email=>email.emailID);
         this.props.postEmailsToFolder(emailsToMove, id)
+    };
+
+    deleteEmail=()=>{
+        event.preventDefault();
+        const emailsToDelete = this.props.emails.filter(email=>email.isChecked).map(email=>email.emailID);
+        this.props.deleteEmails(emailsToDelete);
     }
 
 
@@ -67,7 +73,8 @@ class Toolbar extends Component{
 
                 </Dropdown>
                 <NavItem>
-                    <NavLink href="#"><i className="fas fa-trash-alt"></i></NavLink>
+                    <NavLink href="#" onClick={ () => this.deleteEmail() }><i className="fas fa-trash-alt"></i></NavLink>
+
                 </NavItem>
                 <NavItem className="searchContainer">
                     <form className="my-2 my-lg-0">
@@ -93,7 +100,8 @@ function mapDispatchToProps(dispatch) {
   return {
     selectAll: (emails) => dispatch(selectAll(emails)),
     selectNone: (emails) => dispatch(selectNone(emails)),
-    postEmailsToFolder: (emailIds, folderId) => dispatch(asyncPostEmailsToFolder(emailIds, folderId))
+    postEmailsToFolder: (emailIds, folderId) => dispatch(asyncPostEmailsToFolder(emailIds, folderId)),
+    deleteEmails: (emailIds) => dispatch(asyncDeleteEmails(emailIds)),
   };
 }
 

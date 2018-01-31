@@ -41,7 +41,7 @@ class Sidebar extends Component {
         return (
             <div className="col-2 mt-4">
                 <ul className="list-group folders">
-                    { this.props.folders.map((folder, i) => <Folder key = {folder.id} folder = { folder } toggleUpdateModal={this.toggleUpdateModal} toggleDeleteModal={this.toggleDeleteModal} />)}
+                    { this.props.folders.map((folder, i) => <Folder key = {folder._id} folder = { folder } toggleUpdateModal={this.toggleUpdateModal} toggleDeleteModal={this.toggleDeleteModal} />)}
                     <ModalNewFolder/>
                 </ul>
                 <ModalUpdateFolder isOpenUpdate={this.state.updateModal} toggleUpdateModal={this.toggleUpdateModal} updateFolder={this.updateFolder} updateFolderName={this.state.updateFolderName}/>
