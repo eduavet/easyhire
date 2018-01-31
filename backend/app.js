@@ -3,13 +3,13 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const expressValidator = require('express-validator');
 const cors = require('cors');
-const logger = require('morgan');
 const passport  = require('passport');
-const GoogleStrategy = require( 'passport-google-oauth2' ).Strategy;
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
-const { connectMongo } = require('./db.js');
 const mongoose = require('mongoose');
+const { connectMongo } = require('./db.js');
+const myRouter = require('./routes/routes');
+
 
 connectMongo();
 require('./config/passport');
@@ -42,12 +42,8 @@ app.use(session({
 app.use( passport.initialize());
 app.use( passport.session());
 
-const myRouter = require('./routes/routes');
-
 app.listen(3000, () => {
   console.log('Listening to port 3000');
 });
-
-
 
 app.use('/', myRouter);

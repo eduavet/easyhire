@@ -1,8 +1,5 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
-import { asyncUpdateFolder } from '../../redux/reducers/emailsReducer';
 
 export default class ModalUpdateFolder extends Component {
   constructor(props) {
@@ -11,7 +8,7 @@ export default class ModalUpdateFolder extends Component {
       input: true
     }
   }
-  
+
   handleChange = (e) => {
     this.setState({input: e.target.value});
   }

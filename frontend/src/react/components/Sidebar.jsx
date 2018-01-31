@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import ModalNewFolder from './ModalNewFolder.jsx'
 import ModalUpdateFolder from './ModalUpdateFolder.jsx'
@@ -43,14 +42,13 @@ class Sidebar extends Component {
             <div className="col-2 mt-4">
                 <ul className="list-group folders">
                     { this.props.folders.map((folder, i) => <Folder key = {folder.id} folder = { folder } toggleUpdateModal={this.toggleUpdateModal} toggleDeleteModal={this.toggleDeleteModal} />)}
-                    <ModalNewFolder createFolder={this.props.createFolder} updateFolder={this.updateFolder}/>
+                    <ModalNewFolder/>
                 </ul>
                 <ModalUpdateFolder isOpenUpdate={this.state.updateModal} toggleUpdateModal={this.toggleUpdateModal} updateFolder={this.updateFolder} updateFolderName={this.state.updateFolderName}/>
                 <ModalDeleteFolder isOpenDelete={this.state.deleteModal} toggleDeleteModal={this.toggleDeleteModal}  deleteFolder={this.deleteFolder} deleteFolderName={this.state.deleteFolderName}/>
             </div>
         )
     }
-
 }
 
 function Folder (props) {
@@ -67,11 +65,12 @@ function Folder (props) {
         </div>
     </li>
   )
-
 }
 
 function mapStateToProps(state) {
-  return {};
+  return {
+    folders: state.folders
+  };
 }
 
 function mapDispatchToProps(dispatch) {

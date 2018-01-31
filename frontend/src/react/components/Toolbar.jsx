@@ -2,12 +2,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link, Route, Switch, BrowserRouter} from 'react-router-dom';
-
+import { selectAll, selectNone, asyncPostEmailsToFolder } from '../../redux/reducers/emailsReducer';
 import { Button, Nav, NavItem, Dropdown, DropdownItem, DropdownToggle, DropdownMenu, NavLink, Input, InputGroup, InputGroupAddon } from 'reactstrap';
 
-
-export default class Toolbar extends Component{
-
+class Toolbar extends Component{
     constructor(props) {
         super(props);
         this.state = {
@@ -83,3 +81,23 @@ export default class Toolbar extends Component{
         </div>)
     }
 }
+
+function mapStateToProps(state) {
+  return {
+    emails: state.emails,
+    folders: state.folders,
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    selectAll: (emails) => dispatch(selectAll(emails)),
+    selectNone: (emails) => dispatch(selectNone(emails)),
+    postEmailsToFolder: (emailIds, folderId) => dispatch(asyncPostEmailsToFolder(emailIds, folderId))
+  };
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Toolbar);

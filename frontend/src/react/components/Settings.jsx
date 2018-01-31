@@ -4,6 +4,10 @@ import Header from './Header.jsx'
 
 export default class Settings extends Component{
     render(){
-        return (<div></div>)
+        return (
+          <div>
+            
+          </div>
+        )
     }
 }

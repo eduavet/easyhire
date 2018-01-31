@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Logout from './Logout.jsx';
 import Settings from './Settings.jsx'
 import { Link, Route, Switch, BrowserRouter} from 'react-router-dom';
-import { Button, Nav, NavItem, Dropdown, DropdownItem, DropdownToggle, DropdownMenu, NavLink, Input, Navbar, NavbarBrand } from 'reactstrap';
+import { Nav, NavItem, NavLink, Navbar, NavbarBrand } from 'reactstrap';
 
-export default class Header extends Component{
-
+class Header extends Component{
     render() {
         return (<div>
                 <Navbar color="faded" light expand="md" className="header navbar-dark">
@@ -32,3 +32,18 @@ export default class Header extends Component{
         );
     }
 };
+
+function mapStateToProps(state) {
+  return {
+    username: state.name
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {};
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Header);
