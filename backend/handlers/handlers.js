@@ -2,9 +2,9 @@ const util = require('util');
 const mongoose = require('mongoose');
 const fetch = require('node-fetch');
 const moment = require('moment');
-const emailsModel = require('../models/emailsModel.js')
-const usersModel = require('../models/usersModel.js')
-const foldersModel = require('../models/foldersModel.js')
+const emailsModel = require('../models/emailsModel.js');
+const usersModel = require('../models/usersModel.js');
+const foldersModel = require('../models/foldersModel.js');
 const Handlers = {};
 
 module.exports = Handlers;
@@ -12,20 +12,20 @@ ObjectId = require('mongodb').ObjectID;
 Handlers.apiAddUser = (req, res) => {
 
   //if user doesn't exist in DB, add user
-  usersModel.find({google_id: req.body.googleID}, (err, docs) => {
+  usersModel.find({googleUser_id: req.body.googleID}, (err, docs) => {
     if(docs.length < 1){
       const newUser = new usersModel({
-          google_id: req.body.googleID,
+          googleUser_id: req.body.googleID,
           name: req.body.name,
           image: req.body.imageURL,
           email: req.body.email,
       });
       newUser.save()
-      .catch(console.error)
+      .catch(console.error);
       console.log('user added in DB');
     }
   })
-}
+};
 
 Handlers.username = (req, res) => {
   if(req.session.name) {
@@ -33,7 +33,7 @@ Handlers.username = (req, res) => {
   } else {
       res.json({name : ''});
   }
-}
+};
 
 Handlers.emails = (req, response) => {
 
@@ -66,12 +66,7 @@ Handlers.emails = (req, response) => {
                                     emailsToSend[i] = extractEmailData(msgRes, res.folder._id, res.folder.name);
                                 } else{
                                     return foldersModel.findOne({name: 'Not Reviewed'}, '_id').then(folder => {
-                                        const newEmail = new emailsModel({
-                                            user_id: userId,
-                                            email_id: id,
-                                            folder: mongoose.Types.ObjectId(folder._id),
-                                            isRead: false
-                                        });
+                                        const newEmail= buildNewEmailModel(userId, id, folder);
                                         return newEmail.save().then((email)=>{
                                             return emailsModel
                                                 .findOne({email_id: email.email_id})
@@ -87,23 +82,45 @@ Handlers.emails = (req, response) => {
             }
             return Promise.all(promises)
                 .then(() => {
-                    const packed = {
-                        name,
-                        emailsToSend,
-                        folders
-                    }
-                    response.json(packed)
+                    return foldersModel
+                        .aggregate([
+                            { $match: { $or:[ { 'user_id':null}, { 'user_id':userId }] } },
+                            {
+                                $lookup: {
+                                            from: 'emails',
+                                            localField: "_id",
+                                            foreignField: "folder",
+                                            as: "emails"
+                                       }
+                            },
+                            {
+                                $project: {
+                                    _id: 1,
+                                    name: 1,
+                                    icon: 1,
+                                    count: { $size: "$emails" }
+                                }
+                            },
+                        ])
+                        .then((folders) => {
+                            const packed = {
+                                name,
+                                emailsToSend,
+                                folders
+                            };
+                            response.json(packed)
+                        })
                 })
         })
         .catch(err => {
             response.json({ name: '', emailsToSend: '', folders: [], errors: [{ msg: 'Something went wrong, try again later' }]})
         })
-}
+};
 
 Handlers.logout = (req, res) => {
   ["userID", "accessToken", "name", "passport"].forEach(e => delete req.session[e]);
   res.redirect("http://localhost:8080");
-}
+};
 
 const decodeHtmlEntity = (str) => {
   return str.replace(/&#(\d+);/g, function(match, dec) {
@@ -115,26 +132,23 @@ const extractEmailData = (res, folderId, folderName) => {
   const emailID = res.id;
   const sender = res.payload.headers.filter((item) => {
     return item.name == 'From'
-  })[0].value
+  })[0].value;
   const subject = res.payload.headers.filter((item) => {
     return item.name == 'Subject'
-  })[0].value
+  })[0].value;
   const snippet = decodeHtmlEntity(res.snippet);
   const date = moment.unix(res.internalDate / 1000).format('DD/MM/YYYY, HH:mm:ss');
   return { emailID, sender, subject, snippet, date, folderId, folderName };
-}
+};
 
-const buildNewEmailModel = (userId, id) => {
+const buildNewEmailModel = (userId, id, folder) => {
   return new emailsModel({
-    userId: userId,
-    allEmails : [
-      {
-        status: 'Not reviewed',
-        emails: [{ emailId: id, isRead: false }]
-      }
-    ]
+      user_id: userId,
+      email_id: id,
+      folder: mongoose.Types.ObjectId(folder._id),
+      isRead: false
   });
-}
+};
 
 Handlers.createFolder = (req, res) => {
     req.checkBody('folderName').notEmpty().withMessage('Folder name is required');
@@ -143,16 +157,17 @@ Handlers.createFolder = (req, res) => {
         return res.json({ errors, createdFolder: {} });
     }
     const userId = req.session.userID;
-    const status = req.body.folderName;
+    const name = req.body.folderName;
     const icon = req.body.icon ? req.body.icon : 'fa-folder' ;
-    emailsModel.findOne({userId:userId})
-        .then(result => {
-            result.allEmails.push({ emails: [], status, icon });
-            const createdFolder = result.allEmails[result.allEmails.length - 1];
-            const createdFolderToSend = { id: createdFolder._id, name: createdFolder.status, count: 0, icon: createdFolder.icon, isActive: false }
-            result.save().then(result => {
-                return res.json({ createdFolder: createdFolderToSend, errors: [] });
-            });
+    const newFolder = new foldersModel({
+        name: name,
+        icon: icon,
+        user_id: userId
+    });
+    newFolder.save()
+        .then((createdFolder)=>{
+            const createdFolderToSend = { id: createdFolder._id, name: createdFolder.name, count: 0, icon: createdFolder.icon, isActive: false }
+            return res.json({ createdFolder: createdFolderToSend, errors: [] });
         })
         .catch(err => {
             return res.json({ errors: [{ msg: 'Something went wrong' }],  createdFolder: {} });
@@ -171,12 +186,12 @@ Handlers.updateFolder = (req, res) => {
         if(item._id == req.params.ID) {
           item.status = req.body.folderName
         }
-      })
+      });
       result.save();
       return res.json({updatedFolder: {id: req.params.ID, name: req.body.folderName}, errors: []})
     })
     .catch(err => res.json({ errors: [{ msg: 'Something went wrong' }], updatedFolder: {} }))
-}
+};
 
 Handlers.deleteFolder = (req, res) => {
   emailsModel.findOne({userId: req.session.userID})
@@ -189,16 +204,21 @@ Handlers.deleteFolder = (req, res) => {
             return res.json({ errors: [{ msg: 'Folder contains emails and cannot be deleted' }], deletedFolderID: '' });
           }
         }
-      })
+      });
       result.save();
       return res.json({deletedFolderID: req.params.ID, errors: []})
     })
     .catch(err => res.json({errors: err, deletedFolderID: ''}))
-}
+};
 
 Handlers.emailsMoveToFolder = (req, res)=> {
     const userId = req.session.userID;
-    const ids = req.body.emailIds;
+    const emailsToMove = req.body.emailIds;
+    const folderToMove=req.body.folderId;
+    emailsModel.update({email_id: {$in: emailsToMove}}, { $set: {folder: mongoose.Types.ObjectId(folderToMove)}})
+        .then(res=>{
+
+        })
 };
 
 // console.log(util.inspect(res, { depth: 8 }));
