@@ -111,7 +111,6 @@ Handlers.emails = (req, response) => {
                             },
                         ])
                         .then((folders) => {
-                            console.log(folders,'folders');
                             const packed = {
                                 name,
                                 emailsToSend,
@@ -231,7 +230,6 @@ Handlers.emailsMoveToFolder = (req, res)=> {
 
 Handlers.deleteEmails=(req, res)=>{
     const emailsToDelete=req.params.ID.split(',');
-    console.log(emailsToDelete);
     emailsModel.remove({email_id: {$in: emailsToDelete}})
         .then(res=>{})
         .then(()=>res.json({emailsToDelete: emailsToDelete, errors: []}))
@@ -241,4 +239,3 @@ Handlers.deleteEmails=(req, res)=>{
 // console.log(util.inspect(res, { depth: 8 }));
 // console.log(res.payload.parts, 'payload parts')
 // console.log(Buffer.from(res.payload.parts[0].body.data, 'base64').toString()) //actual email text
-
