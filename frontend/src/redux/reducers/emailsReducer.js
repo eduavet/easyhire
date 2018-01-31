@@ -185,7 +185,7 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 emails: [...state.emails, ...payload.emails.map(email=>Object.assign({}, email, {isChecked: !!email.isChecked}))],
-                folders: payload.folders
+                folders: [...state.folders, ...payload.folders.map(folder=>Object.assign({}, folder, {isActive: !!folder.isActive}))],
             };
         case GET_USERNAME:
             return {

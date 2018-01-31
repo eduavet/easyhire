@@ -87,12 +87,36 @@ Handlers.emails = (req, response) => {
             }
             return Promise.all(promises)
                 .then(() => {
-                    const packed = {
-                        name,
-                        emailsToSend,
-                        folders
-                    }
-                    response.json(packed)
+                    console.log('aaaaa')
+                    return foldersModel
+                        .aggregate([
+                            { $match: { $or:[ { 'user_id':null}, { 'user_id':userId }] } },
+                            {
+                                $lookup: {
+                                            from: 'emails',
+                                            localField: "_id",
+                                            foreignField: "folder",
+                                            as: "emails"
+                                       }
+                            },
+                            {
+                                $project: {
+                                    _id: 1,
+                                    name: 1,
+                                    icon: 1,
+                                    count: { $size: "$emails" }
+                                }
+                            },
+                        ])
+                        .then((folders) => {
+                            console.log(folders)
+                            const packed = {
+                                name,
+                                emailsToSend,
+                                folders
+                            };
+                            response.json(packed)
+                        })
                 })
         })
         .catch(err => {
@@ -143,16 +167,17 @@ Handlers.createFolder = (req, res) => {
         return res.json({ errors, createdFolder: {} });
     }
     const userId = req.session.userID;
-    const status = req.body.folderName;
+    const name = req.body.folderName;
     const icon = req.body.icon ? req.body.icon : 'fa-folder' ;
-    emailsModel.findOne({userId:userId})
-        .then(result => {
-            result.allEmails.push({ emails: [], status, icon });
-            const createdFolder = result.allEmails[result.allEmails.length - 1];
-            const createdFolderToSend = { id: createdFolder._id, name: createdFolder.status, count: 0, icon: createdFolder.icon, isActive: false }
-            result.save().then(result => {
-                return res.json({ createdFolder: createdFolderToSend, errors: [] });
-            });
+    const newFolder = new foldersModel({
+        name: name,
+        icon: icon,
+        user_id: userId
+    });
+    newFolder.save()
+        .then((createdFolder)=>{
+            const createdFolderToSend = { id: createdFolder._id, name: createdFolder.name, count: 0, icon: createdFolder.icon, isActive: false }
+            return res.json({ createdFolder: createdFolderToSend, errors: [] });
         })
         .catch(err => {
             return res.json({ errors: [{ msg: 'Something went wrong' }],  createdFolder: {} });
