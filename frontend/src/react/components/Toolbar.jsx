@@ -4,13 +4,16 @@ import { connect } from 'react-redux';
 import { Link, Route, Switch, BrowserRouter} from 'react-router-dom';
 import { selectAll, selectNone, asyncPostEmailsToFolder, asyncDeleteEmails } from '../../redux/reducers/emailsReducer';
 import { Button, Nav, NavItem, Dropdown, DropdownItem, DropdownToggle, DropdownMenu, NavLink, Input, InputGroup, InputGroupAddon } from 'reactstrap';
+import ModalDeleteEmails from './ModalDeleteEmails.jsx'
 
 class Toolbar extends Component{
     constructor(props) {
         super(props);
         this.state = {
             selectOpen: false,
-            actionOpen: false
+            actionOpen: false,
+            deleteModal: false,
+            deleteCount: 0
         };
     }
 
@@ -35,9 +38,14 @@ class Toolbar extends Component{
         event.preventDefault();
         const emailsToDelete = this.props.emails.filter(email=>email.isChecked).map(email=>email.emailID);
         this.props.deleteEmails(emailsToDelete);
-    }
+        this.setState({ deleteModal: !this.state.deleteModal, deleteCount: 0});
+    };
 
-
+    toggleDeleteModal = (evt) => {
+      if(this.props.emails.filter(email=>email.isChecked).length){
+        this.setState({ deleteModal: !this.state.deleteModal, deleteCount: this.props.emails.filter(email=>email.isChecked).length });
+      }
+    };
 
     render(){
         return (<div className="col-10">
@@ -63,8 +71,8 @@ class Toolbar extends Component{
                     </DropdownToggle>
                     <DropdownMenu>
                         {
-                            this.props.folders.map((folder, i) => {
-                                return <DropdownItem key={i}>
+                            this.props.folders.map((folder) => {
+                                return <DropdownItem key={folder._id}>
                                     <div onClick={ () => this.moveToFolder(folder._id) }>Move to {folder.name}</div>
                                 </DropdownItem>
                             })
@@ -73,7 +81,7 @@ class Toolbar extends Component{
 
                 </Dropdown>
                 <NavItem>
-                    <NavLink href="#" onClick={ () => this.deleteEmail() }><i className="fas fa-trash-alt"></i></NavLink>
+                    <NavLink href="#" onClick={ () => this.toggleDeleteModal() }><i className="fas fa-trash-alt"></i></NavLink>
 
                 </NavItem>
                 <NavItem className="searchContainer">
@@ -85,6 +93,7 @@ class Toolbar extends Component{
                     </form>
                 </NavItem>
             </Nav>
+            <ModalDeleteEmails isOpenDelete={this.state.deleteModal} toggleDeleteModal={this.toggleDeleteModal}  deleteEmail={this.deleteEmail} count={this.state.deleteCount}/>
         </div>)
     }
 }

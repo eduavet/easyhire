@@ -7,7 +7,7 @@ import { isChecked } from '../../redux/reducers/emailsReducer';
 class Emails extends Component{
     toggleCheckbox = (item) => {
         this.props.isChecked(item)
-    }
+    };
     render(){
         return(
           <div className="col-10 mt-4">
@@ -24,9 +24,9 @@ class Emails extends Component{
                 </thead>
                 <tbody>
                 {this.props.emails.map(item => {
-                    return <tr key={item.email + item.date}>
+                    return <tr key={item.emailID}>
                         <td><div className="checkbox checkbox-success">
-                            <input type="checkbox" key={item.email + item.date} checked={item.isChecked} onClick={() => this.toggleCheckbox(item)} ref={(a) => {this._inputElement = a}}>
+                            <input type="checkbox" key={item.emailID} checked={item.isChecked} onClick={() => this.toggleCheckbox(item)} ref={(a) => {this._inputElement = a}}>
                             </input></div></td>
                         <td className={"text-center"}>{item.sender}</td>
                         <td>{item.subject}<span className="snippet"> - {item.snippet}</span></td>

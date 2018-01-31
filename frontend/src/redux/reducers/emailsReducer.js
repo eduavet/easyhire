@@ -19,7 +19,8 @@ const CREATE_FOLDER = 'Create folder';
 const UPDATE_FOLDER = 'Update folder';
 const DELETE_FOLDER = 'Delete folder';
 const DELETE_EMAILS = 'Delete emails';
-const UPDATE_EMAILS = 'Update Email Folders'
+const UPDATE_EMAILS = 'Update Email Folders';
+const REFRESH = 'Refresh';
 
 /**
  * Action creator
@@ -66,6 +67,12 @@ function deleteEmails(response){
         type: DELETE_EMAILS,
         payload: {emailsToDelete: response.emailsToDelete, errors: response.errors}
     }
+}
+function refresh(result) {
+    return {
+        type: REFRESH,
+        payload: { emails: result.emailsToSend, folders: result.folders }
+    };
 }
 export function asyncGetEmails() {
     return function(dispatch) {
@@ -201,6 +208,17 @@ export function asyncDeleteEmails(emailIds){
             }).catch(console.error);
     }
 }
+export function asyncRefresh() {
+    return function(dispatch) {
+        fetch('http://localhost:3000/api/emails', {
+            credentials: 'include',
+        })
+            .then((res) => res.json())
+            .then(result => {
+                dispatch(refresh(result))
+            }).catch(console.error);
+    }
+}
 /**
  * Reducer
  */
@@ -298,6 +316,12 @@ export default function(state = initialState, action) {
                 ...state,
                 emails: emailsAfterDelete,
                 errors: payload.errors
+            };
+        case REFRESH:
+            return {
+                ...state,
+                emails: payload.emails.map(email=>Object.assign({}, email, {isChecked: !!email.isChecked})),
+                folders: payload.folders.map(folder=>Object.assign({}, folder, {isActive: !!folder.isActive})),
             };
         default:
             return state;
