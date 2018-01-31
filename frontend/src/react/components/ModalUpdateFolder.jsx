@@ -5,20 +5,31 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { asyncUpdateFolder } from '../../redux/reducers/emailsReducer';
 
 export default class ModalUpdateFolder extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      input: true
+    }
+  }
+  
+  handleChange = (e) => {
+    this.setState({input: e.target.value});
+  }
+
   render() {
     return (
       <div className="d-inline">
         <Modal isOpen={this.props.isOpenUpdate} toggle={this.toggle}>
-          <ModalHeader toggle={this.props.toggleUpdateModal}>Edit folder name</ModalHeader>
+          <ModalHeader toggle={this.props.toggleUpdateModal}>Update folder name</ModalHeader>
           <ModalBody>
               <div className="form-group">
                 <label htmlFor="folderName">Folder Name</label>
-                <input type="text" className="form-control" id="folderName" placeholder="Enter folder name" ref="inputField" defaultValue={this.props.updateFolderName}/>
+                <input type="text" className="form-control" id="folderName" placeholder="Enter folder name" ref="inputField" defaultValue={this.props.updateFolderName} onChange={this.handleChange}/>
               </div>
               <hr className={"mt-4"}/>
               <div className="form-group">
                 <Button color="secondary float-right" onClick={this.props.toggleUpdateModal}>Cancel</Button>
-                <button className="btn bg-light-blue float-right mr-2" onClick={() => this.props.updateFolder(this.refs.inputField)}>Save!</button>
+                <Button className="btn bg-light-blue float-right mr-2" onClick={() => this.props.updateFolder(this.refs.inputField)} disabled={!this.state.input}>Update</Button>
               </div>
           </ModalBody>
         </Modal>
@@ -26,18 +37,3 @@ export default class ModalUpdateFolder extends Component {
     )
   }
 }
-
-// function mapStateToProps(state) {
-//   return {};
-// }
-//
-// function mapDispatchToProps(dispatch) {
-//   return {
-//     // updateFolder: (param) => dispatch(asyncUpdateFolder(param))
-//   };
-// }
-//
-// export default connect(
-//   mapStateToProps,
-//   mapDispatchToProps
-// )(ModalUpdateFolder);
