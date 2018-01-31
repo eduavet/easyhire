@@ -165,18 +165,20 @@ export function asyncDeleteFolder(body) {
 }
 
 export function asyncPostEmailsToFolder(emailIds, folderId){
+    console.log(folderId)
     return function(dispatch) {
         fetch('http://localhost:3000/api/emails/move', {
             method: 'POST',
             body: JSON.stringify({emailIds, folderId}),
             headers: {
+                "Origin": "",
                 "Content-Type": "application/json"
             },
             credentials: 'include',
         })
-            //.then((res) => res.json())
+            .then((res) => res.json())
             .then(result => {
-                console.log(result)
+                console.log(result, 'result')
                 //dispatch(createFolder(result))
             }).catch(console.error);
     }

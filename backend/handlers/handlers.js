@@ -5,7 +5,7 @@ const emailsModel = require('../models/emailsModel.js')
 const usersModel = require('../models/usersModel.js')
 const Handlers = {};
 module.exports = Handlers;
-
+ObjectId = require('mongodb').ObjectID;
 Handlers.apiAddUser = (req, res) => {
 
   //if user doesn't exist in DB, add user
@@ -189,7 +189,7 @@ Handlers.updateFolder = (req, res) => {
 // console.log(res.payload.parts, 'payload parts')
 // console.log(Buffer.from(res.payload.parts[0].body.data, 'base64').toString()) //actual email text
 
-Handlers.emailsMoveToFolder = (req, res)=>{
-    console.log(req.body)
-    res.send()
-}
+Handlers.emailsMoveToFolder = (req, res)=> {
+    const userId = req.session.userID;
+    const ids = req.body.emailIds;
+};
