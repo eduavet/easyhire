@@ -5,24 +5,21 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { asyncUpdateFolder } from '../../redux/reducers/emailsReducer';
 
 export default class ModalUpdateFolder extends Component {
-
   render() {
     return (
       <div className="d-inline">
         <Modal isOpen={this.props.isOpenUpdate} toggle={this.toggle}>
           <ModalHeader toggle={this.props.toggleUpdateModal}>Edit folder name</ModalHeader>
           <ModalBody>
-            <form>
               <div className="form-group">
                 <label htmlFor="folderName">Folder Name</label>
-                <input type="text" className="form-control" id="folderName" placeholder="Enter folder name"/>
+                <input type="text" className="form-control" id="folderName" placeholder="Enter folder name" ref="inputField" defaultValue={this.props.updateFolderName}/>
               </div>
               <hr className={"mt-4"}/>
               <div className="form-group">
                 <Button color="secondary float-right" onClick={this.props.toggleUpdateModal}>Cancel</Button>
-                <button className="btn bg-light-blue float-right mr-2" onClick={this.props.updateFolder}>Save!</button>
+                <button className="btn bg-light-blue float-right mr-2" onClick={() => this.props.updateFolder(this.refs.inputField)}>Save!</button>
               </div>
-            </form>
           </ModalBody>
         </Modal>
       </div>

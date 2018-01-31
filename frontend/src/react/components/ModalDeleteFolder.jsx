@@ -11,7 +11,7 @@ export default class ModalDeleteFolder extends Component {
         <Modal isOpen={this.props.isOpenDelete} toggle={this.toggle}>
           <ModalHeader toggle={this.props.toggleDeleteModal}>Delete Folder</ModalHeader>
           <ModalBody>
-            Are you sure you want to delete folder ?
+            Are you sure you want to delete folder <b>{this.props.deleteFolderName}</b>?
           </ModalBody>
           <ModalFooter>
             <button className={"btn btn-danger"} onClick={this.props.deleteFolder}>Delete</button>

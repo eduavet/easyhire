@@ -44,7 +44,7 @@ function createFolder(response) {
 function updateFolder(response) {
     return {
         type: UPDATE_FOLDER,
-        payload: { response }
+        payload: { updatedFolder: response.updatedFolder, errors: response.errors }
     };
 }
 function deleteFolder(response) {
@@ -122,11 +122,11 @@ export function asyncCreateFolder(body) {
     }
 }
 export function asyncUpdateFolder(body) {
-  const hardCoded = {id: "5a70688b298a1b10acca2497", folderName: "NEW FOLDER NAME"}
+  const updatedFolder = {id: body.id, folderName: body.folderName}
     return function(dispatch) {
-        fetch('http://localhost:3000/api/folders/' + hardCoded.id, {
+        fetch('http://localhost:3000/api/folders/' + updatedFolder.id, {
             method: 'PUT',
-            body: JSON.stringify(hardCoded),
+            body: JSON.stringify(updatedFolder),
             headers: {
                 "Content-Type": "application/json"
             },
@@ -134,8 +134,7 @@ export function asyncUpdateFolder(body) {
         })
             .then((res) => res.json())
             .then(result => {
-              console.log('async update func result', result);
-              // dispatch(updateFolder(result))
+              dispatch(updateFolder(result))
             }).catch(console.error);
     }
 }
@@ -222,6 +221,16 @@ export default function(state = initialState, action) {
                 errors: payload.errors,
             };
         case UPDATE_FOLDER:
+          return {
+            ...state,
+            folders: state.folders.map(folder => {
+              if(folder.id == payload.updatedFolder.id) {
+                folder.name = payload.updatedFolder.name
+              }
+              return folder
+            }),
+            errors: payload.errors,
+          };
             return state;
         case DELETE_FOLDER:
             const foldersAfterDelete = state.folders.filter(folder => folder.id !== payload.deletedFolderID);
