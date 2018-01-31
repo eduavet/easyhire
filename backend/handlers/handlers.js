@@ -111,7 +111,6 @@ Handlers.emails = (req, response) => {
                             },
                         ])
                         .then((folders) => {
-                            console.log(folders,'folders');
                             const packed = {
                                 name,
                                 emailsToSend,
@@ -221,20 +220,23 @@ Handlers.emailsMoveToFolder = (req, res)=> {
     const userId = req.session.userID;
     const emailsToMove = req.body.emailIds;
     const folderToMove=req.body.folderId;
+    const originalFolder=[];
     let folderName = '';
-    foldersModel.findOne({_id: mongoose.Types.ObjectId(folderToMove)}, 'name').then(response=>folderName=response.name);
-    emailsModel.update({email_id: {$in: emailsToMove}}, { $set: {folder: mongoose.Types.ObjectId(folderToMove)}})
-        .then(res=>{})
-        .then(()=>res.json({emailsToMove: emailsToMove, errors: [], folderId, folderName}))
-        .catch(err => res.json({errors: err, emailsToMove: [], folderId: '', folderName: ''}))
+    emailsModel.find({email_id: {$in: emailsToMove}}, {folder: true, _id:false})
+        .then(result=>{
+        result.forEach(r=>originalFolder.push(r.folder));
+        })
+        .then(()=>foldersModel.findOne({_id: mongoose.Types.ObjectId(folderToMove)}, 'name')
+        .then(response=>folderName=response.name))
+        .then(()=>emailsModel.update({email_id: {$in: emailsToMove}}, { $set: {folder: mongoose.Types.ObjectId(folderToMove)}}))
+        .then(()=>res.json({emailsToMove: emailsToMove, errors: [], folderId :folderToMove, folderName, originalFolder}))
+        .catch(err => res.json({errors: err, emailsToMove: [], folderId: '', folderName: '', originalFolder: []}))
 };
 
 Handlers.deleteEmails=(req, res)=>{
     const emailsToDelete=req.params.ID.split(',');
-    console.log(emailsToDelete);
     emailsModel.remove({email_id: {$in: emailsToDelete}})
-        .then(res=>{})
-        .then(()=>res.json({emailsToDelete: emailsToDelete, errors: []}))
+        .then(()=>{res.json({emailsToDelete: emailsToDelete, errors: []})})
         .catch(err => res.json({errors: err, emailsToDelete: []}))
 };
 

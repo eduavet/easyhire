@@ -58,7 +58,7 @@ function deleteFolder(response) {
 function updateEmails(response){
     return {
         type: UPDATE_EMAILS,
-        payload: {emailsToMove: response.emailsToMove, errors: response.errors, folderId: response.folderId, folderName: response.folderName}
+        payload: {emailsToMove: response.emailsToMove, errors: response.errors, folderId: response.folderId, folderName: response.folderName, originalFolder: response.originalFolder}
     }
 }
 function deleteEmails(response){
@@ -180,9 +180,8 @@ export function asyncPostEmailsToFolder(emailIds, folderId){
             credentials: 'include',
         })
             .then((res) => res.json())
-            .then(result => {
-                console.log(result, 'result');
-                dispatch(updateEmails(result))
+            .then(res => {
+                dispatch(updateEmails(res))
             }).catch(console.error);
     }
 }
@@ -198,7 +197,6 @@ export function asyncDeleteEmails(emailIds){
         })
             .then((res) => res.json())
             .then(result => {
-                console.log(result);
                 dispatch(deleteEmails(result))
             }).catch(console.error);
     }
@@ -246,7 +244,6 @@ export default function(state = initialState, action) {
                 emails: payload.emails
             };
         case CREATE_FOLDER:
-            console.log(payload.createdFolder)
             const folders =  payload.createdFolder._id ? [...state.folders, payload.createdFolder] : state.folders
             return {
                 ...state,
@@ -273,6 +270,15 @@ export default function(state = initialState, action) {
                 errors: payload.errors,
             };
         case UPDATE_EMAILS:
+            const foldersAfterMove = state.folders.map(folder=>{
+                if(payload.originalFolder.indexOf(folder._id)!== -1){
+                    folder.count--;
+                }
+                if(payload.folderId==folder._id){
+                    folder.count++;
+                }
+                return folder;
+            });
             const emailsAfterMove = state.emails.map(email=>{
                 if(payload.emailsToMove.indexOf(email.emailID)!== -1){
                    email.folderId = payload.folderId;
@@ -283,6 +289,7 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 emails: emailsAfterMove,
+                folders: foldersAfterMove,
                 errors: payload.errors
             };
         case DELETE_EMAILS:
