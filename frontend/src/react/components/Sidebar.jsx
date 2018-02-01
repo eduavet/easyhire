@@ -39,7 +39,7 @@ class Sidebar extends Component {
       this.props.updateFolder({id: updateId.value, folderName: folderName.value});
       this.setState({updateModal: false, updateFolderName: ''});
     };
-    deleteFolder = () => {
+    deleteFolder = (folder) => {
       this.props.deleteFolder(deleteId.value);
       this.setState({deleteModal: false, deleteFolderName: ''});
     };

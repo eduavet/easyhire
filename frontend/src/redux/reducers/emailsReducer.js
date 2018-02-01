@@ -128,7 +128,7 @@ export function isChecked(item){
 export function isActive(item){
     return {
         type: IS_ACTIVE,
-        payload: {isActive: !item.isActive, id: item._id}
+        payload: {isActive: true, id: item._id}
     }
 }
 export function selectAll(emails){
@@ -326,7 +326,7 @@ export default function(state = initialState, action) {
           };
             return state;
         case DELETE_FOLDER:
-            const foldersAfterDelete = state.folders.filter(folder => folder._id !== payload.deletedFolderID);
+            const foldersAfterDelete = state.folders.filter(folder =>folder._id !== payload.deletedFolderID);
             return {
                 ...state,
                 folders:foldersAfterDelete,
