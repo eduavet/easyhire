@@ -1,21 +1,20 @@
 const Router = require('express').Router;
-const handlers = require('../handlers/handlers');
-const gapiHandler = require('../handlers/gapi.handler');
+const emailHandlers = require('../handlers/email');
+const folderHandlers = require('../handlers/folder');
+const authHandlers = require('../handlers/auth');
 const passport  = require('passport');
 const GoogleStrategy = require( 'passport-google-oauth2' ).Strategy;
 const router = Router();
 
 module.exports = router;
 
-router.post('/api/addUser', handlers.apiAddUser);
-router.post('/', gapiHandler.getEmails);
 router.get( '/auth/google', passport.authenticate( 'google',
     { scope:
-        ['https://mail.google.com/',
-            // 'https://www.googleapis.com/auth/gmail.modify',
-            // 'https://www.googleapis.com/auth/gmail.readonly',
-            // 'https://www.googleapis.com/auth/gmail.metadata',
-            'profile', 'email', 'openid']
+            ['https://mail.google.com/',
+                // 'https://www.googleapis.com/auth/gmail.modify',
+                // 'https://www.googleapis.com/auth/gmail.readonly',
+                // 'https://www.googleapis.com/auth/gmail.metadata',
+                'profile', 'email', 'openid']
     })
 );
 router.get('/auth/google/callback',
@@ -23,16 +22,16 @@ router.get('/auth/google/callback',
         successRedirect: 'http://localhost:8080',
         failureRedirect: '/auth/google'
     }));
-// router.get('/auth/google/success',function (req, res) {
-//     console.log('/auth/google/success');
-//     // console.log(req.profile);
-//     res.send({ hello: 'world' });
-// });
-router.get('/api/emails', handlers.emails);
-router.get('/api/username', handlers.username);
-router.get('/auth/logout', handlers.logout);
-router.post('/api/folders', handlers.createFolder);
-router.post('/api/emails/move', handlers.emailsMoveToFolder);
-router.put('/api/folders/:ID', handlers.updateFolder);
-router.delete('/api/folders/:ID', handlers.deleteFolder);
-router.delete('/api/emails/:ID', handlers.deleteEmails);
+
+router.post('/api/addUser', authHandlers.apiAddUser);
+router.get('/api/username', authHandlers.username);
+router.get('/auth/logout', authHandlers.logout);
+
+router.get('/api/emails', emailHandlers.emails);
+router.delete('/api/emails/:ID', emailHandlers.deleteEmails);
+router.post('/api/emails/move', emailHandlers.emailsMoveToFolder);
+
+
+router.post('/api/folders', folderHandlers.createFolder);
+router.put('/api/folders/:ID', folderHandlers.updateFolder);
+router.delete('/api/folders/:ID', folderHandlers.deleteFolder);

@@ -1,42 +1,21 @@
-main-color = #B9CC1B;
-header-color = #000099;
 blue-1-color = #418fde;
 blue-2-color = #0855a6;
-sync-color = #007bff9c;
-sync-hover-color = #007bff9c;
-//folder-active-color = #FFFFFF;
 folder-color = #585353;
-folder-active-color = #7b7bc1;
 font-white-color = #FFFFFF;
+
+//Header component /start
 .header {
   background : blue-2-color;
 }
-
-li{
-  color: white
-}
-
-.w-15 {
-  width: 15%!important;
-}
-.w-40 {
-  width: 40%!important;
-}
-
-.snippet {
-   opacity : .6;
-  font-size: 0.9em;
-}
-
-.settingsbtn{
-  color: white;
+.settingsbtn, .logoutbtn{
+  color: font-white-color;
 };
+//Header component /end
 
-.logoutbtn {
-  color: white;
-}
-.mt-60{
-  margin-top: 60px;
+//Toolbar component /start
+.snippet {
+  opacity : .6;
+  font-size: 0.9em;
 }
 .searchContainer{
   flex-grow: 2;
@@ -44,42 +23,6 @@ li{
     width: 52%;
   }
 }
-.sync-btn{
-  width 100%;
-  margin 0px auto;
-  background: blue-1-color;
-  border-color: blue-1-color;
-  color: font-white-color
-  &:hover{
-    background blue-2-color;
-    border-color: blue-2-color;
-
-  }
-}
-.folders {
-  .folder-actions{
-    opacity  0;
-    pointer-events: none;
-    transition all 0.7s ease;
-  }
-  a {
-     color folder-color;
-     &:hover {
-       text-decoration none;
-     }
-   }
-  li {
-    &:hover {
-      .folder-actions{
-        pointer-events: auto;
-        opacity  1 ;
-        cursor: pointer;
-      }
-    }
-  }
-
-}
-
 .inner-addon {
   position: relative;
 }
@@ -97,7 +40,58 @@ li{
 .left-addon .search-icon  { left:  0px;}
 
 .left-addon input  { padding-left:  30px; }
+.toolbar{
+  a{
+    color blue-2-color;
+  }
+}
+.nav-item.show{
+  .selectbtn, .actionbtn{
+    background : blue-1-color
+  }
+}
 
+//Toolbar component /end
+
+//Refresh component /start
+.sync-btn{
+  width 100%;
+  margin 0px auto;
+  background: blue-1-color;
+  border-color: blue-1-color;
+  color: font-white-color
+  &:hover{
+    background blue-2-color;
+    border-color: blue-2-color;
+
+  }
+}
+//Refresh component /end
+
+//Sidebar component /start
+.folders {
+  .folder-actions{
+    opacity  0;
+    pointer-events: none;
+    transition all 0.7s ease;
+  }
+  a {
+    color folder-color;
+    &:hover {
+      text-decoration none;
+    }
+  }
+  li {
+    &:hover {
+      .folder-actions{
+        pointer-events: auto;
+        opacity  1 ;
+        cursor: pointer;
+      }
+    }
+  }
+
+}
 
 .folder-badge{
   background folder-color;
@@ -105,6 +99,7 @@ li{
 }
 .active-folder{
   border-left 7px solid blue-1-color;
+  color:blue-1-color;
   a {
     color: blue-1-color;
   }
@@ -113,14 +108,16 @@ li{
     color white
   }
 }
-
-.toolbar{
-  a{
-    color blue-2-color;
-  }
+.folder-actions{
+  padding 3px;
+  margin 3px;
 }
+.folders> .list-group-item{
+  cursor: pointer
+}
+//Sidebar component /end
 
-
+//Login component /start
 .loginBtn {
   box-sizing: border-box;
   position: relative;
@@ -179,6 +176,19 @@ li{
   height: 100vh;
 }
 
+//Login component /end
+
+
+//global styles /start
+.w-15 {
+  width: 15%!important;
+}
+.w-40 {
+  width: 40%!important;
+}
+.mt-60{
+  margin-top: 60px;
+}
 .bg-light-blue{
   background blue-1-color;
   color font-white-color;
@@ -191,26 +201,4 @@ li{
   color font-white-color
   background blue-2-color;
 }
-.folder-actions{
-  padding 3px;
-  margin 3px;
-
-}
-
-.nav-item.show{
-  .selectbtn{
-    background : blue-1-color
-  }
-}
-.nav-item.show{
-  .actionbtn{
-    background : blue-1-color
-  }
-}
-
-.list-group-item{
-  cursor: pointer
-}
-
-
-//font-weight: bold
+//global styles /end
