@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link, Route, Switch, BrowserRouter} from 'react-router-dom';
-import { selectAll, selectNone, asyncPostEmailsToFolder, asyncDeleteEmails } from '../../redux/reducers/emailsReducer';
+import { selectAll, selectNone, asyncPostEmailsToFolder, asyncDeleteEmails, asyncMark } from '../../redux/reducers/emailsReducer';
 import { Button, Nav, NavItem, Dropdown, DropdownItem, DropdownToggle, DropdownMenu, NavLink, Input, InputGroup, InputGroupAddon } from 'reactstrap';
 import ModalDeleteEmails from './ModalDeleteEmails.jsx'
 
@@ -39,6 +39,12 @@ class Toolbar extends Component{
     moveToFolder=(id)=>{
         const emailsToMove = this.props.emails.filter(email=>email.isChecked).map(email=>email.emailID);
         this.props.postEmailsToFolder(emailsToMove, id)
+    };
+
+    mark = (isRead) => {
+        const emailsToMark = this.props.emails.filter(email=>email.isChecked).map(email=>email.emailID);
+        // console.log('marking read ', isRead);
+        this.props.asyncMark(emailsToMark, isRead)
     };
 
     deleteEmail=()=>{
@@ -94,11 +100,11 @@ class Toolbar extends Component{
                     </DropdownToggle>
                     <DropdownMenu>
                         <DropdownItem>
-                            <div onClick={ () => this.props.markRead(this.props.emails) }>Read</div>
+                            <div onClick={() => this.mark(true)}>Read</div>
                         </DropdownItem>
                         <DropdownItem divider />
                         <DropdownItem>
-                            <div onClick={ () => this.props.markUnread(this.props.emails) }>Unread</div>
+                            <div onClick={() => this.mark(false)}>Unread</div>
                         </DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
@@ -132,6 +138,7 @@ function mapDispatchToProps(dispatch) {
   return {
     selectAll: (emails) => dispatch(selectAll(emails)),
     selectNone: (emails) => dispatch(selectNone(emails)),
+    asyncMark: (emailIds, isRead) => dispatch(asyncMark(emailIds, isRead)),
     postEmailsToFolder: (emailIds, folderId) => dispatch(asyncPostEmailsToFolder(emailIds, folderId)),
     deleteEmails: (emailIds) => dispatch(asyncDeleteEmails(emailIds)),
   };

@@ -24,12 +24,12 @@ class Emails extends Component{
                 </thead>
                 <tbody>
                 {this.props.emails.map(item => {
-                    return <tr key={item.emailID}>
+                    return <tr key={item.emailID} className={item.isRead ? '' : "isUnread"}>
                         <td><div className="checkbox checkbox-success">
                             <input type="checkbox" key={item.emailID} checked={item.isChecked} onClick={() => this.toggleCheckbox(item)} ref={(a) => {this._inputElement = a}}>
                             </input></div></td>
-                        <td className={"text-center"}>{item.sender}</td>
-                        <td>{item.subject}<span className="snippet"> - {item.snippet}</span></td>
+                          <td className={item.isRead ? "text-center" : "text-center bold"}>{item.sender}</td>
+                        <td><span className={item.isRead ? '' : "bold"}>{item.subject}</span><span className="snippet"> - {item.snippet}</span></td>
                         <td>{item.folderName}</td>
                         <td>{item.date}</td>
                         <td>{item.attachment?<i className="fas fa-paperclip"></i>:""}</td>

@@ -21,6 +21,7 @@ const DELETE_FOLDER = 'Delete folder';
 const DELETE_EMAILS = 'Delete emails';
 const UPDATE_EMAILS = 'Update Email Folders';
 const REFRESH = 'Refresh';
+const MARK = 'Mark';
 
 /**
  * Action creator
@@ -72,6 +73,12 @@ function refresh(result) {
     return {
         type: REFRESH,
         payload: { emails: result.emailsToSend, folders: result.folders }
+    };
+}
+function mark(result) {
+    return {
+        type: MARK,
+        payload: { emailsToMark: result.emailsToMark, newValue: result.newValue }
     };
 }
 export function asyncGetEmails() {
@@ -219,6 +226,23 @@ export function asyncRefresh() {
             }).catch(console.error);
     }
 }
+
+export function asyncMark(emailIds, isRead) {
+    return function(dispatch) {
+        fetch('http://localhost:3000/api/emails/mark', {
+            method: 'POST',
+            body: JSON.stringify({emailIds, isRead}),
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: 'include',
+        })
+            .then((res) => res.json())
+            .then(result => {
+                dispatch(mark(result))
+            }).catch(console.error);
+    }
+}
 /**
  * Reducer
  */
@@ -228,6 +252,7 @@ export default function(state = initialState, action) {
 
     switch (type) {
         case GET_EMAILS:
+            console.log(payload.emails);
             return {
                 ...state,
                 emails: [...state.emails, ...payload.emails.map(email=>Object.assign({}, email, {isChecked: !!email.isChecked}))],
@@ -322,6 +347,19 @@ export default function(state = initialState, action) {
                 ...state,
                 emails: payload.emails.map(email=>Object.assign({}, email, {isChecked: !!email.isChecked})),
                 folders: payload.folders.map(folder=>Object.assign({}, folder, {isActive: !!folder.isActive})),
+            };
+        case MARK:
+            const updatedEmails = state.emails.map(email => {
+              if (payload.emailsToMark.includes(email.emailID)){
+                email.isRead = payload.newValue;
+                email.isChecked = false;
+              }
+              return email
+            });
+            return {
+              ...state,
+              emails: updatedEmails,
+              errors: payload.errors
             };
         default:
             return state;

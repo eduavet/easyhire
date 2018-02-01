@@ -30,7 +30,7 @@ router.get('/auth/logout', authHandlers.logout);
 router.get('/api/emails', emailHandlers.emails);
 router.delete('/api/emails/:ID', emailHandlers.deleteEmails);
 router.post('/api/emails/move', emailHandlers.emailsMoveToFolder);
-
+router.post('/api/emails/mark', emailHandlers.mark);
 
 router.post('/api/folders', folderHandlers.createFolder);
 router.put('/api/folders/:ID', folderHandlers.updateFolder);

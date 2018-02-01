@@ -38,7 +38,12 @@ emailHandlers.emails = (req, response) => {
                             .populate('folder')
                             .then(res => {
                                 if (res) {
-                                    emailsToSend[i] = extractEmailData(msgRes, res.folder._id, res.folder.name);
+                                  emailsToSend[i] = extractEmailData(msgRes, res.folder._id, res.folder.name, res.isRead);
+                                    // emailsModel.findOne({email_id: emailID})
+                                    //   .then(res => {
+                                    //     return { emailID, sender, subject, snippet, date, folderId, folderName, isRead: res.isRead};
+                                    //     // console.log(res.isRead);
+                                    //   })
                                 } else{
                                     return foldersModel.findOne({name: 'Not Reviewed'}, '_id').then(folder => {
                                         const newEmail= buildNewEmailModel(userId, id, folder);
@@ -113,6 +118,15 @@ emailHandlers.emailsMoveToFolder = (req, res)=> {
         .catch(err => res.json({errors: err, emailsToMove: [], folderId: '', folderName: '', originalFolder: []}))
 };
 
+emailHandlers.mark = (req, res) => {
+  const userId = req.session.userID;
+  const emailsToMark = req.body.emailIds;
+  const newValue = req.body.isRead;
+  emailsModel.updateMany({email_id: {$in: emailsToMark}}, { $set : {isRead: newValue}})
+    .then(res.json({emailsToMark, newValue, errors: []}))
+    .catch(err => res.json({errors: err, emailsToMark: [], newValue: null}))
+}
+
 //Delete specified email(s) but only from db NOT from gmail
 emailHandlers.deleteEmails=(req, res)=>{
     const emailsToDelete=req.params.ID.split(',');
@@ -129,7 +143,7 @@ const decodeHtmlEntity = (str) => {
     });
 };
 
-const extractEmailData = (res, folderId, folderName) => {
+const extractEmailData = (res, folderId, folderName, isReadParam) => {
     const emailID = res.id;
     const sender = res.payload.headers.filter((item) => {
         return item.name == 'From'
@@ -139,7 +153,8 @@ const extractEmailData = (res, folderId, folderName) => {
     })[0].value;
     const snippet = decodeHtmlEntity(res.snippet);
     const date = moment.unix(res.internalDate / 1000).format('DD/MM/YYYY, HH:mm:ss');
-    return { emailID, sender, subject, snippet, date, folderId, folderName };
+    const isRead = isReadParam;
+    return { emailID, sender, subject, snippet, date, folderId, folderName, isRead};
 };
 
 const buildNewEmailModel = (userId, id, folder) => {
