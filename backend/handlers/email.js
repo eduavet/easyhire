@@ -29,7 +29,7 @@ emailHandlers.emails = (req, response) => {
             const messages = res.messages;
             const folders = [];
             const promises = [];
-            for(let i = 0; i < emailsOnPage; i++) {
+            for(let i = 0; i < messages.length; i++) {
                 const id = messages[i].id;
                 promises.push(fetch('https://www.googleapis.com/gmail/v1/users/' + userId + '/messages/' + id + '?access_token=' + accessToken)
                     .then(res => res.json())
