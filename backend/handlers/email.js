@@ -126,10 +126,13 @@ emailHandlers.emailsMoveToFolder = (req, res)=> {
         .catch(err => res.json({errors: err, emailsToMove: [], folderId: '', folderName: '', originalFolder: []}))
 };
 
+//Marks emails 'read' or 'unread'
 emailHandlers.mark = (req, res) => {
   const userId = req.session.userID;
   const emailsToMark = req.body.emailIds;
   const newValue = req.body.isRead;
+  console.log({emailsToMark});
+  console.log({newValue});
   emailsModel.updateMany({email_id: {$in: emailsToMark}}, { $set : {isRead: newValue}})
     .then(res.json({emailsToMark, newValue, errors: []}))
     .catch(err => res.json({errors: err, emailsToMark: [], newValue: null}))
