@@ -11,7 +11,8 @@ class Toolbar extends Component{
         super(props);
         this.state = {
             selectOpen: false,
-            actionOpen: false,
+            moveOpen: false,
+            markOpen: false,
             deleteModal: false,
             deleteCount: 0
         };
@@ -23,9 +24,15 @@ class Toolbar extends Component{
         });
     };
 
-    toggleAction=()=> {
+    toggleMove=()=> {
         this.setState({
-            actionOpen: !this.state.actionOpen
+            moveOpen: !this.state.moveOpen
+        });
+    };
+
+    toggleMark=()=> {
+        this.setState({
+            markOpen: !this.state.markOpen
         });
     };
 
@@ -65,21 +72,37 @@ class Toolbar extends Component{
                     </DropdownMenu>
                 </Dropdown>
 
-                <Dropdown nav isOpen={this.state.actionOpen} toggle={this.toggleAction}>
+                <Dropdown nav isOpen={this.state.moveOpen} toggle={this.toggleMove}>
                     <DropdownToggle className="actionbtn" nav caret>
-                        Action
+                        Move to
                     </DropdownToggle>
                     <DropdownMenu>
                         {
                             this.props.folders.map((folder) => {
                                 return <DropdownItem key={folder._id}>
-                                    <div onClick={ () => this.moveToFolder(folder._id) }>Move to {folder.name}</div>
+                                    <div onClick={ () => this.moveToFolder(folder._id) }>{folder.name}</div>
                                 </DropdownItem>
                             })
                         }
                     </DropdownMenu>
 
                 </Dropdown>
+
+                <Dropdown nav isOpen={this.state.markOpen} toggle={this.toggleMark}>
+                    <DropdownToggle className="selectbtn" nav caret >
+                        Mark as
+                    </DropdownToggle>
+                    <DropdownMenu>
+                        <DropdownItem>
+                            <div onClick={ () => this.props.markRead(this.props.emails) }>Read</div>
+                        </DropdownItem>
+                        <DropdownItem divider />
+                        <DropdownItem>
+                            <div onClick={ () => this.props.markUnread(this.props.emails) }>Unread</div>
+                        </DropdownItem>
+                    </DropdownMenu>
+                </Dropdown>
+
                 <NavItem>
                     <NavLink href="#" onClick={ () => this.toggleDeleteModal() }><i className="fas fa-trash-alt"></i></NavLink>
 
