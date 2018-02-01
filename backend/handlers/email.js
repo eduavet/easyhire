@@ -5,6 +5,7 @@ const moment = require('moment');
 const emailsModel = require('../models/emailsModel.js');
 const usersModel = require('../models/usersModel.js');
 const foldersModel = require('../models/foldersModel.js');
+const emailHelpers = require('../helpers/email.js');
 const emailHandlers = {};
 
 module.exports = emailHandlers;
@@ -38,15 +39,15 @@ emailHandlers.emails = (req, response) => {
                             .populate('folder')
                             .then(res => {
                                 if (res) {
-                                    emailsToSend[i] = extractEmailData(msgRes, res.folder._id, res.folder.name);
+                                    emailsToSend[i] = emailHelpers.extractEmailData(msgRes, res.folder._id, res.folder.name);
                                 } else{
                                     return foldersModel.findOne({name: 'Not Reviewed'}, '_id').then(folder => {
-                                        const newEmail= buildNewEmailModel(userId, id, folder);
+                                        const newEmail= emailHelpers.buildNewEmailModel(userId, id, folder);
                                         return newEmail.save().then((email)=>{
                                             return emailsModel
                                                 .findOne({email_id: email.email_id})
                                                 .populate('folder').then((res) => {
-                                                    emailsToSend[i] = extractEmailData(msgRes, res.folder._id, res.folder.name);
+                                                    emailsToSend[i] = emailHelpers.extractEmailData(msgRes, res.folder._id, res.folder.name);
                                                 })
                                         })
                                     });
@@ -58,7 +59,6 @@ emailHandlers.emails = (req, response) => {
             return Promise.all(promises)
                 .then(() => {
                     return foldersModel
-
                         .aggregate([
                             { $match: { $or:[ { 'user_id': null}, { 'user_id': userId }] } },
                             {
@@ -94,7 +94,6 @@ emailHandlers.emails = (req, response) => {
                             }
                         ])
                         .then((folders) => {
-                            console.log(folders)
                             const packed = {
                                 name,
                                 emailsToSend,
@@ -138,37 +137,6 @@ emailHandlers.deleteEmails=(req, res)=>{
         .then(()=>res.json({emailsToDelete: emailsToDelete, originalFolder,  errors: []}))
         .catch(err => res.json({errors: err, emailsToDelete: [], originalFolder: []}))})
 };
-
-// Necessary functions
-
-const decodeHtmlEntity = (str) => {
-    return str.replace(/&#(\d+);/g, function(match, dec) {
-        return String.fromCharCode(dec);
-    });
-};
-
-const extractEmailData = (res, folderId, folderName) => {
-    const emailID = res.id;
-    const sender = res.payload.headers.filter((item) => {
-        return item.name == 'From'
-    })[0].value;
-    const subject = res.payload.headers.filter((item) => {
-        return item.name == 'Subject'
-    })[0].value;
-    const snippet = decodeHtmlEntity(res.snippet);
-    const date = moment.unix(res.internalDate / 1000).format('DD/MM/YYYY, HH:mm:ss');
-    return { emailID, sender, subject, snippet, date, folderId, folderName };
-};
-
-const buildNewEmailModel = (userId, id, folder) => {
-    return new emailsModel({
-        user_id: userId,
-        email_id: id,
-        folder: mongoose.Types.ObjectId(folder._id),
-        isRead: false
-    });
-};
-
 
 // console.log(util.inspect(res, { depth: 8 }));
 // console.log(res.payload.parts, 'payload parts')

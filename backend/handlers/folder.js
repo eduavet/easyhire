@@ -5,7 +5,9 @@ const moment = require('moment');
 const emailsModel = require('../models/emailsModel.js');
 const usersModel = require('../models/usersModel.js');
 const foldersModel = require('../models/foldersModel.js');
+const emailHelpers = require('../helpers/email.js');
 const folderHandlers = {};
+
 
 module.exports = folderHandlers;
 ObjectId = require('mongodb').ObjectID;
@@ -75,9 +77,33 @@ folderHandlers.getEmails = (req, res) => {
     if (errors) {
         return res.json({ errors });
     }
-    const userId = req.session.userID;
-    const folderId = req.params.ID ? req.params.ID : '';
-    return res.json({ folderId: folderId });
+    const userId = req.session.userID,
+          folderId = req.params.ID,
+          accessToken = req.session.accessToken,
+          emailsToSend = [],
+          promises = [];
+    emailsModel.find({ folder: folderId, user_id: userId }, 'email_id')
+        .populate('folder', 'name')
+        .then((result) => {
+            for(let i = 0; i < result.length; i++) {
+                const id = result[i].email_id;
+                promises.push(fetch('https://www.googleapis.com/gmail/v1/users/' + userId + '/messages/' + id + '?access_token=' + accessToken)
+                    .then(response => response.json())
+                    .then(msgRes => {
+                        emailsToSend[i] = emailHelpers.extractEmailData(msgRes, folderId, result.folder.name);
+                    })
+                )
+            }
+            return Promise.all(promises)
+                .then(() => {
+                    res.json({ emailsToSend, errors: [] })
+                });
+        })
+        .catch((err) => {
+            return res.json({ emailsToSend: [], errors: err });
+
+        })
+    // return res.json({ folderId: folderId });
     // const userId = req.session.userID;
     // const name = req.body.folderName;
 
