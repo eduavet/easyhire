@@ -4,6 +4,7 @@ const initialState = {
     folders: [],
     loading : true,
     errors: [],
+    loaded: false
 };
 
 /**
@@ -24,6 +25,7 @@ const UPDATE_EMAILS = 'Update Email Folders';
 const REFRESH = 'Refresh';
 const MARK = 'Mark';
 const GET_FOLDER_EMAILS = 'Get folder emails';
+const LOADING = 'Loading';
 
 /**
  * Action creator
@@ -90,14 +92,19 @@ function mark(result) {
         payload: { emailsToMark: result.emailsToMark, newValue: result.newValue }
     };
 }
+function loading() {
+    return {
+        type: LOADING
+    };
+}
 export function asyncGetEmails() {
     return function(dispatch) {
+        dispatch(loading())
         fetch('http://localhost:3000/api/emails', {
             credentials: 'include',
         })
             .then((res) => res.json())
             .then(result => {
-              console.log(result);
                 dispatch(getEmails(result))
             }).catch(console.error);
     }
@@ -105,6 +112,7 @@ export function asyncGetEmails() {
 
 export function asyncGetFolderEmails(folderId) {
     return function(dispatch) {
+        dispatch(loading())
         fetch('http://localhost:3000/api/folders/' + folderId, {
             credentials: 'include',
         })
@@ -245,6 +253,7 @@ export function asyncDeleteEmails(emailIds){
 }
 export function asyncRefresh() {
     return function(dispatch) {
+        dispatch(loading())
         fetch('http://localhost:3000/api/emails', {
             credentials: 'include',
         })
@@ -284,6 +293,7 @@ export default function(state = initialState, action) {
                 ...state,
                 emails: [...state.emails, ...payload.emails.map(email=>Object.assign({}, email, {isChecked: !!email.isChecked}))],
                 folders: [...state.folders,{_id: 'allEmails', name: 'Inbox', icon: 'fa-inbox', isActive: true, count: payload.inboxCount, user_id: null }, ...payload.folders.map(folder=>Object.assign({}, folder, {isActive: !!folder.isActive}))],
+                loaded: true
             };
         case GET_USERNAME:
             return {
@@ -297,6 +307,7 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 emails: payload.emails.map(email=>Object.assign({}, email, {isChecked: !!email.isChecked})),
+                loaded: true
             };
         case IS_CHECKED:
             return {
@@ -409,6 +420,7 @@ export default function(state = initialState, action) {
                 ...state,
                 emails: payload.emails.map(email=>Object.assign({}, email, {isChecked: !!email.isChecked})),
                 folders: [{_id: 'allEmails', name: 'Inbox', icon: 'fa-inbox', isActive: true, count: payload.inboxCount },...payload.folders.map(folder=>Object.assign({}, folder, {isActive: !!folder.isActive}))],
+                loaded: true
             };
         case MARK:
             const updatedEmails = state.emails.map(email => {
@@ -423,6 +435,11 @@ export default function(state = initialState, action) {
               emails: updatedEmails,
               errors: payload.errors
             };
+        case LOADING:
+            return {
+              ...state,
+              loaded: false
+            }
         default:
             return state;
     }

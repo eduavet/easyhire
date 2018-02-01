@@ -3,14 +3,22 @@ import { connect } from 'react-redux';
 import { Link, Route, Switch, BrowserRouter} from 'react-router-dom';
 import { Table } from 'reactstrap';
 import { isChecked } from '../../redux/reducers/emailsReducer';
+const Loader = require('react-loader');
 
 class Emails extends Component{
+    constructor(props){
+      super(props)
+      this.state = {
+        loaded: false
+      }
+    }
     toggleCheckbox = (item) => {
         this.props.isChecked(item)
     };
     render(){
         return(
           <div className="col-10 mt-4">
+            <Loader loaded={this.props.loaded}>
             <Table size="sm">
                 <thead>
                 <tr>
@@ -37,6 +45,7 @@ class Emails extends Component{
                 })}
                 </tbody>
             </Table>
+          </Loader>
         </div>
       )
     }
@@ -44,7 +53,8 @@ class Emails extends Component{
 
 function mapStateToProps(state) {
   return {
-    emails: state.emails
+    emails: state.emails,
+    loaded: state.loaded
   };
 }
 
