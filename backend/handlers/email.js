@@ -80,6 +80,7 @@ emailHandlers.emails = (req, response) => {
                                     _id : "$_id" ,
                                     name: { "$first": "$name" },
                                     icon: { "$first": "$icon" },
+                                    user_id: { "$first": "$user_id" },
                                     emails: { $push: "$emails" } ,
                                     // count: {  $sum: 1}
                                 }
@@ -89,6 +90,7 @@ emailHandlers.emails = (req, response) => {
                                         _id: 1,
                                         name: 1,
                                         icon: 1,
+                                        user_id: 1,
                                         count: { $size: "$emails" }
                                 }
                             }
@@ -126,10 +128,13 @@ emailHandlers.emailsMoveToFolder = (req, res)=> {
         .catch(err => res.json({errors: err, emailsToMove: [], folderId: '', folderName: '', originalFolder: []}))
 };
 
+//Marks emails 'read' or 'unread'
 emailHandlers.mark = (req, res) => {
   const userId = req.session.userID;
   const emailsToMark = req.body.emailIds;
   const newValue = req.body.isRead;
+  console.log({emailsToMark});
+  console.log({newValue});
   emailsModel.updateMany({email_id: {$in: emailsToMark}}, { $set : {isRead: newValue}})
     .then(res.json({emailsToMark, newValue, errors: []}))
     .catch(err => res.json({errors: err, emailsToMark: [], newValue: null}))

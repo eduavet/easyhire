@@ -5,6 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const config = {
     entry: './src/main.js',
+    devtool: 'inline-source-map',
     output: {
         path: path.join(__dirname, './build'),
         filename: 'index.js',

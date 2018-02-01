@@ -48,7 +48,7 @@ class Sidebar extends Component {
     };
     openFolder = (folderId)=>{
         this.props.getFolderEmails(folderId)
-    }
+    };
     render() {
         return (
             <div className="col-2 mt-4">
@@ -70,6 +70,7 @@ function Folder (props) {
 
   const isActive = props.folder.isActive ? 'active-folder' : '';
   const icon = props.folder.icon;
+  const isDeletable = props.folder.user_id;
   return (
     <li className={ "list-group-item list-group-item-action " +  isActive } onClick={()=>{
         props.folderToggler(props.folder);
@@ -82,8 +83,16 @@ function Folder (props) {
         &nbsp; {props.folder.name}
         &nbsp;({props.folder.count})
         <div className="d-inline float-right">
-          <i className="fa fa-pencil-alt folder-actions" aria-hidden="true" data-id={props.folder._id} data-name={props.folder.name} onClick={props.toggleUpdateModal}></i>
-          <i className="fa fa-trash folder-actions" aria-hidden="true" data-id={props.folder._id} data-name={props.folder.name} onClick={props.folder.count ? props.toggleCannotDeleteModal : props.toggleDeleteModal} ></i>
+            {isDeletable ?
+                <i className="fa fa-pencil-alt folder-actions" aria-hidden="true" data-id={props.folder._id} data-name={props.folder.name} onClick={props.toggleUpdateModal}></i>
+                :
+                ''
+            }
+            {isDeletable ?
+                <i className="fa fa-trash folder-actions" aria-hidden="true" data-id={props.folder._id} data-name={props.folder.name} onClick={props.folder.count ? props.toggleCannotDeleteModal : props.toggleDeleteModal} ></i>
+                :
+                ''
+            }
         </div>
     </li>
   )

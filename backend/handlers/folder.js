@@ -29,7 +29,7 @@ folderHandlers.createFolder = (req, res) => {
     });
     newFolder.save()
         .then((createdFolder)=>{
-            const createdFolderToSend = { _id: createdFolder._id, name: createdFolder.name, count: 0, icon: createdFolder.icon, isActive: false };
+            const createdFolderToSend = { _id: createdFolder._id, name: createdFolder.name, count: 0, icon: createdFolder.icon, user_id: createdFolder.user_id, isActive: false };
             return res.json({ createdFolder: createdFolderToSend, errors: [] });
         })
         .catch(err => {
@@ -82,7 +82,7 @@ folderHandlers.getEmails = (req, res) => {
           accessToken = req.session.accessToken,
           emailsToSend = [],
           promises = [];
-    emailsModel.find({ folder: folderId, user_id: userId }, 'email_id')
+    emailsModel.find({ folder: folderId, user_id: userId }, ['email_id', 'isRead'])
         .populate('folder', 'name')
         .then((result) => {
             for(let i = 0; i < result.length; i++) {
@@ -90,7 +90,7 @@ folderHandlers.getEmails = (req, res) => {
                 promises.push(fetch('https://www.googleapis.com/gmail/v1/users/' + userId + '/messages/' + id + '?access_token=' + accessToken)
                     .then(response => response.json())
                     .then(msgRes => {
-                       return emailsToSend[i] = emailHelpers.extractEmailData(msgRes, folderId, result[i].folder.name);
+                       return emailsToSend[i] = emailHelpers.extractEmailData(msgRes, folderId, result[i].folder.name, result[i].isRead);
                     })
                 )
             }
