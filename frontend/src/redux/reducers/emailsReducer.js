@@ -22,6 +22,7 @@ const DELETE_FOLDER = 'Delete folder';
 const DELETE_EMAILS = 'Delete emails';
 const UPDATE_EMAILS = 'Update Email Folders';
 const REFRESH = 'Refresh';
+const GET_FOLDER_EMAILS = 'Get folder emails';
 
 /**
  * Action creator
@@ -30,6 +31,13 @@ function getEmails(result) {
     return {
         type: GET_EMAILS,
         payload: { emails: result.emailsToSend, folders: result.folders }
+    };
+}
+
+function getFolderEmails(result) {
+    return {
+        type: GET_FOLDER_EMAILS,
+        payload: { emails: result.emailsToSend, errors: result.errors }
     };
 }
 
@@ -83,6 +91,18 @@ export function asyncGetEmails() {
             .then((res) => res.json())
             .then(result => {
                 dispatch(getEmails(result))
+            }).catch(console.error);
+    }
+}
+
+export function asyncGetFolderEmails(folderId) {
+    return function(dispatch) {
+        fetch('http://localhost:3000/api/folders/' + folderId, {
+            credentials: 'include',
+        })
+            .then((res) => res.json())
+            .then(result => {
+                dispatch(getFolderEmails(result))
             }).catch(console.error);
     }
 }
@@ -238,7 +258,7 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 emails: [...state.emails, ...payload.emails.map(email=>Object.assign({}, email, {isChecked: !!email.isChecked}))],
-                folders: [...state.folders, ...payload.folders.map(folder=>Object.assign({}, folder, {isActive: !!folder.isActive}))],
+                folders: [...state.folders,{_id: 'allEmails', name: 'Inbox', icon: 'fa-inbox', isActive: true, count: payload.emails.length }, ...payload.folders.map(folder=>Object.assign({}, folder, {isActive: !!folder.isActive}))],
             };
         case GET_USERNAME:
             return {
@@ -248,6 +268,11 @@ export default function(state = initialState, action) {
                 errors: payload.errors,
                 successMsgs: payload.successMsgs
             };
+        case GET_FOLDER_EMAILS:
+            return {
+                ...state,
+                emails: payload.emails.map(email=>Object.assign({}, email, {isChecked: !!email.isChecked})),
+            }
         case IS_CHECKED:
             return {
                 ...state,
@@ -354,7 +379,7 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 emails: payload.emails.map(email=>Object.assign({}, email, {isChecked: !!email.isChecked})),
-                folders: payload.folders.map(folder=>Object.assign({}, folder, {isActive: !!folder.isActive})),
+                folders: [{_id: 'allEmails', name: 'Inbox', icon: 'fa-inbox', isActive: true, count: payload.emails.length },...payload.folders.map(folder=>Object.assign({}, folder, {isActive: !!folder.isActive}))],
             };
         default:
             return state;
