@@ -279,7 +279,6 @@ export default function(state = initialState, action) {
 
     switch (type) {
         case GET_EMAILS:
-            console.log(payload.emails);
             return {
                 ...state,
                 emails: [...state.emails, ...payload.emails.map(email=>Object.assign({}, email, {isChecked: !!email.isChecked}))],
@@ -358,8 +357,20 @@ export default function(state = initialState, action) {
                 errors: payload.errors,
             };
         case UPDATE_EMAILS:
+            //debugger;
+            let emailsAfterMove = state.emails.map(email=>{
+                if(payload.emailsToMove.indexOf(email.emailID)!== -1){
+                    email.folderId = payload.folderId;
+                    email.folderName = payload.folderName;
+                }
+                email.isChecked=false;
+                return email;
+            });
             let nOffAffected=0;
             const foldersAfterMove = state.folders.map(folder=>{
+                if(folder.isActive && folder._id!='allEmails'){
+                    emailsAfterMove = emailsAfterMove.filter(email=>email.folderId!=payload.folderId)
+                }
                 nOffAffected = payload.originalFolder.map(origF=>origF==folder._id).length;
                 if(payload.originalFolder.indexOf(folder._id)!== -1){
                     folder.count-=nOffAffected;
@@ -369,14 +380,7 @@ export default function(state = initialState, action) {
                 }
                 return folder;
             });
-            const emailsAfterMove = state.emails.map(email=>{
-                if(payload.emailsToMove.indexOf(email.emailID)!== -1){
-                   email.folderId = payload.folderId;
-                   email.folderName = payload.folderName
-                }
-                email.isChecked=false;
-                return email;
-            });
+
             return {
                 ...state,
                 emails: emailsAfterMove,

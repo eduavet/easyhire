@@ -85,9 +85,12 @@ class Toolbar extends Component{
                     <DropdownMenu>
                         {
                             this.props.folders.map((folder) => {
-                                return <DropdownItem key={folder._id}>
-                                    <div onClick={ () => this.moveToFolder(folder._id) }>{folder.name}</div>
-                                </DropdownItem>
+                                if(folder.name!='Inbox'){
+                                    return <DropdownItem key={folder._id}>
+                                        <div onClick={ () => this.moveToFolder(folder._id) }>{folder.name}</div>
+                                    </DropdownItem>
+                                }
+
                             })
                         }
                     </DropdownMenu>
