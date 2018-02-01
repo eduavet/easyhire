@@ -75,7 +75,6 @@ class Toolbar extends Component{
                         <DropdownItem>
                             <div onClick={ () => this.props.selectAll(this.props.emails) }>Select All</div>
                         </DropdownItem>
-                        <DropdownItem divider />
                         <DropdownItem>
                             <div onClick={ () => this.props.selectNone(this.props.emails) }> Select none</div>
                         </DropdownItem>
@@ -89,9 +88,12 @@ class Toolbar extends Component{
                     <DropdownMenu>
                         {
                             this.props.folders.map((folder) => {
-                                return <DropdownItem key={folder._id}>
-                                    <div onClick={ () => this.moveToFolder(folder._id) }>{folder.name}</div>
-                                </DropdownItem>
+                                if(folder.name!='Inbox'){
+                                    return <DropdownItem key={folder._id}>
+                                        <div onClick={ () => this.moveToFolder(folder._id) }>{folder.name}</div>
+                                    </DropdownItem>
+                                }
+
                             })
                         }
                     </DropdownMenu>
@@ -106,7 +108,6 @@ class Toolbar extends Component{
                         <DropdownItem>
                             <div onClick={() => this.mark(true)}>Read</div>
                         </DropdownItem>
-                        <DropdownItem divider />
                         <DropdownItem>
                             <div onClick={() => this.mark(false)}>Unread</div>
                         </DropdownItem>

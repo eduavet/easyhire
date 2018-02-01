@@ -58,53 +58,61 @@ emailHandlers.emails = (req, response) => {
             }
             return Promise.all(promises)
                 .then(() => {
-                    return foldersModel
-                        .aggregate([
-                            { $match: { $or:[ { 'user_id': null}, { 'user_id': userId }] } },
-                            {
-                                $lookup: {
-                                    from: 'emails',
-                                    localField: "_id",
-                                    foreignField: "folder",
-                                    as: "emails"
-                                }
-                            },
-                            { $unwind: {
-                                    "path": '$emails',
-                                    "preserveNullAndEmptyArrays": true
-                                }
-                            },
-                            { $match: { $or:[ { 'emails.user_id': userId}, { "emails": { $exists: false } }] } },
-                            {
-                                $group : {
-                                    _id : "$_id" ,
-                                    name: { "$first": "$name" },
-                                    icon: { "$first": "$icon" },
-                                    emails: { $push: "$emails" } ,
-                                    // count: {  $sum: 1}
-                                }
-                            },
-                            {
-                                $project: {
-                                        _id: 1,
-                                        name: 1,
-                                        icon: 1,
-                                        count: { $size: "$emails" }
-                                }
-                            }
-                        ])
-                        .then((folders) => {
-                            const packed = {
-                                name,
-                                emailsToSend,
-                                folders
-                            };
-                            response.json(packed)
-                        })
+                    return emailsModel.count({ user_id: userId })
+                        .then((inboxCount) => {
+                            return foldersModel
+                                .aggregate([
+                                    { $match: { $or:[ { 'user_id': null}, { 'user_id': userId }] } },
+                                    {
+                                        $lookup: {
+                                            from: 'emails',
+                                            localField: "_id",
+                                            foreignField: "folder",
+                                            as: "emails"
+                                        }
+                                    },
+                                    { $unwind: {
+                                            "path": '$emails',
+                                            "preserveNullAndEmptyArrays": true
+                                        }
+                                    },
+                                    { $match: { $or:[ { 'emails.user_id': userId}, { "emails": { $exists: false } }] } },
+                                    {
+                                        $group : {
+                                            _id : "$_id" ,
+                                            name: { "$first": "$name" },
+                                            icon: { "$first": "$icon" },
+                                            user_id: { "$first": "$user_id" },
+                                            emails: { $push: "$emails" } ,
+                                            // count: {  $sum: 1}
+                                        }
+                                    },
+                                    {
+                                        $project: {
+                                            _id: 1,
+                                            name: 1,
+                                            icon: 1,
+                                            user_id: 1,
+                                            count: { $size: "$emails" }
+                                        }
+                                    },
+                                    { $sort : { user_id : 1, name: 1 } }
+                                ])
+                                .then((folders) => {
+                                    const packed = {
+                                        name,
+                                        emailsToSend,
+                                        folders,
+                                        inboxCount
+                                    };
+                                    response.json(packed)
+                                })
+                    })
+
                 })
         })
         .catch(err => {
-            response.json({ name: '', emailsToSend: '', folders: [], errors: [{ msg: err }]})
+            response.json({ name: '', emailsToSend: '', folders: [], inboxCount: 0, errors: [{ msg: err }]})
         })
 };
 
@@ -134,7 +142,7 @@ emailHandlers.mark = (req, res) => {
   emailsModel.updateMany({email_id: {$in: emailsToMark}}, { $set : {isRead: newValue}})
     .then(res.json({emailsToMark, newValue, errors: []}))
     .catch(err => res.json({errors: err, emailsToMark: [], newValue: null}))
-}
+};
 
 //Delete specified email(s) but only from db NOT from gmail
 emailHandlers.deleteEmails=(req, res)=>{

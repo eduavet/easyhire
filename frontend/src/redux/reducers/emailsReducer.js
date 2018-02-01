@@ -31,7 +31,7 @@ const GET_FOLDER_EMAILS = 'Get folder emails';
 function getEmails(result) {
     return {
         type: GET_EMAILS,
-        payload: { emails: result.emailsToSend, folders: result.folders }
+        payload: { emails: result.emailsToSend, folders: result.folders, inboxCount: result.inboxCount }
     };
 }
 
@@ -81,7 +81,7 @@ function deleteEmails(response){
 function refresh(result) {
     return {
         type: REFRESH,
-        payload: { emails: result.emailsToSend, folders: result.folders }
+        payload: { emails: result.emailsToSend, folders: result.folders, inboxCount: result.inboxCount }
     };
 }
 function mark(result) {
@@ -280,11 +280,10 @@ export default function(state = initialState, action) {
 
     switch (type) {
         case GET_EMAILS:
-            console.log('payload emails', payload.emails );
             return {
                 ...state,
                 emails: [...state.emails, ...payload.emails.map(email=>Object.assign({}, email, {isChecked: !!email.isChecked}))],
-                folders: [...state.folders,{_id: 'allEmails', name: 'Inbox', icon: 'fa-inbox', isActive: true, count: payload.emails.length }, ...payload.folders.map(folder=>Object.assign({}, folder, {isActive: !!folder.isActive}))],
+                folders: [...state.folders,{_id: 'allEmails', name: 'Inbox', icon: 'fa-inbox', isActive: true, count: payload.inboxCount, user_id: null }, ...payload.folders.map(folder=>Object.assign({}, folder, {isActive: !!folder.isActive}))],
             };
         case GET_USERNAME:
             return {
@@ -298,7 +297,7 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 emails: payload.emails.map(email=>Object.assign({}, email, {isChecked: !!email.isChecked})),
-            }
+            };
         case IS_CHECKED:
             return {
                 ...state,
@@ -359,8 +358,19 @@ export default function(state = initialState, action) {
                 errors: payload.errors,
             };
         case UPDATE_EMAILS:
+            let emailsAfterMove = state.emails.map(email=>{
+                if(payload.emailsToMove.indexOf(email.emailID)!== -1){
+                    email.folderId = payload.folderId;
+                    email.folderName = payload.folderName;
+                }
+                email.isChecked=false;
+                return email;
+            });
             let nOffAffected=0;
             const foldersAfterMove = state.folders.map(folder=>{
+                if(folder.isActive && folder._id!='allEmails'){
+                    emailsAfterMove = emailsAfterMove.filter(email=>email.folderId!=payload.folderId)
+                }
                 nOffAffected = payload.originalFolder.map(origF=>origF==folder._id).length;
                 if(payload.originalFolder.indexOf(folder._id)!== -1){
                     folder.count-=nOffAffected;
@@ -370,14 +380,7 @@ export default function(state = initialState, action) {
                 }
                 return folder;
             });
-            const emailsAfterMove = state.emails.map(email=>{
-                if(payload.emailsToMove.indexOf(email.emailID)!== -1){
-                   email.folderId = payload.folderId;
-                   email.folderName = payload.folderName
-                }
-                email.isChecked=false;
-                return email;
-            });
+
             return {
                 ...state,
                 emails: emailsAfterMove,
@@ -405,7 +408,7 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 emails: payload.emails.map(email=>Object.assign({}, email, {isChecked: !!email.isChecked})),
-                folders: [{_id: 'allEmails', name: 'Inbox', icon: 'fa-inbox', isActive: true, count: payload.emails.length },...payload.folders.map(folder=>Object.assign({}, folder, {isActive: !!folder.isActive}))],
+                folders: [{_id: 'allEmails', name: 'Inbox', icon: 'fa-inbox', isActive: true, count: payload.inboxCount },...payload.folders.map(folder=>Object.assign({}, folder, {isActive: !!folder.isActive}))],
             };
         case MARK:
             const updatedEmails = state.emails.map(email => {

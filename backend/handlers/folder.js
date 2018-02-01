@@ -29,7 +29,7 @@ folderHandlers.createFolder = (req, res) => {
     });
     newFolder.save()
         .then((createdFolder)=>{
-            const createdFolderToSend = { _id: createdFolder._id, name: createdFolder.name, count: 0, icon: createdFolder.icon, isActive: false };
+            const createdFolderToSend = { _id: createdFolder._id, name: createdFolder.name, count: 0, icon: createdFolder.icon, user_id: createdFolder.user_id, isActive: false };
             return res.json({ createdFolder: createdFolderToSend, errors: [] });
         })
         .catch(err => {
