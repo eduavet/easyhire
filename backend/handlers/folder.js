@@ -90,7 +90,7 @@ folderHandlers.getEmails = (req, res) => {
                 promises.push(fetch('https://www.googleapis.com/gmail/v1/users/' + userId + '/messages/' + id + '?access_token=' + accessToken)
                     .then(response => response.json())
                     .then(msgRes => {
-                        emailsToSend[i] = emailHelpers.extractEmailData(msgRes, folderId, result.folder.name);
+                       return emailsToSend[i] = emailHelpers.extractEmailData(msgRes, folderId, result[i].folder.name);
                     })
                 )
             }

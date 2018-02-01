@@ -46,7 +46,7 @@ class Sidebar extends Component {
     folderToggler = (folder) => {
         this.props.isActive(folder)
     };
-    openFolder = (fodlerId)=>{
+    openFolder = (folderId)=>{
         this.props.getFolderEmails(folderId)
     }
     render() {
