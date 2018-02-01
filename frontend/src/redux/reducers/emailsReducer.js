@@ -99,7 +99,7 @@ function loading() {
 }
 export function asyncGetEmails() {
     return function(dispatch) {
-        dispatch(loading())
+        dispatch(loading());
         fetch('http://localhost:3000/api/emails', {
             credentials: 'include',
         })
@@ -112,7 +112,7 @@ export function asyncGetEmails() {
 
 export function asyncGetFolderEmails(folderId) {
     return function(dispatch) {
-        dispatch(loading())
+        dispatch(loading());
         fetch('http://localhost:3000/api/folders/' + folderId, {
             credentials: 'include',
         })
@@ -186,7 +186,7 @@ export function asyncCreateFolder(body) {
     }
 }
 export function asyncUpdateFolder(body) {
-  const updatedFolder = {id: body.id, folderName: body.folderName}
+  const updatedFolder = {id: body.id, folderName: body.folderName};
     return function(dispatch) {
         fetch('http://localhost:3000/api/folders/' + updatedFolder.id, {
             method: 'PUT',
@@ -253,7 +253,7 @@ export function asyncDeleteEmails(emailIds){
 }
 export function asyncRefresh() {
     return function(dispatch) {
-        dispatch(loading())
+        dispatch(loading());
         fetch('http://localhost:3000/api/emails', {
             credentials: 'include',
         })
@@ -399,16 +399,21 @@ export default function(state = initialState, action) {
                 errors: payload.errors
             };
         case DELETE_EMAILS:
+            let emailsAfterDelete = state.emails.filter(email=>{email.isChecked=false;
+                return payload.emailsToDelete.indexOf(email.emailID)== -1});
             let nOffDeleted=0;
             const afterDelete = state.folders.map(folder=>{
+                if(folder.isActive && folder._id!='allEmails'){
+                    emailsAfterDelete = emailsAfterDelete.filter(email=>email.folderId!=payload.folderId)
+                }
                 nOffDeleted = payload.originalFolder.map(origF=>origF==folder._id).length;
+
                 if(payload.originalFolder.indexOf(folder._id)!== -1){
                     folder.count-=nOffDeleted;
                 }
                 return folder;
             });
-            const emailsAfterDelete = state.emails.filter(email=>{email.isChecked=false;
-            return !payload.emailsToDelete.indexOf(email.emailID)!== -1});
+
             return {
                 ...state,
                 emails: emailsAfterDelete,
@@ -439,7 +444,7 @@ export default function(state = initialState, action) {
             return {
               ...state,
               loaded: false
-            }
+            };
         default:
             return state;
     }
