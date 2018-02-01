@@ -336,7 +336,6 @@ export default function(state = initialState, action) {
         case DELETE_EMAILS:
             let nOffDeleted=0;
             const afterDelete = state.folders.map(folder=>{
-                debugger;
                 nOffDeleted = payload.originalFolder.map(origF=>origF==folder._id).length;
                 if(payload.originalFolder.indexOf(folder._id)!== -1){
                     folder.count-=nOffDeleted;
