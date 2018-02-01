@@ -95,7 +95,8 @@ emailHandlers.emails = (req, response) => {
                                             user_id: 1,
                                             count: { $size: "$emails" }
                                         }
-                                    }
+                                    },
+                                    { $sort : { user_id : 1, name: 1 } }
                                 ])
                                 .then((folders) => {
                                     const packed = {

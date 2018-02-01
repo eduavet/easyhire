@@ -1,5 +1,6 @@
 const moment = require('moment');
-
+const mongoose = require('mongoose');
+const emailsModel = require('../models/emailsModel.js');
 const emailHelpers = {};
 module.exports = emailHelpers;
 
