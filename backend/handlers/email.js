@@ -20,7 +20,7 @@ emailHandlers.emails = (req, response) => {
     const emailsToSend = [];
 
      if(!userId){
-        response.json({emailsToSend});
+        response.json({emailsToSend, folders: []});
         return;
     }
     fetch('https://www.googleapis.com/gmail/v1/users/' + userId + '/messages?access_token=' + accessToken)
