@@ -69,18 +69,32 @@ emailHandlers.emails = (req, response) => {
                                     as: "emails"
                                 }
                             },
-                            { $unwind: '$emails' },
-                            { $match: {"emails.user_id": userId} },
+                            { $unwind: {
+                                    "path": '$emails',
+                                    "preserveNullAndEmptyArrays": true
+                                }
+                            },
+                            { $match: { $or:[ { 'emails.user_id': userId}, { "emails": { $exists: false } }] } },
                             {
                                 $group : {
                                     _id : "$_id" ,
                                     name: { "$first": "$name" },
                                     icon: { "$first": "$icon" },
-                                    count: {$sum: 1}
+                                    emails: { $push: "$emails" } ,
+                                    // count: {  $sum: 1}
                                 }
                             },
+                            {
+                                $project: {
+                                        _id: 1,
+                                        name: 1,
+                                        icon: 1,
+                                        count: { $size: "$emails" }
+                                }
+                            }
                         ])
                         .then((folders) => {
+                            console.log(folders)
                             const packed = {
                                 name,
                                 emailsToSend,

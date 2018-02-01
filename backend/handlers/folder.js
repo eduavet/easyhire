@@ -68,3 +68,17 @@ folderHandlers.deleteFolder = (req, res) => {
     })
     .catch(err => res.json({errors: err, deletedFolderID: ''}))
 };
+// Get folder emails
+folderHandlers.getEmails = (req, res) => {
+    req.checkParams('ID').notEmpty().withMessage('Folder ID is required');
+    const errors = req.validationErrors();
+    if (errors) {
+        return res.json({ errors });
+    }
+    const userId = req.session.userID;
+    const folderId = req.params.ID ? req.params.ID : '';
+    return res.json({ folderId: folderId });
+    // const userId = req.session.userID;
+    // const name = req.body.folderName;
+
+};
