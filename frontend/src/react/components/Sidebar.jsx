@@ -69,8 +69,8 @@ function Folder (props) {
         &nbsp; {props.folder.name}
         &nbsp;({props.folder.count})
         <div className="d-inline float-right">
-          <i className="fa fa-trash folder-actions" aria-hidden="true" data-id={props.folder._id} data-name={props.folder.name} onClick={props.folder.count ? props.toggleCannotDeleteModal : props.toggleDeleteModal} ></i>
           <i className="fa fa-pencil-alt folder-actions" aria-hidden="true" data-id={props.folder._id} data-name={props.folder.name} onClick={props.toggleUpdateModal}></i>
+          <i className="fa fa-trash folder-actions" aria-hidden="true" data-id={props.folder._id} data-name={props.folder.name} onClick={props.folder.count ? props.toggleCannotDeleteModal : props.toggleDeleteModal} ></i>
         </div>
     </li>
   )
