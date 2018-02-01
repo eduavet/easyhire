@@ -80,6 +80,7 @@ emailHandlers.emails = (req, response) => {
                                     _id : "$_id" ,
                                     name: { "$first": "$name" },
                                     icon: { "$first": "$icon" },
+                                    user_id: { "$first": "$user_id" },
                                     emails: { $push: "$emails" } ,
                                     // count: {  $sum: 1}
                                 }
@@ -89,6 +90,7 @@ emailHandlers.emails = (req, response) => {
                                         _id: 1,
                                         name: 1,
                                         icon: 1,
+                                        user_id: 1,
                                         count: { $size: "$emails" }
                                 }
                             }

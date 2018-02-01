@@ -279,11 +279,10 @@ export default function(state = initialState, action) {
 
     switch (type) {
         case GET_EMAILS:
-            console.log(payload.emails);
             return {
                 ...state,
                 emails: [...state.emails, ...payload.emails.map(email=>Object.assign({}, email, {isChecked: !!email.isChecked}))],
-                folders: [...state.folders,{_id: 'allEmails', name: 'Inbox', icon: 'fa-inbox', isActive: true, count: payload.emails.length }, ...payload.folders.map(folder=>Object.assign({}, folder, {isActive: !!folder.isActive}))],
+                folders: [...state.folders,{_id: 'allEmails', name: 'Inbox', icon: 'fa-inbox', isActive: true, count: payload.emails.length, user_id: null }, ...payload.folders.map(folder=>Object.assign({}, folder, {isActive: !!folder.isActive}))],
             };
         case GET_USERNAME:
             return {
@@ -297,7 +296,7 @@ export default function(state = initialState, action) {
             return {
                 ...state,
                 emails: payload.emails.map(email=>Object.assign({}, email, {isChecked: !!email.isChecked})),
-            }
+            };
         case IS_CHECKED:
             return {
                 ...state,
