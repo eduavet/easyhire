@@ -104,7 +104,7 @@ emailHandlers.emails = (req, response) => {
                 })
         })
         .catch(err => {
-            response.json({ name: '', emailsToSend: '', folders: [], errors: [{ msg: 'Something went wrong, try again later' }]})
+            response.json({ name: '', emailsToSend: '', folders: [], errors: [{ msg: err }]})
         })
 };
 
@@ -131,8 +131,6 @@ emailHandlers.mark = (req, res) => {
   const userId = req.session.userID;
   const emailsToMark = req.body.emailIds;
   const newValue = req.body.isRead;
-  console.log({emailsToMark});
-  console.log({newValue});
   emailsModel.updateMany({email_id: {$in: emailsToMark}}, { $set : {isRead: newValue}})
     .then(res.json({emailsToMark, newValue, errors: []}))
     .catch(err => res.json({errors: err, emailsToMark: [], newValue: null}))

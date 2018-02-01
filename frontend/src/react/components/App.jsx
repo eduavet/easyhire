@@ -4,6 +4,7 @@ import { Link, Route, Switch, BrowserRouter} from 'react-router-dom';
 import Dashboard from './Dashboard.jsx'
 import { asyncGetEmails, asyncGetUsername } from '../../redux/reducers/emailsReducer';
 import Login from './Login.jsx'
+import Notifications, {notify} from 'react-notify-toast';
 
 export class App extends Component {
 
@@ -16,6 +17,7 @@ export class App extends Component {
     return (
       <BrowserRouter>
         <div className="App">
+          <Notifications />
           {
             !this.props.loading ?
               this.props.username ?

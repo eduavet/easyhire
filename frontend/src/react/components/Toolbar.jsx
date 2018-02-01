@@ -4,7 +4,9 @@ import { connect } from 'react-redux';
 import { Link, Route, Switch, BrowserRouter} from 'react-router-dom';
 import { selectAll, selectNone, asyncPostEmailsToFolder, asyncDeleteEmails, asyncMark } from '../../redux/reducers/emailsReducer';
 import { Button, Nav, NavItem, Dropdown, DropdownItem, DropdownToggle, DropdownMenu, NavLink, Input, InputGroup, InputGroupAddon } from 'reactstrap';
-import ModalDeleteEmails from './ModalDeleteEmails.jsx'
+import ModalDeleteEmails from './ModalDeleteEmails.jsx';
+import {notify} from 'react-notify-toast';
+
 
 class Toolbar extends Component{
     constructor(props) {
@@ -39,12 +41,13 @@ class Toolbar extends Component{
     moveToFolder=(id)=>{
         const emailsToMove = this.props.emails.filter(email=>email.isChecked).map(email=>email.emailID);
         this.props.postEmailsToFolder(emailsToMove, id)
+        notify.show('Emails(s) moved!', 'success', 1500);
     };
 
     mark = (isRead) => {
         const emailsToMark = this.props.emails.filter(email=>email.isChecked).map(email=>email.emailID);
-        // console.log('marking read ', isRead);
         this.props.asyncMark(emailsToMark, isRead)
+        notify.show('Email(s) updated!', 'success', 1500);
     };
 
     deleteEmail=()=>{
@@ -52,6 +55,7 @@ class Toolbar extends Component{
         const emailsToDelete = this.props.emails.filter(email=>email.isChecked).map(email=>email.emailID);
         this.props.deleteEmails(emailsToDelete);
         this.setState({ deleteModal: !this.state.deleteModal, deleteCount: 0});
+        notify.show('Email(s) deleted!', 'success', 1500);
     };
 
     toggleDeleteModal = (evt) => {

@@ -19,8 +19,8 @@ class ModalNewFolder extends Component {
   createFolder = (e) => {
     e.preventDefault();
     const body  = { folderName: this.refs.createFolder.value };
-    this.setState({ modal: false });
-    this.props.createFolder(body)
+    this.setState({ modal: false, input: ''});
+    this.props.createFolder(body);
   };
 
   handleChange = (e) => {

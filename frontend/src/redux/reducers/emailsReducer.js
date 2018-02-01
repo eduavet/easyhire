@@ -97,6 +97,7 @@ export function asyncGetEmails() {
         })
             .then((res) => res.json())
             .then(result => {
+              console.log(result);
                 dispatch(getEmails(result))
             }).catch(console.error);
     }
@@ -279,7 +280,7 @@ export default function(state = initialState, action) {
 
     switch (type) {
         case GET_EMAILS:
-            console.log(payload.emails);
+            console.log('payload emails', payload.emails );
             return {
                 ...state,
                 emails: [...state.emails, ...payload.emails.map(email=>Object.assign({}, email, {isChecked: !!email.isChecked}))],

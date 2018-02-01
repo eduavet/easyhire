@@ -6,6 +6,7 @@ import ModalUpdateFolder from './ModalUpdateFolder.jsx'
 import ModalDeleteFolder from './ModalDeleteFolder.jsx'
 import ModalCannotDeleteFolder from './ModalCannotDeleteFolder.jsx'
 import { asyncDeleteFolder, asyncUpdateFolder, isActive, asyncGetFolderEmails, asyncRefresh } from '../../redux/reducers/emailsReducer';
+import {notify} from 'react-notify-toast';
 
 const deleteId = { value: ''};
 const updateId = { value: ''};
@@ -38,10 +39,12 @@ class Sidebar extends Component {
     updateFolder = (folderName) => {
       this.props.updateFolder({id: updateId.value, folderName: folderName.value});
       this.setState({updateModal: false, updateFolderName: ''});
+      notify.show('Folder name updated!', 'success', 1500);
     };
     deleteFolder = (folder) => {
       this.props.deleteFolder(deleteId.value);
       this.setState({deleteModal: false, deleteFolderName: ''});
+      notify.show('Folder deleted!', 'success', 1500);
     };
     folderToggler = (folder) => {
         this.props.isActive(folder)
