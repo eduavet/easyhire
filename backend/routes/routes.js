@@ -32,6 +32,7 @@ router.delete('/api/emails/:ID', emailHandlers.deleteEmails);
 router.post('/api/emails/move', emailHandlers.emailsMoveToFolder);
 router.post('/api/emails/mark', emailHandlers.mark);
 
+router.get('/api/folders/:ID', folderHandlers.getEmails);
 router.post('/api/folders', folderHandlers.createFolder);
 router.put('/api/folders/:ID', folderHandlers.updateFolder);
 router.delete('/api/folders/:ID', folderHandlers.deleteFolder);

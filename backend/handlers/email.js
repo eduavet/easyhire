@@ -5,6 +5,7 @@ const moment = require('moment');
 const emailsModel = require('../models/emailsModel.js');
 const usersModel = require('../models/usersModel.js');
 const foldersModel = require('../models/foldersModel.js');
+const emailHelpers = require('../helpers/email.js');
 const emailHandlers = {};
 
 module.exports = emailHandlers;
@@ -38,20 +39,15 @@ emailHandlers.emails = (req, response) => {
                             .populate('folder')
                             .then(res => {
                                 if (res) {
-                                  emailsToSend[i] = extractEmailData(msgRes, res.folder._id, res.folder.name, res.isRead);
-                                    // emailsModel.findOne({email_id: emailID})
-                                    //   .then(res => {
-                                    //     return { emailID, sender, subject, snippet, date, folderId, folderName, isRead: res.isRead};
-                                    //     // console.log(res.isRead);
-                                    //   })
+                                    emailsToSend[i] = emailHelpers.extractEmailData(msgRes, res.folder._id, res.folder.name, res.isRead);
                                 } else{
                                     return foldersModel.findOne({name: 'Not Reviewed'}, '_id').then(folder => {
-                                        const newEmail= buildNewEmailModel(userId, id, folder);
+                                        const newEmail= emailHelpers.buildNewEmailModel(userId, id, folder);
                                         return newEmail.save().then((email)=>{
                                             return emailsModel
                                                 .findOne({email_id: email.email_id})
                                                 .populate('folder').then((res) => {
-                                                    emailsToSend[i] = extractEmailData(msgRes, res.folder._id, res.folder.name);
+                                                    emailsToSend[i] = emailHelpers.extractEmailData(msgRes, res.folder._id, res.folder.name, false);
                                                 })
                                         })
                                     });
@@ -63,7 +59,6 @@ emailHandlers.emails = (req, response) => {
             return Promise.all(promises)
                 .then(() => {
                     return foldersModel
-
                         .aggregate([
                             { $match: { $or:[ { 'user_id': null}, { 'user_id': userId }] } },
                             {
@@ -74,16 +69,29 @@ emailHandlers.emails = (req, response) => {
                                     as: "emails"
                                 }
                             },
-                            { $unwind: '$emails' },
-                            { $match: {"emails.user_id": userId} },
+                            { $unwind: {
+                                    "path": '$emails',
+                                    "preserveNullAndEmptyArrays": true
+                                }
+                            },
+                            { $match: { $or:[ { 'emails.user_id': userId}, { "emails": { $exists: false } }] } },
                             {
                                 $group : {
                                     _id : "$_id" ,
                                     name: { "$first": "$name" },
                                     icon: { "$first": "$icon" },
-                                    count: {$sum: 1}
+                                    emails: { $push: "$emails" } ,
+                                    // count: {  $sum: 1}
                                 }
                             },
+                            {
+                                $project: {
+                                        _id: 1,
+                                        name: 1,
+                                        icon: 1,
+                                        count: { $size: "$emails" }
+                                }
+                            }
                         ])
                         .then((folders) => {
                             const packed = {
@@ -113,7 +121,7 @@ emailHandlers.emailsMoveToFolder = (req, res)=> {
         })
         .then(()=>foldersModel.findOne({_id: mongoose.Types.ObjectId(folderToMove)}, 'name')
             .then(response=>folderName=response.name))
-        .then(()=>emailsModel.update({email_id: {$in: emailsToMove}}, { $set: {folder: mongoose.Types.ObjectId(folderToMove)}}))
+        .then(()=>emailsModel.updateMany({email_id: {$in: emailsToMove}}, { $set: {folder: mongoose.Types.ObjectId(folderToMove)}}))
         .then(()=>res.json({emailsToMove: emailsToMove, errors: [], folderId :folderToMove, folderName, originalFolder}))
         .catch(err => res.json({errors: err, emailsToMove: [], folderId: '', folderName: '', originalFolder: []}))
 };
@@ -130,42 +138,14 @@ emailHandlers.mark = (req, res) => {
 //Delete specified email(s) but only from db NOT from gmail
 emailHandlers.deleteEmails=(req, res)=>{
     const emailsToDelete=req.params.ID.split(',');
-    emailsModel.remove({email_id: {$in: emailsToDelete}})
-        .then(()=>{res.json({emailsToDelete: emailsToDelete, errors: []})})
-        .catch(err => res.json({errors: err, emailsToDelete: []}))
+    const originalFolder=[];
+    emailsModel.find({email_id: {$in: emailsToDelete}}, {folder: true, _id:false})
+        .then(result=>{
+            result.forEach(r=>originalFolder.push(r.folder))
+        }).then(()=>{emailsModel.remove({email_id: {$in: emailsToDelete}})
+        .then(()=>res.json({emailsToDelete: emailsToDelete, originalFolder,  errors: []}))
+        .catch(err => res.json({errors: err, emailsToDelete: [], originalFolder: []}))})
 };
-
-// Necessary functions
-
-const decodeHtmlEntity = (str) => {
-    return str.replace(/&#(\d+);/g, function(match, dec) {
-        return String.fromCharCode(dec);
-    });
-};
-
-const extractEmailData = (res, folderId, folderName, isReadParam) => {
-    const emailID = res.id;
-    const sender = res.payload.headers.filter((item) => {
-        return item.name == 'From'
-    })[0].value;
-    const subject = res.payload.headers.filter((item) => {
-        return item.name == 'Subject'
-    })[0].value;
-    const snippet = decodeHtmlEntity(res.snippet);
-    const date = moment.unix(res.internalDate / 1000).format('DD/MM/YYYY, HH:mm:ss');
-    const isRead = isReadParam;
-    return { emailID, sender, subject, snippet, date, folderId, folderName, isRead};
-};
-
-const buildNewEmailModel = (userId, id, folder) => {
-    return new emailsModel({
-        user_id: userId,
-        email_id: id,
-        folder: mongoose.Types.ObjectId(folder._id),
-        isRead: false
-    });
-};
-
 
 // console.log(util.inspect(res, { depth: 8 }));
 // console.log(res.payload.parts, 'payload parts')
