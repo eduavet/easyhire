@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { asyncCreateFolder } from '../../redux/reducers/emailsReducer';
+import {notify} from 'react-notify-toast';
 
 class ModalNewFolder extends Component {
   constructor(props) {
@@ -21,6 +22,7 @@ class ModalNewFolder extends Component {
     const body  = { folderName: this.refs.createFolder.value };
     this.setState({ modal: false, input: ''});
     this.props.createFolder(body);
+    notify.show('Folder created!', 'success', 1500);
   };
 
   handleChange = (e) => {
