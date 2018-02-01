@@ -13,6 +13,7 @@ const GET_EMAILS = 'Get emails';
 const GET_USERNAME = 'Get username';
 
 const IS_CHECKED = 'Is checked';
+const IS_ACTIVE = 'Is active';
 const SELECT_ALL = 'Select all';
 const SELECT_NONE = 'Select none';
 const CREATE_FOLDER = 'Create folder';
@@ -65,7 +66,7 @@ function updateEmails(response){
 function deleteEmails(response){
     return {
         type: DELETE_EMAILS,
-        payload: {emailsToDelete: response.emailsToDelete, errors: response.errors}
+        payload: {emailsToDelete: response.emailsToDelete, errors: response.errors, originalFolder: response.originalFolder}
     }
 }
 function refresh(result) {
@@ -102,6 +103,12 @@ export function isChecked(item){
     return {
         type: IS_CHECKED,
         payload: {isChecked: !item.isChecked, id: item.emailID}
+    }
+}
+export function isActive(item){
+    return {
+        type: IS_ACTIVE,
+        payload: {isActive: !item.isActive, id: item._id}
     }
 }
 export function selectAll(emails){
@@ -251,6 +258,19 @@ export default function(state = initialState, action) {
                     return email;
                 })
             };
+        case IS_ACTIVE:
+            return {
+                ...state,
+                folders: state.folders.map(folder=>{
+                    if(folder._id===payload.id){
+                        Object.assign(folder, {isActive: payload.isActive});
+                    }
+                    else{
+                        Object.assign(folder, {isActive: false});
+                    }
+                    return folder;
+                })
+            };
         case SELECT_ALL:
             return {
                 ...state,
@@ -262,7 +282,7 @@ export default function(state = initialState, action) {
                 emails: payload.emails
             };
         case CREATE_FOLDER:
-            const folders =  payload.createdFolder._id ? [...state.folders, payload.createdFolder] : state.folders
+            const folders =  payload.createdFolder._id ? [...state.folders, Object.assign({}, payload.createdFolder, {isActive: false})] : state.folders
             return {
                 ...state,
                 folders:folders,
@@ -288,12 +308,14 @@ export default function(state = initialState, action) {
                 errors: payload.errors,
             };
         case UPDATE_EMAILS:
+            let nOffAffected=0;
             const foldersAfterMove = state.folders.map(folder=>{
+                nOffAffected = payload.originalFolder.map(origF=>origF==folder._id).length;
                 if(payload.originalFolder.indexOf(folder._id)!== -1){
-                    folder.count--;
+                    folder.count-=nOffAffected;
                 }
                 if(payload.folderId==folder._id){
-                    folder.count++;
+                    folder.count+=nOffAffected;
                 }
                 return folder;
             });
@@ -302,6 +324,7 @@ export default function(state = initialState, action) {
                    email.folderId = payload.folderId;
                    email.folderName = payload.folderName
                 }
+                email.isChecked=false;
                 return email;
             });
             return {
@@ -311,10 +334,21 @@ export default function(state = initialState, action) {
                 errors: payload.errors
             };
         case DELETE_EMAILS:
-            const emailsAfterDelete = state.emails.filter(email=>!(payload.emailsToDelete.indexOf(email.emailID)!== -1));
+            let nOffDeleted=0;
+            const afterDelete = state.folders.map(folder=>{
+                debugger;
+                nOffDeleted = payload.originalFolder.map(origF=>origF==folder._id).length;
+                if(payload.originalFolder.indexOf(folder._id)!== -1){
+                    folder.count-=nOffDeleted;
+                }
+                return folder;
+            });
+            const emailsAfterDelete = state.emails.filter(email=>{email.isChecked=false;
+            return !payload.emailsToDelete.indexOf(email.emailID)!== -1});
             return {
                 ...state,
                 emails: emailsAfterDelete,
+                folders: afterDelete,
                 errors: payload.errors
             };
         case REFRESH:

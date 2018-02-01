@@ -5,7 +5,7 @@ import ModalNewFolder from './ModalNewFolder.jsx'
 import ModalUpdateFolder from './ModalUpdateFolder.jsx'
 import ModalDeleteFolder from './ModalDeleteFolder.jsx'
 import ModalCannotDeleteFolder from './ModalCannotDeleteFolder.jsx'
-import { asyncDeleteFolder, asyncUpdateFolder } from '../../redux/reducers/emailsReducer';
+import { asyncDeleteFolder, asyncUpdateFolder, isActive } from '../../redux/reducers/emailsReducer';
 
 const deleteId = { value: ''};
 const updateId = { value: ''};
@@ -43,12 +43,15 @@ class Sidebar extends Component {
       this.props.deleteFolder(deleteId.value);
       this.setState({deleteModal: false, deleteFolderName: ''});
     };
+    folderToggler = (folder) => {
+        this.props.isActive(folder)
+    };
     render() {
         return (
             <div className="col-2 mt-4">
                 <ul className="list-group folders">
                     { this.props.folders.map((folder) =>
-                      <Folder key = {folder._id} folder = { folder } toggleUpdateModal={this.toggleUpdateModal} toggleDeleteModal={this.toggleDeleteModal} toggleCannotDeleteModal={this.toggleCannotDeleteModal} />
+                      <Folder key = {folder._id} folder = { folder } folderToggler={this.folderToggler} toggleUpdateModal={this.toggleUpdateModal} toggleDeleteModal={this.toggleDeleteModal} toggleCannotDeleteModal={this.toggleCannotDeleteModal} />
                     )}
                     <ModalNewFolder/>
                 </ul>
@@ -61,10 +64,11 @@ class Sidebar extends Component {
 }
 
 function Folder (props) {
+
   const isActive = props.folder.isActive ? 'active-folder' : '';
   const icon = props.folder.icon;
   return (
-    <li className={ "list-group-item list-group-item-action " +  isActive } onClick={() => alert("opens folder")}>
+    <li className={ "list-group-item list-group-item-action " +  isActive } onClick={()=>props.folderToggler(props.folder)}>
         <i className={ "fa " + icon} aria-hidden="true"></i>
         &nbsp; {props.folder.name}
         &nbsp;({props.folder.count})
@@ -85,7 +89,8 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     deleteFolder: (param) => dispatch(asyncDeleteFolder(param)),
-    updateFolder: (param) => dispatch(asyncUpdateFolder(param))
+    updateFolder: (param) => dispatch(asyncUpdateFolder(param)),
+      isActive: (item) => dispatch(isActive(item)),
   };
 }
 

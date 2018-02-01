@@ -228,16 +228,21 @@ Handlers.emailsMoveToFolder = (req, res)=> {
         })
         .then(()=>foldersModel.findOne({_id: mongoose.Types.ObjectId(folderToMove)}, 'name')
         .then(response=>folderName=response.name))
-        .then(()=>emailsModel.update({email_id: {$in: emailsToMove}}, { $set: {folder: mongoose.Types.ObjectId(folderToMove)}}))
+        .then(()=>emailsModel.updateMany({email_id: {$in: emailsToMove}}, { $set: {folder: mongoose.Types.ObjectId(folderToMove)}}))
         .then(()=>res.json({emailsToMove: emailsToMove, errors: [], folderId :folderToMove, folderName, originalFolder}))
         .catch(err => res.json({errors: err, emailsToMove: [], folderId: '', folderName: '', originalFolder: []}))
 };
 
 Handlers.deleteEmails=(req, res)=>{
     const emailsToDelete=req.params.ID.split(',');
-    emailsModel.remove({email_id: {$in: emailsToDelete}})
-        .then(()=>{res.json({emailsToDelete: emailsToDelete, errors: []})})
-        .catch(err => res.json({errors: err, emailsToDelete: []}))
+    const originalFolder=[];
+    emailsModel.find({email_id: {$in: emailsToDelete}}, {folder: true, _id:false})
+        .then(result=>{
+            result.forEach(r=>originalFolder.push(r.folder))
+        }).then(()=>{emailsModel.remove({email_id: {$in: emailsToDelete}})
+        .then(()=>res.json({emailsToDelete: emailsToDelete, originalFolder,  errors: []}))
+        .catch(err => res.json({errors: err, emailsToDelete: [], originalFolder: []}))})
+
 };
 
 // console.log(util.inspect(res, { depth: 8 }));
