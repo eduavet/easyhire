@@ -1,9 +1,10 @@
-import { createStore, applyMiddleware } from 'redux';
+import { createStore, applyMiddleware, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
-import reducer from './reducers/emailsReducer';
+import emailsReducer from './reducers/emailsReducer';
+import folderReducer from './reducers/folderReducer';
 
 const store = createStore(
-  reducer,
+  combineReducers({ emails: emailsReducer, folders: folderReducer }),
   applyMiddleware(thunk),
 );
 store.subscribe(() => {

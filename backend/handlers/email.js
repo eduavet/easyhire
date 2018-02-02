@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const fetch = require('node-fetch');
-const emailsModel = require('../models/emailsModel.js');
-const foldersModel = require('../models/foldersModel.js');
-const helper = require('../helpers/email.js');
+const emailsModel = require('../models/EmailsModel.js');
+const foldersModel = require('../models/FoldersModel.js');
+const helper = require('../helpers/email.helper.js');
 
 const emailHandlers = {};
 module.exports = emailHandlers;
@@ -14,7 +14,7 @@ emailHandlers.emails = (req, response) => {
   const emailsToSend = [];
 
   if (!userId) {
-    return response.json({ emailsToSend, folders: [] });
+    return response.json({ emailsToSend });
   }
   return fetch(`${fetchUrl}${userId}/messages?access_token=${accessToken}`)
     .then(account => account.json())
@@ -47,59 +47,17 @@ emailHandlers.emails = (req, response) => {
             })));
       }
       return Promise.all(promises)
-        .then(() => emailsModel.count({ user_id: userId })
-          .then(inboxCount => foldersModel
-            .aggregate([
-              { $match: { $or: [{ user_id: null }, { user_id: userId }] } },
-              {
-                $lookup: {
-                  from: 'emails',
-                  localField: '_id',
-                  foreignField: 'folder',
-                  as: 'emails',
-                },
-              },
-              {
-                $unwind: {
-                  path: '$emails',
-                  preserveNullAndEmptyArrays: true,
-                },
-              },
-              { $match: { $or: [{ 'emails.user_id': userId }, { emails: { $exists: false } }] } },
-              {
-                $group: {
-                  _id: '$_id',
-                  name: { $first: '$name' },
-                  icon: { $first: '$icon' },
-                  user_id: { $first: '$user_id' },
-                  emails: { $push: '$emails' },
-                  // count: {  $sum: 1}
-                },
-              },
-              {
-                $project: {
-                  _id: 1,
-                  name: 1,
-                  icon: 1,
-                  user_id: 1,
-                  count: { $size: '$emails' },
-                },
-              },
-              { $sort: { user_id: 1, name: 1 } },
-            ])
-            .then((folders) => {
-              const packed = {
-                name,
-                emailsToSend,
-                folders,
-                inboxCount,
-              };
-              response.json(packed);
-            })));
+        .then(() => {
+          const packed = {
+            name,
+            emailsToSend,
+          };
+          response.json(packed);
+        });
     })
     .catch(() => {
       response.json({
-        name: '', emailsToSend: [], folders: [], inboxCount: 0, errors: [{ msg: 'Something went wrong' }],
+        name: '', emailsToSend: [], errors: [{ msg: 'Something went wrong' }],
       });
     });
 };

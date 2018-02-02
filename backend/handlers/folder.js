@@ -1,11 +1,65 @@
 const fetch = require('node-fetch');
-const EmailsModel = require('../models/emailsModel.js');
-const FoldersModel = require('../models/foldersModel.js');
-const emailHelpers = require('../helpers/email.js');
+const EmailsModel = require('../models/EmailsModel.js');
+const FoldersModel = require('../models/FoldersModel.js');
+const emailHelpers = require('../helpers/email.helper.js');
 
 const folderHandlers = {};
 module.exports = folderHandlers;
 
+// Geting folders
+folderHandlers.getFolders = (req, response) => {
+  const userId = req.session.userID;
+  if (!userId) {
+    return response.json({ folders: [] });
+  }
+  return EmailsModel.count({ user_id: userId })
+    .then(inboxCount => FoldersModel
+      .aggregate([
+        { $match: { $or: [{ user_id: null }, { user_id: userId }] } },
+        {
+          $lookup: {
+            from: 'emails',
+            localField: '_id',
+            foreignField: 'folder',
+            as: 'emails',
+          },
+        },
+        {
+          $unwind: {
+            path: '$emails',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        { $match: { $or: [{ 'emails.user_id': userId }, { emails: { $exists: false } }] } },
+        {
+          $group: {
+            _id: '$_id',
+            name: { $first: '$name' },
+            icon: { $first: '$icon' },
+            user_id: { $first: '$user_id' },
+            emails: { $push: '$emails' },
+            // count: {  $sum: 1}
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            icon: 1,
+            user_id: 1,
+            count: { $size: '$emails' },
+          },
+        },
+        { $sort: { user_id: 1, name: 1 } },
+      ])
+      .then((folders) => {
+        const packed = {
+          folders,
+          inboxCount,
+        };
+        response.json(packed);
+      })).catch({ folders: [], inboxCount: 0, errors: [] });
+};
 // Create new folder
 folderHandlers.createFolder = (req, res) => {
   req.checkBody('folderName').notEmpty().withMessage('Folder name is required');
