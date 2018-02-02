@@ -1,4 +1,3 @@
-/* eslint no-underscore-dangle: 0 */
 const mongoose = require('mongoose');
 const fetch = require('node-fetch');
 const emailsModel = require('../models/emailsModel.js');
@@ -98,7 +97,7 @@ emailHandlers.emails = (req, response) => {
               response.json(packed);
             })));
     })
-    .catch((err) => {
+    .catch(() => {
       response.json({
         name: '', emailsToSend: [], folders: [], inboxCount: 0, errors: [{ msg: 'Something went wrong' }],
       });

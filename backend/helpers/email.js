@@ -1,4 +1,3 @@
-/* eslint no-underscore-dangle: 0 */
 const moment = require('moment');
 const EmailsModel = require('../models/emailsModel.js');
 const mongoose = require('mongoose');

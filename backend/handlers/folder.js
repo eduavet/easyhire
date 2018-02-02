@@ -1,4 +1,3 @@
-/* eslint no-underscore-dangle: 0 */
 const fetch = require('node-fetch');
 const EmailsModel = require('../models/emailsModel.js');
 const FoldersModel = require('../models/foldersModel.js');
