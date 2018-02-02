@@ -38,7 +38,7 @@ Header.propTypes = {
 };
 function mapStateToProps(state) {
   return {
-    username: state.name,
+    username: state.emails.name,
   };
 }
 

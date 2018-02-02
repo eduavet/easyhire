@@ -55,8 +55,8 @@ Emails.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    emails: state.emails,
-    loaded: state.loaded,
+    emails: state.emails.emails,
+    loaded: state.emails.loaded,
   };
 }
 

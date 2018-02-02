@@ -6,7 +6,8 @@ import ModalNewFolder from './ModalNewFolder.jsx';
 import ModalUpdateFolder from './ModalUpdateFolder.jsx';
 import ModalDeleteFolder from './ModalDeleteFolder.jsx';
 import ModalCannotDeleteFolder from './ModalCannotDeleteFolder.jsx';
-import { asyncDeleteFolder, asyncUpdateFolder, isActive, asyncGetFolderEmails, asyncRefresh } from '../../redux/reducers/emailsReducer';
+import { asyncGetFolderEmails, asyncRefresh } from '../../redux/reducers/emailsReducer';
+import { asyncDeleteFolder, asyncUpdateFolder, isActive } from '../../redux/reducers/folderReducer';
 
 const deleteId = { value: '' };
 const updateId = { value: '' };
@@ -109,7 +110,7 @@ function Folder(props) {
     }}
     >
       <i className={`fa ${icon}`} aria-hidden="true" />
-      {props.folder.name}
+      &nbsp;{props.folder.name}
         &nbsp;({props.folder.count})
       <div className="d-inline float-right">
         {isDeletable ?
@@ -149,7 +150,7 @@ Folder.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    folders: state.folders,
+    folders: state.folders.folders,
   };
 }
 

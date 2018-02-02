@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Button, Modal, ModalHeader, ModalBody } from 'reactstrap';
 import { notify } from 'react-notify-toast';
 import PropTypes from 'prop-types';
-import { asyncCreateFolder } from '../../redux/reducers/emailsReducer';
+import { asyncCreateFolder } from '../../redux/reducers/folderReducer';
 
 class ModalNewFolder extends Component {
   constructor(props) {

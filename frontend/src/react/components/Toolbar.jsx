@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Nav, NavItem, Dropdown, DropdownItem, DropdownToggle, DropdownMenu, NavLink, Input } from 'reactstrap';
 import { notify } from 'react-notify-toast';
-import { selectAll, selectNone, asyncPostEmailsToFolder, asyncDeleteEmails, asyncMark } from '../../redux/reducers/emailsReducer';
+import { selectAll, selectNone, asyncMoveEmails, asyncDeleteEmails, asyncMark } from '../../redux/reducers/emailsReducer';
 import ModalDeleteEmails from './ModalDeleteEmails.jsx';
 
 
@@ -146,8 +146,8 @@ Toolbar.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    emails: state.emails,
-    folders: state.folders,
+    emails: state.emails.emails,
+    folders: state.folders.folders,
   };
 }
 
@@ -157,7 +157,7 @@ function mapDispatchToProps(dispatch) {
     selectNone: emails => dispatch(selectNone(emails)),
     asyncMark: (emailIds, isRead) => dispatch(asyncMark(emailIds, isRead)),
     postEmailsToFolder: (emailIds, folderId) =>
-      dispatch(asyncPostEmailsToFolder(emailIds, folderId)),
+      dispatch(asyncMoveEmails(emailIds, folderId)),
     deleteEmails: emailIds => dispatch(asyncDeleteEmails(emailIds)),
   };
 }

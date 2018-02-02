@@ -9,13 +9,8 @@ const initialState = {
 const GET_USERNAME = 'Get username';
 const GET_EMAILS = 'Get emails';
 const DELETE_EMAILS = 'Delete emails';
-const UPDATE_EMAILS = 'Update Email Folders';
-
-const CREATE_FOLDER = 'Create folder';
-const UPDATE_FOLDER = 'Update folder';
-const DELETE_FOLDER = 'Delete folder';
+const MOVE_EMAILS = 'Update Email Folders';
 const GET_FOLDER_EMAILS = 'Get folder emails';
-const IS_ACTIVE = 'Is active';
 
 const REFRESH = 'Refresh';
 const LOADING = 'Loading';
@@ -37,6 +32,12 @@ function getEmails(result) {
   };
 }
 
+function getUsername(name) {
+  return {
+    type: GET_USERNAME, payload: { name },
+  };
+}
+
 function getFolderEmails(result) {
   return {
     type: GET_FOLDER_EMAILS,
@@ -46,42 +47,9 @@ function getFolderEmails(result) {
   };
 }
 
-function getUsername(name) {
+function moveEmails(response) {
   return {
-    type: GET_USERNAME, payload: { name },
-  };
-}
-
-function createFolder(response) {
-  return {
-    type: CREATE_FOLDER,
-    payload: {
-      createdFolder: response.createdFolder, errors: response.errors,
-    },
-  };
-}
-
-function updateFolder(response) {
-  return {
-    type: UPDATE_FOLDER,
-    payload: {
-      updatedFolder: response.updatedFolder, errors: response.errors,
-    },
-  };
-}
-
-function deleteFolder(response) {
-  return {
-    type: DELETE_FOLDER,
-    payload: {
-      deletedFolderID: response.deletedFolderID, errors: response.errors,
-    },
-  };
-}
-
-function updateEmails(response) {
-  return {
-    type: UPDATE_EMAILS,
+    type: MOVE_EMAILS,
     payload: {
       emailsToMove: response.emailsToMove,
       errors: response.errors,
@@ -141,6 +109,18 @@ export function asyncGetEmails() {
   };
 }
 
+export function asyncGetUsername() {
+  return function asyncGetUsernameInner(dispatch) {
+    fetch('http://localhost:3000/api/username', {
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+        dispatch(getUsername(result.name));
+      }).catch(() => {});
+  };
+}
+
 export function asyncGetFolderEmails(folderId) {
   return function asyncGetFolderEmailsInner(dispatch) {
     dispatch(loading());
@@ -154,27 +134,9 @@ export function asyncGetFolderEmails(folderId) {
   };
 }
 
-export function asyncGetUsername() {
-  return function asyncGetUsernameInner(dispatch) {
-    fetch('http://localhost:3000/api/username', {
-      credentials: 'include',
-    })
-      .then(res => res.json())
-      .then((result) => {
-        dispatch(getUsername(result.name));
-      }).catch(() => {});
-  };
-}
-
 export function isChecked(item) {
   return {
     type: IS_CHECKED, payload: { isChecked: !item.isChecked, id: item.emailID },
-  };
-}
-
-export function isActive(item) {
-  return {
-    type: IS_ACTIVE, payload: { isActive: true, id: item._id },
   };
 }
 
@@ -202,58 +164,7 @@ export function selectNone(emails) {
   };
 }
 
-export function asyncCreateFolder(body) {
-  return function asyncCreateFolderInner(dispatch) {
-    fetch('http://localhost:3000/api/folders', {
-      method: 'POST',
-      body: JSON.stringify(body),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-    })
-      .then(res => res.json())
-      .then((result) => {
-        dispatch(createFolder(result));
-      }).catch(() => {});
-  };
-}
-
-export function asyncUpdateFolder(body) {
-  const updatedFolder = { id: body.id, folderName: body.folderName };
-  return function asyncUpdateFolderInner(dispatch) {
-    fetch(`http://localhost:3000/api/folders/${updatedFolder.id}`, {
-      method: 'PUT',
-      body: JSON.stringify(updatedFolder),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-    })
-      .then(res => res.json())
-      .then((result) => {
-        dispatch(updateFolder(result));
-      }).catch(() => {});
-  };
-}
-
-export function asyncDeleteFolder(id) {
-  return function asyncDeleteFolderInner(dispatch) {
-    fetch(`http://localhost:3000/api/folders/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-    })
-      .then(res => res.json())
-      .then((result) => {
-        dispatch(deleteFolder(result));
-      }).catch(() => {});
-  };
-}
-
-export function asyncPostEmailsToFolder(emailIds, folderId) {
+export function asyncMoveEmails(emailIds, folderId) {
   return function asyncPostEmailsToFolderInner(dispatch) {
     fetch('http://localhost:3000/api/emails/move', {
       method: 'POST',
@@ -265,7 +176,7 @@ export function asyncPostEmailsToFolder(emailIds, folderId) {
     })
       .then(res => res.json())
       .then((res) => {
-        dispatch(updateEmails(res));
+        dispatch(moveEmails(res));
       }).catch(() => {});
   };
 }
@@ -320,33 +231,10 @@ export function asyncMark(emailIds, isRead) {
  * Reducer
  */
 
-export default function (state = initialState, action) {
+export default function emailsReducer(state = initialState, action) {
   const { type, payload } = action;
 
   switch (type) {
-    case GET_EMAILS:
-      return {
-        ...state,
-        emails: [
-          ...state.emails,
-          ...payload.emails
-            .map(email => Object.assign({}, email, { isChecked: !!email.isChecked })),
-        ],
-        folders: [
-          ...state.folders,
-          {
-            _id: 'allEmails',
-            name: 'Inbox',
-            icon: 'fa-inbox',
-            isActive: true,
-            count: payload.inboxCount,
-            user_id: null,
-          },
-          ...payload.folders
-            .map(folder => Object.assign({}, folder, { isActive: !!folder.isActive })),
-        ],
-        loaded: true,
-      };
     case GET_USERNAME:
       return {
         ...state,
@@ -372,18 +260,6 @@ export default function (state = initialState, action) {
           return email;
         }),
       };
-    case IS_ACTIVE:
-      return {
-        ...state,
-        folders: state.folders.map((folder) => {
-          if (folder._id === payload.id) {
-            Object.assign(folder, { isActive: payload.isActive });
-          } else {
-            Object.assign(folder, { isActive: false });
-          }
-          return folder;
-        }),
-      };
     case SELECT_ALL:
       return {
         ...state, emails: payload.emails,
@@ -392,37 +268,7 @@ export default function (state = initialState, action) {
       return {
         ...state, emails: payload.emails,
       };
-    case CREATE_FOLDER:
-    {
-      const folders = payload.createdFolder._id ? [
-        ...state.folders,
-        Object.assign({}, payload.createdFolder, { isActive: false }),
-      ] : state.folders;
-      return {
-        ...state, folders, errors: payload.errors,
-      };
-    }
-    case UPDATE_FOLDER:
-      return {
-        ...state,
-        folders: state.folders.map((folder) => {
-          if (folder._id === payload.updatedFolder._id.toString()) {
-            folder.name = payload.updatedFolder.name;
-          }
-          return folder;
-        }),
-        errors: payload.errors,
-      };
-    case DELETE_FOLDER:
-    {
-      const foldersAfterDelete = state.folders
-        .filter(folder => folder._id !== payload.deletedFolderID);
-      return {
-        ...state, folders: foldersAfterDelete, errors: payload.errors,
-      };
-    }
-
-    case UPDATE_EMAILS:
+    case MOVE_EMAILS:
     {
       let emailsAfterMove = state.emails.map((email) => {
         if (payload.emailsToMove.indexOf(email.emailID) !== -1) {
