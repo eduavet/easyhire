@@ -1,28 +1,25 @@
-import React, { Component } from 'react';
-import {connect} from "react-redux";
-import { asyncRefresh } from "../../redux/reducers/emailsReducer";
+import React from 'react';
+import { connect } from 'react-redux';
+import { asyncRefresh } from '../../redux/reducers/emailsReducer';
 
-class Refresh extends Component {
-    render () {
-        return (
-            <div className="col-2">
-                <button className="btn sync-btn"  onClick={this.props.refresh}><i className="fa fa-sync-alt"></i> Refresh</button>
-            </div>
-        )
-    }
-
+function Refresh() {
+  return (
+    <div className="col-2">
+      <button className="btn sync-btn" onClick={this.props.refresh}><i className="fa fa-sync-alt" /> Refresh</button>
+    </div>
+  );
 }
-function mapStateToProps(state) {
-    return {};
+function mapStateToProps() {
+  return {};
 }
 
 function mapDispatchToProps(dispatch) {
-    return {
-        refresh: () => dispatch(asyncRefresh()),
-    };
+  return {
+    refresh: () => dispatch(asyncRefresh()),
+  };
 }
 
 export default connect(
-    mapStateToProps,
-    mapDispatchToProps
+  mapStateToProps,
+  mapDispatchToProps,
 )(Refresh);
