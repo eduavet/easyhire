@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Nav, NavItem, Dropdown, DropdownItem, DropdownToggle, DropdownMenu, NavLink, Input } from 'reactstrap';
 import { notify } from 'react-notify-toast';
-import { selectAll, selectNone, asyncPostEmailsToFolder, asyncDeleteEmails, asyncMark } from '../../redux/reducers/emailsReducer';
+import { selectAll, selectNone, asyncMoveEmails, asyncDeleteEmails, asyncMark } from '../../redux/reducers/emailsReducer';
 import ModalDeleteEmails from './ModalDeleteEmails.jsx';
 
 
@@ -115,13 +115,18 @@ class Toolbar extends Component {
             </DropdownMenu>
           </Dropdown>
           <NavItem>
-            <NavLink href="#" onClick={() => this.toggleDeleteModal()}><i className="fas fa-trash-alt" /></NavLink>
+            <NavLink href="#" onClick={() => this.toggleDeleteModal()}>
+              <i className="fas fa-trash-alt" />
+            </NavLink>
           </NavItem>
           <NavItem className="searchContainer">
             <form className="my-2 my-lg-0">
               <div className="inner-addon left-addon">
                 <i className="fa fa-search search-icon" />
-                <Input className="form-control mr-lg-2" type="search" placeholder="Search" aria-label="Search" />
+                <Input
+                  className="form-control mr-lg-2" type="search"
+                  placeholder="Search" aria-label="Search"
+                />
               </div>
             </form>
           </NavItem>
@@ -146,8 +151,8 @@ Toolbar.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    emails: state.emails,
-    folders: state.folders,
+    emails: state.emails.emails,
+    folders: state.folders.folders,
   };
 }
 
@@ -157,7 +162,7 @@ function mapDispatchToProps(dispatch) {
     selectNone: emails => dispatch(selectNone(emails)),
     asyncMark: (emailIds, isRead) => dispatch(asyncMark(emailIds, isRead)),
     postEmailsToFolder: (emailIds, folderId) =>
-      dispatch(asyncPostEmailsToFolder(emailIds, folderId)),
+      dispatch(asyncMoveEmails(emailIds, folderId)),
     deleteEmails: emailIds => dispatch(asyncDeleteEmails(emailIds)),
   };
 }

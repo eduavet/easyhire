@@ -1,6 +1,5 @@
-/* eslint no-underscore-dangle: 0 */
 const moment = require('moment');
-const EmailsModel = require('../models/emailsModel.js');
+const EmailsModel = require('../models/EmailsModel.js');
 const mongoose = require('mongoose');
 
 const emailHelpers = {};
@@ -23,8 +22,8 @@ emailHelpers.extract = (res, folderId, folderName, isReadParam) => {
 };
 
 emailHelpers.buildNewEmailModel = (userId, id, folder) => new EmailsModel({
-  user_id: userId,
-  email_id: id,
+  userId: userId,
+  emailId: id,
   folder: mongoose.Types.ObjectId(folder._id),
   isRead: false,
 });

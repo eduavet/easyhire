@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Button, Modal, ModalHeader, ModalBody } from 'reactstrap';
 import { notify } from 'react-notify-toast';
 import PropTypes from 'prop-types';
-import { asyncCreateFolder } from '../../redux/reducers/emailsReducer';
+import { asyncCreateFolder } from '../../redux/reducers/folderReducer';
 
 class ModalNewFolder extends Component {
   constructor(props) {
@@ -13,11 +13,11 @@ class ModalNewFolder extends Component {
       input: '',
     };
   }
-
+  // Toggle new folder modal
   toggle = () => {
     this.setState({ modal: !this.state.modal });
   };
-
+  // Dispatch create folder action, display success message
   createFolder = (e) => {
     e.preventDefault();
     const body = { folderName: this.refs.createFolder.value };
@@ -28,7 +28,7 @@ class ModalNewFolder extends Component {
 
   handleChange = (e) => {
     this.setState({ input: e.target.value });
-  }
+  };
 
   render() {
     return (

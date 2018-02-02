@@ -1,12 +1,65 @@
-/* eslint no-underscore-dangle: 0 */
 const fetch = require('node-fetch');
-const EmailsModel = require('../models/emailsModel.js');
-const FoldersModel = require('../models/foldersModel.js');
+const EmailsModel = require('../models/EmailsModel.js');
+const FoldersModel = require('../models/FoldersModel.js');
 const emailHelpers = require('../helpers/email.helper.js');
 
 const folderHandlers = {};
 module.exports = folderHandlers;
 
+// Geting folders
+folderHandlers.getFolders = (req, response) => {
+  const userId = req.session.userID;
+  if (!userId) {
+    return response.json({ folders: [] });
+  }
+  return EmailsModel.count({ userId })
+    .then(inboxCount => FoldersModel
+      .aggregate([
+        { $match: { $or: [{ userId: null }, { userId }] } },
+        {
+          $lookup: {
+            from: 'emails',
+            localField: '_id',
+            foreignField: 'folder',
+            as: 'emails',
+          },
+        },
+        {
+          $unwind: {
+            path: '$emails',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        { $match: { $or: [{ 'emails.userId': userId }, { emails: { $exists: false } }] } },
+        {
+          $group: {
+            _id: '$_id',
+            name: { $first: '$name' },
+            icon: { $first: '$icon' },
+            userId: { $first: '$userId' },
+            emails: { $push: '$emails' },
+            // count: {  $sum: 1}
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            icon: 1,
+            userId: 1,
+            count: { $size: '$emails' },
+          },
+        },
+        { $sort: { userId: 1, name: 1 } },
+      ])
+      .then((folders) => {
+        const packed = {
+          folders,
+          inboxCount,
+        };
+        response.json(packed);
+      })).catch({ folders: [], inboxCount: 0, errors: [] });
+};
 // Create new folder
 folderHandlers.createFolder = (req, res) => {
   req.checkBody('folderName').notEmpty().withMessage('Folder name is required');
@@ -20,7 +73,7 @@ folderHandlers.createFolder = (req, res) => {
   const newFolder = new FoldersModel({
     name,
     icon,
-    user_id: userId,
+    userId,
   });
   return newFolder.save()
     .then((createdFolder) => {
@@ -29,7 +82,7 @@ folderHandlers.createFolder = (req, res) => {
         name: createdFolder.name,
         count: 0,
         icon: createdFolder.icon,
-        user_id: createdFolder.user_id,
+        userId: createdFolder.userId,
         isActive: false,
       };
       return res.json({ createdFolder: createdFolderToSend, errors: [] });
@@ -52,10 +105,10 @@ folderHandlers.updateFolder = (req, res) => {
     .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], updatedFolder: {} }));
 };
 // Delete folder
-// Cannot delete default folders and folders witch contain emails.
-// Default folders - Approved,Rejected,Interview Scheduled,Not Reviewed,
+// Cannot delete default folders and folders which contain emails.
+// Default folders - Approved, Rejected, Interview Scheduled, Not Reviewed
 folderHandlers.deleteFolder = (req, res) => {
-  FoldersModel.findOne({ user_id: req.session.userID, _id: req.params.ID })
+  FoldersModel.findOne({ userId: req.session.userID, _id: req.params.ID })
     .then((folder) => {
       if (folder) {
         return EmailsModel.find({ folder: folder.id })
@@ -66,7 +119,7 @@ folderHandlers.deleteFolder = (req, res) => {
                 deletedFolderID: '',
               });
             } else {
-              FoldersModel.findOne({ user_id: req.session.userID, _id: req.params.ID })
+              FoldersModel.findOne({ userId: req.session.userID, _id: req.params.ID })
                 .remove().exec();
               res.json({ deletedFolderID: req.params.ID, errors: [] });
             }
@@ -88,11 +141,11 @@ folderHandlers.getEmails = (req, res) => {
   const { accessToken } = req.session;
   const emailsToSend = [];
   const promises = [];
-  return EmailsModel.find({ folder: folderId, user_id: userId }, ['email_id', 'isRead'])
+  return EmailsModel.find({ folder: folderId, userId }, ['email_id', 'isRead'])
     .populate('folder', 'name')
     .then((result) => {
       for (let i = 0; i < result.length; i += 1) {
-        const id = result[i].email_id;
+        const id = result[i].emailId;
         promises.push(fetch(`https://www.googleapis.com/gmail/v1/users/${userId}/messages/${id}?access_token=${accessToken}`)
           .then(response => response.json())
           .then((msgRes) => {

@@ -5,7 +5,7 @@ const { Schema } = mongoose;
 const foldersSchema = new Schema({
   name: String,
   icon: String,
-  user_id: { type: String, default: null },
+  userId: { type: String, default: null },
 }, {
   versionKey: false,
 });

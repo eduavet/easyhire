@@ -6,7 +6,8 @@ import ModalNewFolder from './ModalNewFolder.jsx';
 import ModalUpdateFolder from './ModalUpdateFolder.jsx';
 import ModalDeleteFolder from './ModalDeleteFolder.jsx';
 import ModalCannotDeleteFolder from './ModalCannotDeleteFolder.jsx';
-import { asyncDeleteFolder, asyncUpdateFolder, isActive, asyncGetFolderEmails, asyncRefresh } from '../../redux/reducers/emailsReducer';
+import { asyncGetFolderEmails, asyncRefresh } from '../../redux/reducers/emailsReducer';
+import { asyncDeleteFolder, asyncUpdateFolder, isActive } from '../../redux/reducers/folderReducer';
 
 const deleteId = { value: '' };
 const updateId = { value: '' };
@@ -55,9 +56,11 @@ class Sidebar extends Component {
       this.setState({ deleteModal: false, deleteFolderName: '' });
       notify.show('Folder deleted!', 'success', 1500);
     };
+    // Make folder active to highlight it
     folderToggler = (folder) => {
       this.props.isActive(folder);
     };
+    // Handle folder click on non-inbox folders
     openFolder = (folderId) => {
       this.props.getFolderEmails(folderId);
     };
@@ -96,8 +99,8 @@ class Sidebar extends Component {
 
 function Folder(props) {
   const folderIsActive = props.folder.isActive ? 'active-folder' : '';
-  const icon = props.folder.icon;
-  const isDeletable = props.folder.user_id;
+  const { icon } = props.folder;
+  const isDeletable = props.folder.userId;
   return (
     <li
       className={`list-group-item list-group-item-action ${folderIsActive}`}
@@ -110,18 +113,28 @@ function Folder(props) {
     >
       <i className={`fa ${icon}`} aria-hidden="true" />
       &nbsp;{props.folder.name}
-        &nbsp;({props.folder.count})
+      &nbsp;({props.folder.count})
       <div className="d-inline float-right">
-        {isDeletable ?
-          <i className="fa fa-pencil-alt folder-actions" aria-hidden="true" data-id={props.folder._id} data-name={props.folder.name} onClick={props.toggleUpdateModal} />
-                :
-                ''
-            }
-        {isDeletable ?
-          <i className="fa fa-trash folder-actions" aria-hidden="true" data-id={props.folder._id} data-name={props.folder.name} onClick={props.folder.count ? props.toggleCannotDeleteModal : props.toggleDeleteModal} />
-                :
-                ''
-            }
+        {
+          isDeletable ?
+            <i
+              className="fa fa-pencil-alt folder-actions" aria-hidden="true"
+              data-id={props.folder._id} data-name={props.folder.name}
+              onClick={props.toggleUpdateModal}
+            />
+                  :
+                  ''
+        }
+        {
+          isDeletable ?
+            <i
+              className="fa fa-trash folder-actions" aria-hidden="true"
+              data-id={props.folder._id} data-name={props.folder.name}
+              onClick={props.folder.count ? props.toggleCannotDeleteModal : props.toggleDeleteModal}
+            />
+                  :
+                  ''
+        }
       </div>
     </li>
   );
@@ -149,7 +162,7 @@ Folder.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    folders: state.folders,
+    folders: state.folders.folders,
   };
 }
 

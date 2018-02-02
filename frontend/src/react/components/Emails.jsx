@@ -34,7 +34,11 @@ class Emails extends Component {
                 <tr key={item.emailID} className={item.isRead ? '' : 'isUnread'}>
                   <td>
                     <div className="checkbox checkbox-success">
-                      <input type="checkbox" key={item.emailID} checked={item.isChecked} onClick={() => this.toggleCheckbox(item)} ref={(a) => { this._inputElement = a; }} />
+                      <input
+                        type="checkbox" key={item.emailID} checked={item.isChecked}
+                        onClick={() => this.toggleCheckbox(item)}
+                        ref={(a) => { this._inputElement = a; }}
+                      />
                     </div>
                   </td>
                   <td >
@@ -73,8 +77,8 @@ Emails.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    emails: state.emails,
-    loaded: state.loaded,
+    emails: state.emails.emails,
+    loaded: state.emails.loaded,
   };
 }
 
