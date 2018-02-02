@@ -12,17 +12,17 @@ router.get('/auth/google', passport.authenticate(
   'google',
   {
     scope:
-            ['https://mail.google.com/',
-              // 'https://www.googleapis.com/auth/gmail.modify',
-              // 'https://www.googleapis.com/auth/gmail.readonly',
-              // 'https://www.googleapis.com/auth/gmail.metadata',
-              'profile', 'email', 'openid'],
+      ['https://mail.google.com/',
+        // 'https://www.googleapis.com/auth/gmail.modify',
+        // 'https://www.googleapis.com/auth/gmail.readonly',
+        // 'https://www.googleapis.com/auth/gmail.metadata',
+        'profile', 'email', 'openid'],
   },
 ));
 router.get(
   '/auth/google/callback',
   passport.authenticate('google', {
-    successRedirect: 'http://localhost:8080', // TODO keep in ENV
+    successRedirect: process.env.HOMEPAGE,
     failureRedirect: '/auth/google',
   }),
 );

@@ -1,14 +1,25 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth2').Strategy;
+const UsersModel = require('../models/usersModel.js');
 
 passport.serializeUser((user, done) => {
+  UsersModel.findOne({ googleID: user.id }, (err, exists) => {
+    if (exists) return;
+    const newUser = new UsersModel({
+      googleID: user.id,
+      name: user.displayName,
+      image: user.photos[0].value,
+      email: user.email,
+    });
+    newUser.save();
+  });
   done(null, user);
 });
 
 passport.deserializeUser((obj, done) => {
   done(null, obj);
 });
-// TODO - keep user info in DB, from this file
+
 passport.use(new GoogleStrategy(
   {
     clientID: process.env.GOOGLE_CLIENT_ID,
