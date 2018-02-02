@@ -12,6 +12,7 @@ class Emails extends Component{
         loaded: false
       }
     }
+    // Inform redux that box is checked/unchecked
     toggleCheckbox = (item) => {
         this.props.isChecked(item)
     };

@@ -13,14 +13,14 @@ const updateId = { value: ''};
 
 class Sidebar extends Component {
     constructor(...args) {
-        super(...args);
-        this.state = {
-            updateModal: false,
-            deleteModal: false,
-            cannotDeleteModal: false,
-            updateFolderName: '',
-            deleteFolderName: ''
-        }
+      super(...args);
+      this.state = {
+        updateModal: false,
+        deleteModal: false,
+        cannotDeleteModal: false,
+        updateFolderName: '',
+        deleteFolderName: ''
+      }
     }
     toggleUpdateModal = (evt) => {
       evt.stopPropagation();
@@ -46,41 +46,42 @@ class Sidebar extends Component {
       this.setState({deleteModal: false, deleteFolderName: ''});
       notify.show('Folder deleted!', 'success', 1500);
     };
+    // Make folder active to highlight it
     folderToggler = (folder) => {
-        this.props.isActive(folder)
+      this.props.isActive(folder)
     };
-    openFolder = (folderId)=>{
-        this.props.getFolderEmails(folderId)
+    // Handle folder click on non-inbox folders
+    openFolder = (folderId) => {
+      this.props.getFolderEmails(folderId)
     };
     render() {
-        return (
-            <div className="col-2 mt-4">
-                <ul className="list-group folders">
-                    { this.props.folders.map((folder) =>
-                      <Folder key = {folder._id} folder = { folder } folderToggler={this.folderToggler}  getEmails={this.props.getEmails} openFolder={this.openFolder} toggleUpdateModal={this.toggleUpdateModal} toggleDeleteModal={this.toggleDeleteModal} toggleCannotDeleteModal={this.toggleCannotDeleteModal} />
-                    )}
-                    <ModalNewFolder/>
-                </ul>
-                <ModalUpdateFolder isOpenUpdate={this.state.updateModal} toggleUpdateModal={this.toggleUpdateModal} updateFolder={this.updateFolder} updateFolderName={this.state.updateFolderName}/>
-                <ModalDeleteFolder isOpenDelete={this.state.deleteModal} toggleDeleteModal={this.toggleDeleteModal}  deleteFolder={this.deleteFolder} deleteFolderName={this.state.deleteFolderName}/>
-                <ModalCannotDeleteFolder isOpenCannotDelete={this.state.cannotDeleteModal} toggleCannotDeleteModal={this.toggleCannotDeleteModal} cannotDeleteFolderName={this.state.cannotDeleteFolderName}/>
-            </div>
-        )
+      return (
+        <div className="col-2 mt-4">
+          <ul className="list-group folders">
+            { this.props.folders.map((folder) =>
+              <Folder key = {folder._id} folder = { folder } folderToggler={this.folderToggler}  getEmails={this.props.getEmails} openFolder={this.openFolder} toggleUpdateModal={this.toggleUpdateModal} toggleDeleteModal={this.toggleDeleteModal} toggleCannotDeleteModal={this.toggleCannotDeleteModal} />
+            )}
+            <ModalNewFolder/>
+          </ul>
+          <ModalUpdateFolder isOpenUpdate={this.state.updateModal} toggleUpdateModal={this.toggleUpdateModal} updateFolder={this.updateFolder} updateFolderName={this.state.updateFolderName}/>
+          <ModalDeleteFolder isOpenDelete={this.state.deleteModal} toggleDeleteModal={this.toggleDeleteModal}  deleteFolder={this.deleteFolder} deleteFolderName={this.state.deleteFolderName}/>
+          <ModalCannotDeleteFolder isOpenCannotDelete={this.state.cannotDeleteModal} toggleCannotDeleteModal={this.toggleCannotDeleteModal} cannotDeleteFolderName={this.state.cannotDeleteFolderName}/>
+        </div>
+      )
     }
 }
 
 function Folder (props) {
-
   const isActive = props.folder.isActive ? 'active-folder' : '';
-  const icon = props.folder.icon;
+  const { icon } = props.folder;
   const isDeletable = props.folder.user_id;
   return (
-    <li className={ "list-group-item list-group-item-action " +  isActive } onClick={()=>{
-        props.folderToggler(props.folder);
-        if(props.folder._id=='allEmails'){
-            props.getEmails();
-        }
-        else{props.openFolder(props.folder._id);}
+    <li className={ "list-group-item list-group-item-action " + isActive } onClick={ () => {
+      props.folderToggler(props.folder);
+      if(props.folder._id === 'allEmails'){
+        props.getEmails();
+      }
+      else{props.openFolder(props.folder._id);}
     }}>
         <i className={ "fa " + icon} aria-hidden="true"></i>
         &nbsp; {props.folder.name}
@@ -111,9 +112,9 @@ function mapDispatchToProps(dispatch) {
   return {
     deleteFolder: (param) => dispatch(asyncDeleteFolder(param)),
     updateFolder: (param) => dispatch(asyncUpdateFolder(param)),
-      isActive: (item) => dispatch(isActive(item)),
-      getFolderEmails: (folderId) => dispatch(asyncGetFolderEmails(folderId)),
-      getEmails: ()=>dispatch(asyncRefresh()),
+    isActive: (item) => dispatch(isActive(item)),
+    getFolderEmails: (folderId) => dispatch(asyncGetFolderEmails(folderId)),
+    getEmails: () => dispatch(asyncRefresh()),
   };
 }
 

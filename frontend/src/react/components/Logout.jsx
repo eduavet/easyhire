@@ -9,7 +9,8 @@ export default class Logout extends Component {
         };
 
     }
-    toggle=()=> {
+    // Toggle logout confirmation modal
+    toggle = () => {
         this.setState({modal: !this.state.modal});
     }
     render() {

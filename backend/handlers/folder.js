@@ -52,8 +52,8 @@ folderHandlers.updateFolder = (req, res) => {
     .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], updatedFolder: {} }));
 };
 // Delete folder
-// Cannot delete default folders and folders witch contain emails.
-// Default folders - Approved,Rejected,Interview Scheduled,Not Reviewed,
+// Cannot delete default folders and folders which contain emails.
+// Default folders - Approved, Rejected, Interview Scheduled, Not Reviewed
 folderHandlers.deleteFolder = (req, res) => {
   FoldersModel.findOne({ user_id: req.session.userID, _id: req.params.ID })
     .then((folder) => {

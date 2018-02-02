@@ -3,16 +3,6 @@ const GoogleStrategy = require('passport-google-oauth2').Strategy;
 const UsersModel = require('../models/usersModel.js');
 
 passport.serializeUser((user, done) => {
-  UsersModel.findOne({ googleID: user.id }, (err, exists) => {
-    if (exists) return;
-    const newUser = new UsersModel({
-      googleID: user.id,
-      name: user.displayName,
-      image: user.photos[0].value,
-      email: user.email,
-    });
-    newUser.save();
-  });
   done(null, user);
 });
 
@@ -20,6 +10,7 @@ passport.deserializeUser((obj, done) => {
   done(null, obj);
 });
 
+// Authorize, store user info in session, store user info in DB (if new user)
 passport.use(new GoogleStrategy(
   {
     clientID: process.env.GOOGLE_CLIENT_ID,
@@ -33,6 +24,17 @@ passport.use(new GoogleStrategy(
     request.session.accessToken = accessToken;
     request.session.name = profile.displayName;
     request.session.save();
+
+    UsersModel.findOne({ googleID: profile.id }, (err, exists) => {
+      if (exists) return;
+      const newUser = new UsersModel({
+        googleID: profile.id,
+        name: profile.displayName,
+        image: profile.photos[0].value,
+        email: profile.email,
+      });
+      newUser.save();
+    });
     done(null, profile);
   }),
 ));

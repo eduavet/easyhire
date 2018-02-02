@@ -98,7 +98,7 @@ emailHandlers.emails = (req, response) => {
               response.json(packed);
             })));
     })
-    .catch(() => {
+    .catch((err) => {
       response.json({
         name: '', emailsToSend: [], folders: [], inboxCount: 0, errors: [{ msg: 'Something went wrong' }],
       });
