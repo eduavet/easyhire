@@ -19,7 +19,7 @@ function Header(props) {
             Hi {props.username}!
           </NavItem>
           <NavItem>
-            <Link href="/settings" className="nav-link">
+            <Link to="/settings" className="nav-link">
               <i className="fas fa-cogs settingsbtn" />
             </Link>
           </NavItem>

@@ -25,6 +25,6 @@ export default class ModalCannotDeleteFolder extends Component {
 
 ModalCannotDeleteFolder.propTypes = {
   isOpenCannotDelete: PropTypes.bool.isRequired,
-  toggleCannotDeleteModal: PropTypes.bool.isRequired,
-  cannotDeleteFolderName: PropTypes.string.isRequired,
+  toggleCannotDeleteModal: PropTypes.func.isRequired,
+  cannotDeleteFolderName: PropTypes.string,
 };

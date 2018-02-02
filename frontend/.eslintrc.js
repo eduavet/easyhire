@@ -16,6 +16,7 @@ module.exports = {
     'no-param-reassign': 0,
     'no-nested-ternary': 'off',
     'react/jsx-filename-extension': [1, { 'extensions': ['.js', '.jsx'] }],
+    'react/require-default-props': 0,
     'import/extensions': ['.js', '.jsx'],
     'import/no-named-as-default': 0,
     'linebreak-style': 0,

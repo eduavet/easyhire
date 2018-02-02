@@ -140,7 +140,6 @@ Folder.propTypes = {
   folder: PropTypes.object.isRequired,
   folderToggler: PropTypes.func.isRequired,
   openFolder: PropTypes.func.isRequired,
-  count: PropTypes.number.isRequired,
   toggleUpdateModal: PropTypes.func.isRequired,
   toggleCannotDeleteModal: PropTypes.func.isRequired,
   toggleDeleteModal: PropTypes.func.isRequired,
