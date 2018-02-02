@@ -4,14 +4,11 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 
 const config = {
-  entry: './src/main.js',
+  entry: './src/main.jsx',
   devtool: 'inline-source-map',
   output: {
     path: path.join(__dirname, './build'),
     filename: 'index.js',
-  },
-  resolve: {
-    extensions: ['', '.js', '.jsx'],
   },
   devServer: {
     inline: true,

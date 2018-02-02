@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 
-const Schema = mongoose.Schema;
+const { Schema } = mongoose;
 
 const foldersSchema = new Schema({
-    name: String,
-    icon: String,
-    user_id:{ type: String, default: null }
+  name: String,
+  icon: String,
+  user_id: { type: String, default: null },
 }, {
-    versionKey: false
+  versionKey: false,
 });
 
 const foldersModel = mongoose.model('folders', foldersSchema);
