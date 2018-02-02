@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const emailsSchema = new Schema({
-  user_id: String,
-  email_id: String,
+  userId: String,
+  emailId: String,
   folder: { type: Schema.Types.ObjectId, ref: 'folders' },
   isRead: Boolean,
 }, {

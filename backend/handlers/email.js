@@ -27,7 +27,7 @@ emailHandlers.emails = (req, response) => {
         promises.push(fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`)
           .then(email => email.json())
           .then(email => emailsModel
-            .findOne({ email_id: id })
+            .findOne({ emailId: id })
             .populate('folder')
             .then((group1) => {
               if (group1) {
@@ -37,7 +37,7 @@ emailHandlers.emails = (req, response) => {
                 return foldersModel.findOne({ name: 'Not Reviewed' }, '_id').then((folder) => {
                   const newEmail = helper.buildNewEmailModel(userId, id, folder);
                   return newEmail.save().then(email2 => emailsModel
-                    .findOne({ email_id: email2.email_id })
+                    .findOne({ emailId: email2.emailId })
                     .populate('folder').then((group2) => {
                       const fold = group2.folder;
                       emailsToSend[i] = helper.extract(email2, fold._id, fold.name, false);
@@ -69,7 +69,7 @@ emailHandlers.emailsMoveToFolder = (req, res) => {
   const folderToMove = req.body.folderId;
   const originalFolder = [];
   let folderName = '';
-  emailsModel.find({ email_id: { $in: emailsToMove } }, { folder: true, _id: false })
+  emailsModel.find({ emailId: { $in: emailsToMove } }, { folder: true, _id: false })
     .then((result) => {
       result.forEach(r => originalFolder.push(r.folder));
     })
@@ -77,7 +77,7 @@ emailHandlers.emailsMoveToFolder = (req, res) => {
       .then((response) => { folderName = response.name; }))
     .then(() => {
       emailsModel.updateMany(
-        { email_id: { $in: emailsToMove } },
+        { emailId: { $in: emailsToMove } },
         { $set: { folder: mongoose.Types.ObjectId(folderToMove) } },
       );
     })
@@ -93,7 +93,7 @@ emailHandlers.emailsMoveToFolder = (req, res) => {
 emailHandlers.mark = (req, res) => {
   const emailsToMark = req.body.emailIds;
   const newValue = req.body.isRead;
-  emailsModel.updateMany({ email_id: { $in: emailsToMark } }, { $set: { isRead: newValue } })
+  emailsModel.updateMany({ emailId: { $in: emailsToMark } }, { $set: { isRead: newValue } })
     .then(() => res.json({ emailsToMark, newValue, errors: [] }))
     .catch(err => res.json({ errors: err, emailsToMark: [], newValue: null }));
 };
@@ -102,11 +102,11 @@ emailHandlers.mark = (req, res) => {
 emailHandlers.deleteEmails = (req, res) => {
   const emailsToDelete = req.params.ID.split(',');
   const originalFolder = [];
-  emailsModel.find({ email_id: { $in: emailsToDelete } }, { folder: true, _id: false })
+  emailsModel.find({ emailId: { $in: emailsToDelete } }, { folder: true, _id: false })
     .then((result) => {
       result.forEach(r => originalFolder.push(r.folder));
     })
-    .then(() => emailsModel.remove({ email_id: { $in: emailsToDelete } }))
+    .then(() => emailsModel.remove({ emailId: { $in: emailsToDelete } }))
     .then(() => res.json({ emailsToDelete, originalFolder, errors: [] }))
     .catch(err => res.json({ errors: err, emailsToDelete: [], originalFolder: [] }));
 };

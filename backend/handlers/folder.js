@@ -13,10 +13,10 @@ folderHandlers.getFolders = (req, response) => {
   if (!userId) {
     return response.json({ folders: [] });
   }
-  return EmailsModel.count({ user_id: userId })
+  return EmailsModel.count({ userId })
     .then(inboxCount => FoldersModel
       .aggregate([
-        { $match: { $or: [{ user_id: null }, { user_id: userId }] } },
+        { $match: { $or: [{ userId: null }, { userId }] } },
         {
           $lookup: {
             from: 'emails',
@@ -37,7 +37,7 @@ folderHandlers.getFolders = (req, response) => {
             _id: '$_id',
             name: { $first: '$name' },
             icon: { $first: '$icon' },
-            user_id: { $first: '$user_id' },
+            userId: { $first: '$user_id' },
             emails: { $push: '$emails' },
             // count: {  $sum: 1}
           },
@@ -47,11 +47,11 @@ folderHandlers.getFolders = (req, response) => {
             _id: 1,
             name: 1,
             icon: 1,
-            user_id: 1,
+            userId: 1,
             count: { $size: '$emails' },
           },
         },
-        { $sort: { user_id: 1, name: 1 } },
+        { $sort: { userId: 1, name: 1 } },
       ])
       .then((folders) => {
         const packed = {
@@ -74,7 +74,7 @@ folderHandlers.createFolder = (req, res) => {
   const newFolder = new FoldersModel({
     name,
     icon,
-    user_id: userId,
+    userId,
   });
   return newFolder.save()
     .then((createdFolder) => {
@@ -83,7 +83,7 @@ folderHandlers.createFolder = (req, res) => {
         name: createdFolder.name,
         count: 0,
         icon: createdFolder.icon,
-        user_id: createdFolder.user_id,
+        userId: createdFolder.userId,
         isActive: false,
       };
       return res.json({ createdFolder: createdFolderToSend, errors: [] });
@@ -109,7 +109,7 @@ folderHandlers.updateFolder = (req, res) => {
 // Cannot delete default folders and folders witch contain emails.
 // Default folders - Approved,Rejected,Interview Scheduled,Not Reviewed,
 folderHandlers.deleteFolder = (req, res) => {
-  FoldersModel.findOne({ user_id: req.session.userID, _id: req.params.ID })
+  FoldersModel.findOne({ userId: req.session.userID, _id: req.params.ID })
     .then((folder) => {
       if (folder) {
         return EmailsModel.find({ folder: folder.id })
@@ -120,7 +120,7 @@ folderHandlers.deleteFolder = (req, res) => {
                 deletedFolderID: '',
               });
             } else {
-              FoldersModel.findOne({ user_id: req.session.userID, _id: req.params.ID })
+              FoldersModel.findOne({ userId: req.session.userID, _id: req.params.ID })
                 .remove().exec();
               res.json({ deletedFolderID: req.params.ID, errors: [] });
             }
@@ -142,11 +142,11 @@ folderHandlers.getEmails = (req, res) => {
   const { accessToken } = req.session;
   const emailsToSend = [];
   const promises = [];
-  return EmailsModel.find({ folder: folderId, user_id: userId }, ['email_id', 'isRead'])
+  return EmailsModel.find({ folder: folderId, userId }, ['email_id', 'isRead'])
     .populate('folder', 'name')
     .then((result) => {
       for (let i = 0; i < result.length; i += 1) {
-        const id = result[i].email_id;
+        const id = result[i].emailId;
         promises.push(fetch(`https://www.googleapis.com/gmail/v1/users/${userId}/messages/${id}?access_token=${accessToken}`)
           .then(response => response.json())
           .then((msgRes) => {
