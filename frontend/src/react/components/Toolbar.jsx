@@ -115,13 +115,18 @@ class Toolbar extends Component {
             </DropdownMenu>
           </Dropdown>
           <NavItem>
-            <NavLink href="#" onClick={() => this.toggleDeleteModal()}><i className="fas fa-trash-alt" /></NavLink>
+            <NavLink href="#" onClick={() => this.toggleDeleteModal()}>
+              <i className="fas fa-trash-alt" />
+            </NavLink>
           </NavItem>
           <NavItem className="searchContainer">
             <form className="my-2 my-lg-0">
               <div className="inner-addon left-addon">
                 <i className="fa fa-search search-icon" />
-                <Input className="form-control mr-lg-2" type="search" placeholder="Search" aria-label="Search" />
+                <Input
+                  className="form-control mr-lg-2" type="search"
+                  placeholder="Search" aria-label="Search"
+                />
               </div>
             </form>
           </NavItem>

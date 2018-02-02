@@ -14,11 +14,12 @@ export default class Logout extends Component {
     render() {
       return (
         <div>
-          <Button color="link" onClick={this.toggle}><i className="fas fa-sign-out-alt logoutbtn" /></Button>
+          <Button color="link" onClick={this.toggle}><i className="fas fa-sign-out-alt logoutbtn" />
+          </Button>
           <Modal isOpen={this.state.modal} toggle={this.toggle}>
             <ModalHeader toggle={this.toggle}>Logout</ModalHeader>
             <ModalBody>
-                        Are you sure you want to log out?
+              Are you sure you want to log out?
             </ModalBody>
             <ModalFooter>
               <a className="btn bg-light-blue" href="http://localhost:3000/auth/logout">I'm sure!</a>

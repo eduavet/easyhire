@@ -12,7 +12,7 @@ export default class ModalUpdateFolder extends Component {
 
   handleChange = (e) => {
     this.setState({ input: e.target.value });
-  }
+  };
 
   render() {
     return (

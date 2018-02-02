@@ -30,7 +30,11 @@ class Emails extends Component {
                 <tr key={item.emailID} className={item.isRead ? '' : 'isUnread'}>
                   <td>
                     <div className="checkbox checkbox-success">
-                      <input type="checkbox" key={item.emailID} checked={item.isChecked} onClick={() => this.toggleCheckbox(item)} ref={(a) => { this._inputElement = a; }} />
+                      <input
+                        type="checkbox" key={item.emailID} checked={item.isChecked}
+                        onClick={() => this.toggleCheckbox(item)}
+                        ref={(a) => { this._inputElement = a; }}
+                      />
                     </div>
                   </td>
                   <td className={item.isRead ? 'text-center' : 'text-center bold'}>{item.sender}</td>

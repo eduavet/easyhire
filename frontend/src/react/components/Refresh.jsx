@@ -7,7 +7,10 @@ import { asyncRefreshFolders } from '../../redux/reducers/folderReducer';
 function Refresh(props) {
   return (
     <div className="col-2">
-      <button className="btn sync-btn" onClick={() => { props.refresh(); props.asyncRefreshFolders(); }}><i className="fa fa-sync-alt" /> Refresh</button>
+      <button className="btn sync-btn" onClick={() => { props.refresh(); props.asyncRefreshFolders(); }}>
+        <i className="fa fa-sync-alt" />
+        Refresh
+      </button>
     </div>
   );
 }

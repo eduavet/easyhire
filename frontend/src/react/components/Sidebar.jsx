@@ -113,16 +113,26 @@ function Folder(props) {
       &nbsp;{props.folder.name}
         &nbsp;({props.folder.count})
       <div className="d-inline float-right">
-        {isDeletable ?
-          <i className="fa fa-pencil-alt folder-actions" aria-hidden="true" data-id={props.folder._id} data-name={props.folder.name} onClick={props.toggleUpdateModal} />
-                :
-                ''
-            }
-        {isDeletable ?
-          <i className="fa fa-trash folder-actions" aria-hidden="true" data-id={props.folder._id} data-name={props.folder.name} onClick={props.folder.count ? props.toggleCannotDeleteModal : props.toggleDeleteModal} />
-                :
-                ''
-            }
+        {
+          isDeletable ?
+            <i
+              className="fa fa-pencil-alt folder-actions" aria-hidden="true"
+              data-id={props.folder._id} data-name={props.folder.name}
+              onClick={props.toggleUpdateModal}
+            />
+                  :
+                  ''
+        }
+        {
+          isDeletable ?
+            <i
+              className="fa fa-trash folder-actions" aria-hidden="true"
+              data-id={props.folder._id} data-name={props.folder.name}
+              onClick={props.folder.count ? props.toggleCannotDeleteModal : props.toggleDeleteModal}
+            />
+                  :
+                  ''
+        }
       </div>
     </li>
   );
