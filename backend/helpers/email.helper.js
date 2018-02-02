@@ -22,8 +22,8 @@ emailHelpers.extract = (res, folderId, folderName, isReadParam) => {
 };
 
 emailHelpers.buildNewEmailModel = (userId, id, folder) => new EmailsModel({
-  user_id: userId,
-  email_id: id,
+  userId: userId,
+  emailId: id,
   folder: mongoose.Types.ObjectId(folder._id),
   isRead: false,
 });

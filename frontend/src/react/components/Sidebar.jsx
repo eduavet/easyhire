@@ -100,7 +100,7 @@ class Sidebar extends Component {
 function Folder(props) {
   const folderIsActive = props.folder.isActive ? 'active-folder' : '';
   const { icon } = props.folder;
-  const isDeletable = props.folder.user_id;
+  const isDeletable = props.folder.userId;
   return (
     <li
       className={`list-group-item list-group-item-action ${folderIsActive}`}
