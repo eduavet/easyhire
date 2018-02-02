@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const fetch = require('node-fetch');
 const emailsModel = require('../models/emailsModel.js');
 const foldersModel = require('../models/foldersModel.js');
-const helper = require('../helpers/email.js');
+const helper = require('../helpers/email.helper.js');
 
 const emailHandlers = {};
 module.exports = emailHandlers;
