@@ -1,7 +1,7 @@
 /* eslint no-underscore-dangle: 0 */
 const mongoose = require('mongoose');
 const fetch = require('node-fetch');
-const emailsModel = require('../models/EmailsModel.js');
+const EmailsModel = require('../models/EmailsModel.js');
 const foldersModel = require('../models/FoldersModel.js');
 const helper = require('../helpers/email.helper.js');
 
@@ -26,7 +26,7 @@ emailHandlers.emails = (req, response) => {
         const { id } = messages[i];
         promises.push(fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`)
           .then(email => email.json())
-          .then(email => emailsModel
+          .then(email => EmailsModel
             .findOne({ emailId: id })
             .populate('folder')
             .then((group1) => {
@@ -36,7 +36,7 @@ emailHandlers.emails = (req, response) => {
               } else {
                 return foldersModel.findOne({ name: 'Not Reviewed' }, '_id').then((folder) => {
                   const newEmail = helper.buildNewEmailModel(userId, id, folder);
-                  return newEmail.save().then(email2 => emailsModel
+                  return newEmail.save().then(email2 => EmailsModel
                     .findOne({ emailId: email2.emailId })
                     .populate('folder').then((group2) => {
                       const fold = group2.folder;
@@ -69,14 +69,14 @@ emailHandlers.emailsMoveToFolder = (req, res) => {
   const folderToMove = req.body.folderId;
   const originalFolder = [];
   let folderName = '';
-  emailsModel.find({ emailId: { $in: emailsToMove } }, { folder: true, _id: false })
+  EmailsModel.find({ emailId: { $in: emailsToMove } }, { folder: true, _id: false })
     .then((result) => {
       result.forEach(r => originalFolder.push(r.folder));
     })
     .then(() => foldersModel.findOne({ _id: mongoose.Types.ObjectId(folderToMove) }, 'name')
       .then((response) => { folderName = response.name; }))
     .then(() => {
-      emailsModel.updateMany(
+      EmailsModel.updateMany(
         { emailId: { $in: emailsToMove } },
         { $set: { folder: mongoose.Types.ObjectId(folderToMove) } },
       );
@@ -93,7 +93,7 @@ emailHandlers.emailsMoveToFolder = (req, res) => {
 emailHandlers.mark = (req, res) => {
   const emailsToMark = req.body.emailIds;
   const newValue = req.body.isRead;
-  emailsModel.updateMany({ emailId: { $in: emailsToMark } }, { $set: { isRead: newValue } })
+  EmailsModel.updateMany({ emailId: { $in: emailsToMark } }, { $set: { isRead: newValue } })
     .then(() => res.json({ emailsToMark, newValue, errors: [] }))
     .catch(err => res.json({ errors: err, emailsToMark: [], newValue: null }));
 };
@@ -102,11 +102,11 @@ emailHandlers.mark = (req, res) => {
 emailHandlers.deleteEmails = (req, res) => {
   const emailsToDelete = req.params.ID.split(',');
   const originalFolder = [];
-  emailsModel.find({ emailId: { $in: emailsToDelete } }, { folder: true, _id: false })
+  EmailsModel.find({ emailId: { $in: emailsToDelete } }, { folder: true, _id: false })
     .then((result) => {
       result.forEach(r => originalFolder.push(r.folder));
     })
-    .then(() => emailsModel.remove({ emailId: { $in: emailsToDelete } }))
+    .then(() => EmailsModel.remove({ emailId: { $in: emailsToDelete } }))
     .then(() => res.json({ emailsToDelete, originalFolder, errors: [] }))
     .catch(err => res.json({ errors: err, emailsToDelete: [], originalFolder: [] }));
 };

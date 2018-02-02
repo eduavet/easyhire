@@ -7,9 +7,16 @@ const emailsSchema = new Schema({
   emailId: String,
   folder: { type: Schema.Types.ObjectId, ref: 'folders' },
   isRead: Boolean,
+  sender: String,
+  subject: String,
+  snippet: String,
+  status: { type: Schema.Types.ObjectId, ref: 'statuses' },
+  date: String,
+  threadId: String,
+  attachments: Array,
 }, {
   versionKey: false,
 });
 
-const emailsModel = mongoose.model('emails', emailsSchema);
-module.exports = emailsModel;
+const EmailsModel = mongoose.model('emails', emailsSchema);
+module.exports = EmailsModel;

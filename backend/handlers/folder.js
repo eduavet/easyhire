@@ -31,13 +31,13 @@ folderHandlers.getFolders = (req, response) => {
             preserveNullAndEmptyArrays: true,
           },
         },
-        { $match: { $or: [{ 'emails.user_id': userId }, { emails: { $exists: false } }] } },
+        { $match: { $or: [{ 'emails.userId': userId }, { emails: { $exists: false } }] } },
         {
           $group: {
             _id: '$_id',
             name: { $first: '$name' },
             icon: { $first: '$icon' },
-            userId: { $first: '$user_id' },
+            userId: { $first: '$userId' },
             emails: { $push: '$emails' },
             // count: {  $sum: 1}
           },
