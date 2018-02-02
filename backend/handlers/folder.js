@@ -2,7 +2,7 @@
 const fetch = require('node-fetch');
 const EmailsModel = require('../models/emailsModel.js');
 const FoldersModel = require('../models/foldersModel.js');
-const emailHelpers = require('../helpers/email.js');
+const emailHelpers = require('../helpers/email.helper.js');
 
 const folderHandlers = {};
 module.exports = folderHandlers;
