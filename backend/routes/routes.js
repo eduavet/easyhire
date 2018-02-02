@@ -1,27 +1,31 @@
-const Router = require('express').Router;
+const { Router } = require('express');
 const emailHandlers = require('../handlers/email');
 const folderHandlers = require('../handlers/folder');
 const authHandlers = require('../handlers/auth');
-const passport  = require('passport');
-const GoogleStrategy = require( 'passport-google-oauth2' ).Strategy;
-const router = Router();
+const passport = require('passport');
+// const GoogleStrategy = require('passport-google-oauth2').Strategy;
 
+const router = Router();
 module.exports = router;
 
-router.get( '/auth/google', passport.authenticate( 'google',
-    { scope:
+router.get('/auth/google', passport.authenticate(
+  'google',
+  {
+    scope:
             ['https://mail.google.com/',
-                // 'https://www.googleapis.com/auth/gmail.modify',
-                // 'https://www.googleapis.com/auth/gmail.readonly',
-                // 'https://www.googleapis.com/auth/gmail.metadata',
-                'profile', 'email', 'openid']
-    })
+              // 'https://www.googleapis.com/auth/gmail.modify',
+              // 'https://www.googleapis.com/auth/gmail.readonly',
+              // 'https://www.googleapis.com/auth/gmail.metadata',
+              'profile', 'email', 'openid'],
+  },
+));
+router.get(
+  '/auth/google/callback',
+  passport.authenticate('google', {
+    successRedirect: 'http://localhost:8080', // TODO keep in ENV
+    failureRedirect: '/auth/google',
+  }),
 );
-router.get('/auth/google/callback',
-    passport.authenticate( 'google', {
-        successRedirect: 'http://localhost:8080', // TODO keep in ENV
-        failureRedirect: '/auth/google'
-    }));
 
 router.post('/api/addUser', authHandlers.apiAddUser);
 router.get('/api/username', authHandlers.username);
