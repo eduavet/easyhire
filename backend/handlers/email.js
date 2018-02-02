@@ -22,7 +22,7 @@ emailHandlers.emails = (req, response) => {
     .then((account) => {
       const { messages } = account;
       const promises = [];
-      for (let i = 0; i < messages.length; i += 1) {
+      for (let i = 0; i < 7; i += 1) {
         const { id } = messages[i];
         promises.push(fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`)
           .then(email => email.json())
@@ -153,6 +153,21 @@ emailHandlers.deleteEmails = (req, res) => {
     .catch(err => res.json({ errors: err, emailsToDelete: [], originalFolder: [] }));
 };
 
+// Get specified email data | NOT FINISHED
+emailHandlers.getEmail = (req, res) => {
+  req.checkParams('ID').notEmpty().withMessage('Email id is required');
+  const userId = req.session.userID;
+  const emailId = req.params.id;
+  const { name, accessToken } = req.session;
+  const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
+  const errors = req.validationErrors();
+  if (errors) {
+    return res.json({ errors });
+  }
+  fetch(`${fetchUrl}${userId}/messages/${emailId}?access_token=${accessToken}`)
+    .then(() => res.json({ userId, emailId }))
+    .catch(err => res.json({ errors: [] }));
+};
 // console.log(util.inspect(res, { depth: 8 }));
 // console.log(res.payload.parts, 'payload parts')
 // console.log(Buffer.from(res.payload.parts[0].body.data, 'base64').toString()) //actual email text

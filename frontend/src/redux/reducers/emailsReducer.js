@@ -10,6 +10,8 @@ const GET_USERNAME = 'Get username';
 const GET_EMAILS = 'Get emails';
 const DELETE_EMAILS = 'Delete emails';
 const UPDATE_EMAILS = 'Update Email Folders';
+const GET_EMAIL = 'Get email';
+
 
 const CREATE_FOLDER = 'Create folder';
 const UPDATE_FOLDER = 'Update folder';
@@ -42,6 +44,15 @@ function getFolderEmails(result) {
     type: GET_FOLDER_EMAILS,
     payload: {
       emails: result.emailsToSend, errors: result.errors,
+    },
+  };
+}
+
+function getEmail(result) {
+  return {
+    type: GET_EMAIL,
+    payload: {
+      emails: result.email,
     },
   };
 }
@@ -201,6 +212,21 @@ export function selectNone(emails) {
     },
   };
 }
+
+export function asyncGetEmail(id) {
+  return function asyncGetEmailInner(dispatch) {
+    dispatch(loading());
+    fetch(`http://localhost:3000/api/email/${id}`, {
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+        dispatch(getEmail(result));
+      })
+      .catch(() => {});
+  };
+}
+
 
 export function asyncCreateFolder(body) {
   return function asyncCreateFolderInner(dispatch) {
@@ -392,6 +418,8 @@ export default function (state = initialState, action) {
       return {
         ...state, emails: payload.emails,
       };
+    case GET_EMAIL:
+      return state;
     case CREATE_FOLDER:
     {
       const folders = payload.createdFolder._id ? [

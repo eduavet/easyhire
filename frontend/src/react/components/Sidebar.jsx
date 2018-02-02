@@ -109,7 +109,7 @@ function Folder(props) {
     }}
     >
       <i className={`fa ${icon}`} aria-hidden="true" />
-      {props.folder.name}
+      &nbsp;{props.folder.name}
         &nbsp;({props.folder.count})
       <div className="d-inline float-right">
         {isDeletable ?

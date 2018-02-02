@@ -2,6 +2,7 @@ blue-1-color = #418fde;
 blue-2-color = #0855a6;
 folder-color = #585353;
 font-white-color = #FFFFFF;
+font-unread-color = #212529;
 
 //Header component /start
 .header {
@@ -186,6 +187,17 @@ font-white-color = #FFFFFF;
 //Login component /end
 
 //Emails component start
+.emailsTable{
+  td{
+    a{
+      color: font-unread-color;
+      &:hover{
+        text-decoration: none;
+      }
+    }
+
+  }
+}
 .isUnread {
   background-color: FloralWhite   ;
 }

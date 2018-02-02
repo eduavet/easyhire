@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Table } from 'reactstrap';
 import PropTypes from 'prop-types';
-import { isChecked } from '../../redux/reducers/emailsReducer';
+import { Link, Route, Switch } from 'react-router-dom';
+import { isChecked, asyncGetEmail } from '../../redux/reducers/emailsReducer';
 
 const Loader = require('react-loader');
 
@@ -10,11 +11,14 @@ class Emails extends Component {
   toggleCheckbox = (item) => {
     this.props.isChecked(item);
   };
+  openEmail = (evt) => {
+    this.props.getEmail(evt.target.dataset.id);
+  };
   render() {
     return (
       <div className="col-10 mt-4">
         <Loader loaded={this.props.loaded}>
-          <Table size="sm">
+          <Table size="sm" className="emailsTable">
             <thead>
               <tr>
                 <th />
@@ -33,8 +37,21 @@ class Emails extends Component {
                       <input type="checkbox" key={item.emailID} checked={item.isChecked} onClick={() => this.toggleCheckbox(item)} ref={(a) => { this._inputElement = a; }} />
                     </div>
                   </td>
-                  <td className={item.isRead ? 'text-center' : 'text-center bold'}>{item.sender}</td>
-                  <td><span className={item.isRead ? '' : 'bold'}>{item.subject}</span><span className="snippet"> - {item.snippet}</span></td>
+                  <td >
+                    <Link className={item.isRead ? 'text-center' : 'text-center bold'} to={`/email/${item.emailID}`} data-id={item.emailID} onClick={this.openEmail}>
+                      {item.sender}
+                    </Link>
+                  </td>
+                  <td>
+                    <Link to={`/email/${item.emailID}`} data-id={item.emailID} onClick={this.openEmail}>>
+                      <span className={item.isRead ? '' : 'bold'}>
+                        {item.subject}
+                      </span>
+                      <span className="snippet">
+                        - {item.snippet}
+                      </span>
+                    </Link>
+                  </td>
                   <td>{item.folderName}</td>
                   <td>{item.date}</td>
                   <td>{item.attachment ? <i className="fas fa-paperclip" /> : ''}</td>
@@ -51,6 +68,7 @@ Emails.propTypes = {
   isChecked: PropTypes.func.isRequired,
   loaded: PropTypes.bool.isRequired,
   emails: PropTypes.array.isRequired,
+  getEmail: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -63,6 +81,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     isChecked: item => dispatch(isChecked(item)),
+    getEmail: item => dispatch(asyncGetEmail(item)),
   };
 }
 
