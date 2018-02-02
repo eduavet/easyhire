@@ -8,8 +8,7 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 const mongoose = require('mongoose');
 const { connectMongo } = require('./db.js');
-const myRouter = require('./routes/routes');
-
+const initializeRoutes = require('./routes/index');
 
 connectMongo();
 require('./config/passport');
@@ -43,8 +42,9 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+initializeRoutes(app);
+
 app.listen(3000, () => {
   console.log('Listening to port 3000');
 });
 
-app.use('/', myRouter);
