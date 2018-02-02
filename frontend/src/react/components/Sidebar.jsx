@@ -56,9 +56,11 @@ class Sidebar extends Component {
       this.setState({ deleteModal: false, deleteFolderName: '' });
       notify.show('Folder deleted!', 'success', 1500);
     };
+    // Make folder active to highlight it
     folderToggler = (folder) => {
       this.props.isActive(folder);
     };
+    // Handle folder click on non-inbox folders
     openFolder = (folderId) => {
       this.props.getFolderEmails(folderId);
     };
@@ -97,7 +99,7 @@ class Sidebar extends Component {
 
 function Folder(props) {
   const folderIsActive = props.folder.isActive ? 'active-folder' : '';
-  const icon = props.folder.icon;
+  const { icon } = props.folder;
   const isDeletable = props.folder.userId;
   return (
     <li
@@ -111,7 +113,7 @@ function Folder(props) {
     >
       <i className={`fa ${icon}`} aria-hidden="true" />
       &nbsp;{props.folder.name}
-        &nbsp;({props.folder.count})
+      &nbsp;({props.folder.count})
       <div className="d-inline float-right">
         {
           isDeletable ?

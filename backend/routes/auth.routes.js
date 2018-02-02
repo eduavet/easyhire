@@ -18,7 +18,7 @@ authRoutes.get('/google', passport.authenticate(
 authRoutes.get(
   '/google/callback',
   passport.authenticate('google', {
-    successRedirect: 'http://localhost:8080', // TODO keep in ENV
+    successRedirect: 'http://localhost:8080',
     failureRedirect: '/auth/google',
   }),
 );

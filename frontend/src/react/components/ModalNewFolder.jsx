@@ -13,11 +13,11 @@ class ModalNewFolder extends Component {
       input: '',
     };
   }
-
+  // Toggle new folder modal
   toggle = () => {
     this.setState({ modal: !this.state.modal });
   };
-
+  // Dispatch create folder action, display success message
   createFolder = (e) => {
     e.preventDefault();
     const body = { folderName: this.refs.createFolder.value };

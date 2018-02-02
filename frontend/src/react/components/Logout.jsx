@@ -22,7 +22,7 @@ export default class Logout extends Component {
               Are you sure you want to log out?
             </ModalBody>
             <ModalFooter>
-              <a className="btn bg-light-blue" href="http://localhost:3000/auth/logout">I'm sure!</a>
+              <a className="btn bg-light-blue" href="http://localhost:3000/auth/logout">Logout</a>
               <Button color="secondary" onClick={this.toggle}>Cancel</Button>
             </ModalFooter>
           </Modal>

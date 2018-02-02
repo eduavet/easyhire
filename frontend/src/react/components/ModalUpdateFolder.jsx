@@ -9,7 +9,7 @@ export default class ModalUpdateFolder extends Component {
       input: true,
     };
   }
-
+  // Keep track of input field and disable update button if it's empty
   handleChange = (e) => {
     this.setState({ input: e.target.value });
   };

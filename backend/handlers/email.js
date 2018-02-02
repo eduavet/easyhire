@@ -1,4 +1,3 @@
-/* eslint no-underscore-dangle: 0 */
 const mongoose = require('mongoose');
 const fetch = require('node-fetch');
 const EmailsModel = require('../models/EmailsModel.js');

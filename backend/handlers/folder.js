@@ -1,4 +1,3 @@
-/* eslint no-underscore-dangle: 0 */
 const fetch = require('node-fetch');
 const EmailsModel = require('../models/EmailsModel.js');
 const FoldersModel = require('../models/FoldersModel.js');
@@ -106,8 +105,8 @@ folderHandlers.updateFolder = (req, res) => {
     .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], updatedFolder: {} }));
 };
 // Delete folder
-// Cannot delete default folders and folders witch contain emails.
-// Default folders - Approved,Rejected,Interview Scheduled,Not Reviewed,
+// Cannot delete default folders and folders which contain emails.
+// Default folders - Approved, Rejected, Interview Scheduled, Not Reviewed
 folderHandlers.deleteFolder = (req, res) => {
   FoldersModel.findOne({ userId: req.session.userID, _id: req.params.ID })
     .then((folder) => {
