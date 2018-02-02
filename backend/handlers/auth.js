@@ -13,18 +13,17 @@ ObjectId = require('mongodb').ObjectID;
 authHandlers.apiAddUser = (req, res) => {
     //if user doesn't exist in DB, add user
     usersModel.findOne({googleUser_id: req.body.googleID}, (err, user) => {
-        if(user){
-            const newUser = new usersModel({
-                googleUser_id: req.body.googleID,
-                name: req.body.name,
-                image: req.body.imageURL,
-                email: req.body.email,
-            });
-            newUser.save().then(user => {
-                console.log('user added in DB');
-            })
-                .catch(console.error);
-        }
+        if(!user) return;
+        const newUser = new usersModel({
+          googleUser_id: req.body.googleID,
+          name: req.body.name,
+          image: req.body.imageURL,
+          email: req.body.email,
+        });
+        newUser.save().then(user => {
+          console.log('user added in DB');
+        })
+        .catch(console.error);
     })
 };
 

@@ -14,12 +14,8 @@ emailHelpers.decodeHtmlEntity = (str) => {
 
 emailHelpers.extractEmailData = (res, folderId, folderName, isReadParam) => {
   const emailID = res.id;
-  const sender = res.payload.headers.filter((item) => {
-      return item.name == 'From'
-  })[0].value;
-  const subject = res.payload.headers.filter((item) => {
-      return item.name == 'Subject'
-  })[0].value;
+  const sender = res.payload.headers.find((item) => item.name == 'From').value;
+  const subject = res.payload.headers.find((item) => item.name == 'Subject').value;
   const snippet = emailHelpers.decodeHtmlEntity(res.snippet);
   const date = moment.unix(res.internalDate / 1000).format('DD/MM/YYYY, HH:mm:ss');
   const isRead = isReadParam;

@@ -12,7 +12,7 @@ passport.deserializeUser(function(obj, done) {
     // console.log('Deserialize');
     done(null, obj);
 });
-
+//TODO - keep user info in DB, from this file
 passport.use(new GoogleStrategy({
         clientID:     process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,

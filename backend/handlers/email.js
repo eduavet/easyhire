@@ -108,7 +108,6 @@ emailHandlers.emails = (req, response) => {
                                     response.json(packed)
                                 })
                     })
-
                 })
         })
         .catch(err => {
@@ -128,7 +127,7 @@ emailHandlers.emailsMoveToFolder = (req, res)=> {
             result.forEach(r=>originalFolder.push(r.folder));
         })
         .then(()=>foldersModel.findOne({_id: mongoose.Types.ObjectId(folderToMove)}, 'name')
-            .then(response=>folderName=response.name))
+        .then(response=>folderName=response.name))
         .then(()=>emailsModel.updateMany({email_id: {$in: emailsToMove}}, { $set: {folder: mongoose.Types.ObjectId(folderToMove)}}))
         .then(()=>res.json({emailsToMove: emailsToMove, errors: [], folderId :folderToMove, folderName, originalFolder}))
         .catch(err => res.json({errors: err, emailsToMove: [], folderId: '', folderName: '', originalFolder: []}))
@@ -140,20 +139,21 @@ emailHandlers.mark = (req, res) => {
   const emailsToMark = req.body.emailIds;
   const newValue = req.body.isRead;
   emailsModel.updateMany({email_id: {$in: emailsToMark}}, { $set : {isRead: newValue}})
-    .then(res.json({emailsToMark, newValue, errors: []}))
+    .then(() => res.json({emailsToMark, newValue, errors: []}))
     .catch(err => res.json({errors: err, emailsToMark: [], newValue: null}))
 };
 
 //Delete specified email(s) but only from db NOT from gmail
-emailHandlers.deleteEmails=(req, res)=>{
-    const emailsToDelete=req.params.ID.split(',');
-    const originalFolder=[];
+emailHandlers.deleteEmails = (req, res) => {
+    const emailsToDelete = req.params.ID.split(',');
+    const originalFolder = [];
     emailsModel.find({email_id: {$in: emailsToDelete}}, {folder: true, _id:false})
-        .then(result=>{
-            result.forEach(r=>originalFolder.push(r.folder))
-        }).then(()=>{emailsModel.remove({email_id: {$in: emailsToDelete}})
-        .then(()=>res.json({emailsToDelete: emailsToDelete, originalFolder,  errors: []}))
-        .catch(err => res.json({errors: err, emailsToDelete: [], originalFolder: []}))})
+        .then(result => {
+            result.forEach(r => originalFolder.push(r.folder))
+        })
+        .then(() => emailsModel.remove({email_id: {$in: emailsToDelete}}))
+        .then(() => res.json({emailsToDelete: emailsToDelete, originalFolder,  errors: []}))
+        .catch(err => res.json({ errors: err, emailsToDelete: [], originalFolder: [] }))
 };
 
 // console.log(util.inspect(res, { depth: 8 }));
