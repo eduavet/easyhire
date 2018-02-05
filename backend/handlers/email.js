@@ -21,30 +21,57 @@ emailHandlers.emails = (req, response) => {
     .then((account) => {
       const { messages } = account;
       const promises = [];
-      for (let i = 0; i < 7; i += 1) {
+      // console.log(account);
+      for (let i = 0; i < 1; i += 1) {
         const { id } = messages[i];
-        promises.push(fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`)
-          .then(email => email.json())
-          .then(email => EmailsModel
-            .findOne({ emailId: id })
-            .populate('folder')
-            .then((group1) => {
-              if (group1) {
-                const { folder } = group1;
-                emailsToSend[i] = helper.extract(email, folder._id, folder.name, group1.isRead);
-              } else {
-                return foldersModel.findOne({ name: 'Not Reviewed' }, '_id').then((folder) => {
-                  const newEmail = helper.buildNewEmailModel(userId, id, folder);
-                  return newEmail.save().then(email2 => EmailsModel
-                    .findOne({ emailId: email2.emailId })
-                    .populate('folder').then((group2) => {
-                      const fold = group2.folder;
-                      emailsToSend[i] = helper.extract(email2, fold._id, fold.name, false);
-                    }));
-                });
-              }
-              return Promise.resolve();
-            })));
+        promises.push(EmailsModel.findOne({ emailId: id })
+          .then(email => {
+            if (email) {
+              EmailsModel.findOne({ emailId: id })
+                .populate('folder')
+                .then((group) => {
+                  // console.log('found');
+                  // console.log(group);
+                  if (group) {
+                    const { folder } = group;
+                    // emailsToSend[i] = helper.groupExtract(email, folder._id, folder.name, group.isRead);
+                    emailsToSend[i] = helper.groupExtract(group);
+                    console.log('found');
+                    console.log(emailsToSend[i]);
+                  }
+                })
+              return true
+            } else return false
+          })
+          .then(found => {
+            if (!found) return
+            promises.push(fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`)
+              .then(email => email.json())
+              .then(email => EmailsModel
+                .findOne({ emailId: id })
+                .populate('folder')
+                .then((group1) => {
+                  // console.log('didnt find');
+                  // console.log(email);
+                  if (group1) {
+                    const { folder } = group1;
+                    emailsToSend[i] = helper.extract(email, folder._id, folder.name, group1.isRead);
+                  } else {
+                    return foldersModel.findOne({ name: 'Not Reviewed' }, '_id').then((folder) => {
+                      const newEmail = helper.buildNewEmailModel(userId, email, folder);
+                      return newEmail.save().then(email2 => EmailsModel
+                        .findOne({ emailId: email2.emailId })
+                        .populate('folder').then((group2) => {
+                          const fold = group2.folder;
+                          // console.log('created');
+                          emailsToSend[i] = helper.extract(email2, fold._id, fold.name, false);
+                        }));
+                    });
+                  }
+                  return Promise.resolve();
+                })));
+          })
+        )
       }
       return Promise.all(promises)
         .then(() => {
@@ -52,10 +79,12 @@ emailHandlers.emails = (req, response) => {
             name,
             emailsToSend,
           };
+          console.log(packed.emailsToSend.length);
           response.json(packed);
         });
     })
-    .catch(() => {
+    .catch((err) => {
+      console.log(err);
       response.json({
         name: '', emailsToSend: [], errors: [{ msg: 'Something went wrong' }],
       });
