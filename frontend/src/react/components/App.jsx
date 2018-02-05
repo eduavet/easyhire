@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import Dashboard from './Dashboard.jsx';
 import { asyncGetEmails, asyncGetUsername } from '../../redux/reducers/emailsReducer';
 import { asyncGetFolders } from '../../redux/reducers/folderReducer';
+import { asyncGetStatuses } from '../../redux/reducers/statusReducer';
 import Login from './Login.jsx';
 
 
@@ -14,6 +15,7 @@ export class App extends Component {
     this.props.getUsername();
     this.props.getEmails();
     this.props.getFolders();
+    this.props.getStatuses();
   }
 
   render() {
@@ -36,6 +38,7 @@ App.propTypes = {
   loading: PropTypes.bool,
   username: PropTypes.string,
   getFolders: PropTypes.func.isRequired,
+  getStatuses: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -50,6 +53,7 @@ function mapDispatchToProps(dispatch) {
     getEmails: () => dispatch(asyncGetEmails()),
     getUsername: () => dispatch(asyncGetUsername()),
     getFolders: () => dispatch(asyncGetFolders()),
+    getStatuses: () => dispatch(asyncGetStatuses()),
   };
 }
 

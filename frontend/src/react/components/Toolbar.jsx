@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Nav, NavItem, Dropdown, DropdownItem, DropdownToggle, DropdownMenu, NavLink, Input } from 'reactstrap';
 import { notify } from 'react-notify-toast';
-import { selectAll, selectNone, asyncMoveEmails, asyncDeleteEmails, asyncMark } from '../../redux/reducers/emailsReducer';
+import { selectAll, selectNone, asyncMoveEmails, asyncDeleteEmails, asyncMark, asyncGetStatusEmails } from '../../redux/reducers/emailsReducer';
 import ModalDeleteEmails from './ModalDeleteEmails.jsx';
+import { isActive } from '../../redux/reducers/statusReducer';
 
 
 class Toolbar extends Component {
@@ -14,6 +15,7 @@ class Toolbar extends Component {
       selectOpen: false,
       moveOpen: false,
       markOpen: false,
+      filterOpen: false,
       deleteModal: false,
       deleteCount: 0,
     };
@@ -34,6 +36,11 @@ class Toolbar extends Component {
   toggleMark=() => {
     this.setState({
       markOpen: !this.state.markOpen,
+    });
+  };
+  toggleFilter=() => {
+    this.setState({
+      filterOpen: !this.state.filterOpen,
     });
   };
   moveToFolder=(id) => {
@@ -65,6 +72,14 @@ class Toolbar extends Component {
         deleteCount: this.props.emails.filter(email => email.isChecked).length,
       });
     }
+  };
+
+  filterBy = (statusId) => {
+    this.props.getStatusEmails(statusId);
+  };
+
+  statusToggler = (status) => {
+    this.props.isActive(status);
   };
 
   render() {
@@ -114,6 +129,24 @@ class Toolbar extends Component {
               </DropdownItem>
             </DropdownMenu>
           </Dropdown>
+          <Dropdown nav isOpen={this.state.filterOpen} toggle={this.toggleFilter}>
+            <DropdownToggle className="actionbtn" nav caret>
+              Filter By Status
+            </DropdownToggle>
+            <DropdownMenu>
+              {
+                this.props.statuses.map(status => (
+                  <DropdownItem key={status._id}>
+                    <div onClick={() => {
+                      this.statusToggler(status);
+                      this.filterBy(status._id);
+                    }}
+                    >{status.name}
+                    </div>
+                  </DropdownItem>))
+              }
+            </DropdownMenu>
+          </Dropdown>
           <NavItem>
             <NavLink href="#" onClick={() => this.toggleDeleteModal()}>
               <i className="fas fa-trash-alt" />
@@ -147,12 +180,16 @@ Toolbar.propTypes = {
   folders: PropTypes.array.isRequired,
   selectAll: PropTypes.func.isRequired,
   selectNone: PropTypes.func.isRequired,
+  statuses: PropTypes.array,
+  isActive: PropTypes.func.isRequired,
+  getStatusEmails: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
   return {
     emails: state.emails.emails,
     folders: state.folders.folders,
+    statuses: state.statuses.statuses,
   };
 }
 
@@ -164,6 +201,8 @@ function mapDispatchToProps(dispatch) {
     postEmailsToFolder: (emailIds, folderId) =>
       dispatch(asyncMoveEmails(emailIds, folderId)),
     deleteEmails: emailIds => dispatch(asyncDeleteEmails(emailIds)),
+    getStatusEmails: statusId => dispatch(asyncGetStatusEmails(statusId)),
+    isActive: item => dispatch(isActive(item)),
   };
 }
 

@@ -13,6 +13,7 @@ const GET_EMAIL = 'Get email';
 
 const MOVE_EMAILS = 'Update Email Folders';
 const GET_FOLDER_EMAILS = 'Get folder emails';
+const GET_STATUS_EMAILS = 'Get status emails';
 
 const REFRESH = 'Refresh';
 const LOADING = 'Loading';
@@ -51,6 +52,15 @@ function getUsername(name) {
 function getFolderEmails(result) {
   return {
     type: GET_FOLDER_EMAILS,
+    payload: {
+      emails: result.emailsToSend, errors: result.errors,
+    },
+  };
+}
+
+function getStatusEmails(result) {
+  return {
+    type: GET_STATUS_EMAILS,
     payload: {
       emails: result.emailsToSend, errors: result.errors,
     },
@@ -140,6 +150,19 @@ export function asyncGetFolderEmails(folderId) {
       .then(res => res.json())
       .then((result) => {
         dispatch(getFolderEmails(result));
+      }).catch(() => {});
+  };
+}
+
+export function asyncGetStatusEmails(statusId) {
+  return function asyncGetStatusEmailsInner(dispatch) {
+    dispatch(loading());
+    fetch(`http://localhost:3000/api/statuses/${statusId}`, {
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+        dispatch(getStatusEmails(result));
       }).catch(() => {});
   };
 }
@@ -258,6 +281,7 @@ export default function emailsReducer(state = initialState, action) {
 
   switch (type) {
     case GET_EMAILS:
+      console.log(payload.emails)
       return {
         ...state,
         emails: [
@@ -276,6 +300,13 @@ export default function emailsReducer(state = initialState, action) {
         successMsgs: payload.successMsgs,
       };
     case GET_FOLDER_EMAILS:
+      return {
+        ...state,
+        emails: payload.emails
+          .map(email => Object.assign({}, email, { isChecked: !!email.isChecked })),
+        loaded: true,
+      };
+    case GET_STATUS_EMAILS:
       return {
         ...state,
         emails: payload.emails

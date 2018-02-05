@@ -9,7 +9,7 @@ module.exports = emailHelpers;
 
 emailHelpers.decodeHtmlEntity = str => str.replace(/&#(\d+);/g, (match, dec) => String.fromCharCode(dec));
 
-emailHelpers.extract = (res, folderId, folderName, isReadParam) => {
+emailHelpers.extract = (res, folderId, folderName, isReadParam, statusId, statusName) => {
   const emailId = res.id;
   const sender = res.payload.headers.find(item => item.name === 'From').value;
   const subject = res.payload.headers.find(item => item.name === 'Subject').value;
@@ -17,13 +17,14 @@ emailHelpers.extract = (res, folderId, folderName, isReadParam) => {
   const date = moment.unix(res.internalDate / 1000).format('DD/MM/YYYY, HH:mm:ss');
   const isRead = isReadParam;
   return {
-    emailId, sender, subject, snippet, date, folderId, folderName, isRead,
+    emailId, sender, subject, snippet, date, folderId, folderName, statusId, statusName, isRead,
   };
 };
 
-emailHelpers.buildNewEmailModel = (userId, id, folder) => new EmailsModel({
+emailHelpers.buildNewEmailModel = (userId, id, folder, status) => new EmailsModel({
   userId: userId,
   emailId: id,
   folder: mongoose.Types.ObjectId(folder._id),
+  status: mongoose.Types.ObjectId(status._id),
   isRead: false,
 });
