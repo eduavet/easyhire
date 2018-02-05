@@ -1,7 +1,5 @@
-const fetch = require('node-fetch');
 const EmailsModel = require('../models/EmailsModel.js');
 const StatusesModel = require('../models/StatusesModel.js');
-const emailHelpers = require('../helpers/email.helper.js');
 
 const statusHandlers = {};
 module.exports = statusHandlers;
@@ -162,7 +160,7 @@ statusHandlers.getEmails = (req, res) => {
       //       );
       //     }));
       // }
-      return Promise.all(promises)
+      Promise.all(promises)
         .then(() => {
           res.json({ emailsToSend: result, errors: [] });
         });
