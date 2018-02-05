@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const fetch = require('node-fetch');
+const util = require('util');
 const EmailsModel = require('../models/EmailsModel.js');
 const foldersModel = require('../models/FoldersModel.js');
 const helper = require('../helpers/email.helper.js');
@@ -112,7 +113,7 @@ emailHandlers.deleteEmails = (req, res) => {
 
 // Get specified email data | NOT FINISHED
 emailHandlers.getEmail = (req, res) => {
-  req.checkParams('ID').notEmpty().withMessage('Email id is required');
+  req.checkParams('id').notEmpty().withMessage('Email id is required');
   const userId = req.session.userID;
   const emailId = req.params.id;
   const { accessToken } = req.session;
@@ -122,14 +123,33 @@ emailHandlers.getEmail = (req, res) => {
     return res.json({ errors });
   }
   EmailsModel.findOne({ emailId, userId })
-    .then((email) =>
-      fetch(`${fetchUrl}${userId}/messages/${emailId}?access_token=${accessToken}`)
-        .then((response) => {
-          const emailToSend = helper.extract(response, email.folder, '', email.isRead);
-          emailToSend.htmlBody = Buffer.from(response.payload.parts[0].body.data, 'base64').toString();
-          res.json({ email: emailToSend });
-        }))
-    .catch(err => res.json({ errors: [] }));
+    .then(email => fetch(`${fetchUrl}${userId}/messages/${emailId}?access_token=${accessToken}`)
+      .then(response => response.json())
+      .then((response) => {
+        const emailToSend = helper.extract(response, email.folder, '', email.isRead),
+          emailParts = {},
+          htmlBody = { value: '' },
+          plainText = { value: '' };
+        emailParts.findHtml = response.payload.parts.find(item => item.mimeType === 'text/html');
+        emailParts.findPlainText = response.payload.parts.find(item => item.mimeType === 'text/plain');
+        // if - no attachment only text, else - attachment(s) found
+        if (emailParts.findHtml && emailParts.findPlainText) {
+          htmlBody.value = emailParts.findHtml.body.data;
+          plainText.value = emailParts.findPlainText.body.data;
+        } else {
+          emailParts.findHtmlPartCountainer = response.payload.parts.find(item => item.mimeType === 'multipart/alternative');
+          emailParts.findHtml = emailParts.findHtmlPartCountainer.parts.find(item => item.mimeType === 'text/html');
+          emailParts.findPlainText = emailParts.findHtmlPartCountainer.parts.find(item => item.mimeType === 'text/plain');
+          htmlBody.value = emailParts.findHtml ? emailParts.findHtml.body.data : '';
+          plainText.value = emailParts.findPlainText ? emailParts.findPlainText.body.data : '';
+        }
+        emailToSend.htmlBody = Buffer.from(htmlBody.value, 'base64').toString();
+        emailToSend.plainText = Buffer.from(plainText.value, 'base64').toString();
+        res.json({ email: emailToSend, errors: [] });
+      }))
+    .catch((err) => {
+      res.json({ errors: [{ msg: 'Something went wrong', err }] });
+    });
 };
 // console.log(util.inspect(res, { depth: 8 }));
 // console.log(res.payload.parts, 'payload parts')
