@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const fetch = require('node-fetch');
-const util = require('util');
 const EmailsModel = require('../models/EmailsModel.js');
 const FoldersModel = require('../models/FoldersModel.js');
 const StatusesModel = require('../models/StatusesModel.js');
@@ -24,7 +23,7 @@ emailHandlers.emails = (req, response) => {
     .then((account) => {
       const { messages } = account;
       const promises = [];
-      for (let i = 0; i < messages.length; i += 1) {
+      for (let i = 0; i < 2; i += 1) {
         if (!messages) break;
         const { id } = messages[i];
         let upperEmail = '';
@@ -35,7 +34,6 @@ emailHandlers.emails = (req, response) => {
           .then((group) => {
             if (group) {
               emailsToSend[i] = helper.groupExtract(group);
-              return;
             } else {
               return fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`)
                 .then(email => email.json())
@@ -45,7 +43,7 @@ emailHandlers.emails = (req, response) => {
                 })
                 .then((folder) => {
                   upperFolder = folder;
-                  return StatusesModel.findOne({ name: 'Not Reviewed' }, '_id')
+                  return StatusesModel.findOne({ name: 'Not Reviewed' }, '_id');
                 })
                 .then((status) => {
                   const newEmail = helper.buildNewEmailModel(userId, upperEmail, upperFolder, status);
@@ -55,7 +53,7 @@ emailHandlers.emails = (req, response) => {
                   .populate('folder status').then((group1) => {
                     emailsToSend[i] = helper.groupExtract(group1);
                   }));
-              }
+            }
           }));
       }
 
@@ -68,7 +66,7 @@ emailHandlers.emails = (req, response) => {
           response.json(packed);
         });
     })
-    .catch((err) => {
+    .catch(() => {
       response.json({
         name: '', emailsToSend: [], errors: [{ msg: 'Something went wrong' }],
       });
@@ -162,7 +160,6 @@ emailHandlers.getEmail = (req, res) => {
     .catch((err) => {
       res.json({ errors: [{ msg: 'Something went wrong', err }] });
     });
-
 };
 // console.log(util.inspect(res, { depth: 8 }));
 // console.log(res.payload.parts, 'payload parts')

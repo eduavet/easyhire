@@ -146,7 +146,7 @@ statusHandlers.getEmails = (req, res) => {
   const promises = [];
   return EmailsModel.find({ status: statusId, userId })
     .populate('status', 'name as statusName')
-    .then((result) => {
+    .then(result =>
       // for (let i = 0; i < result.length; i += 1) {
       //   const id = result[i].emailId;
       //   promises.push(fetch(`https://www.googleapis.com/gmail/v1/users/${userId}/messages/${id}?access_token=${accessToken}`)
@@ -162,11 +162,10 @@ statusHandlers.getEmails = (req, res) => {
       //       );
       //     }));
       // }
-      return Promise.all(promises)
+      Promise.all(promises)
         .then(() => {
           res.json({ emailsToSend: result, errors: [] });
-        });
-    })
+        }))
     .catch((err) => {
       res.json({ emailsToSend: [], errors: err });
     });

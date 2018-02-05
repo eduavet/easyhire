@@ -35,6 +35,12 @@ emailHelpers.groupExtract = (group) => {
 };
 
 emailHelpers.buildNewEmailModel = (userId, email, folder, status) => {
+  const attachments = [];
+  email.payload.parts.forEach((item) => {
+    if ('attachmentId' in item.body) {
+      attachments.push(item.body.attachmentId);
+    }
+  });
   const emailId = email.id;
   const { threadId } = email;
   const sender = email.payload.headers.find(item => item.name === 'From').value;
@@ -52,6 +58,6 @@ emailHelpers.buildNewEmailModel = (userId, email, folder, status) => {
     folder: mongoose.Types.ObjectId(folder._id),
     status: mongoose.Types.ObjectId(status._id),
     isRead: false,
+    attachments,
   });
 };
-
