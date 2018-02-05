@@ -1,6 +1,6 @@
 /* eslint no-underscore-dangle: 0 */
 const initialState = {
-  emails: [], name: '', loading: true, errors: [], loaded: false, email: {},
+  emails: [], name: '', loading: true, errors: [], loaded: false,
 };
 
 /**
@@ -9,7 +9,6 @@ const initialState = {
 const GET_USERNAME = 'Get username';
 const GET_EMAILS = 'Get emails';
 const DELETE_EMAILS = 'Delete emails';
-const GET_EMAIL = 'Get email';
 
 const MOVE_EMAILS = 'Update Email Folders';
 const GET_FOLDER_EMAILS = 'Get folder emails';
@@ -34,14 +33,6 @@ function getEmails(result) {
   };
 }
 
-function getEmail(result) {
-  return {
-    type: GET_EMAIL,
-    payload: {
-      emails: result.email,
-    },
-  };
-}
 function getUsername(name) {
   return {
     type: GET_USERNAME, payload: { name },
@@ -173,19 +164,6 @@ export function selectNone(emails) {
     },
   };
 }
-export function asyncGetEmail(id) {
-  return function asyncGetEmailInner(dispatch) {
-    dispatch(loading());
-    fetch(`http://localhost:3000/api/email/${id}`, {
-      credentials: 'include',
-    })
-      .then(res => res.json())
-      .then((result) => {
-        dispatch(getEmail(result));
-      })
-      .catch(() => {});
-  };
-}
 export function asyncMoveEmails(emailIds, folderId) {
   return function asyncPostEmailsToFolderInner(dispatch) {
     fetch('http://localhost:3000/api/emails/move', {
@@ -299,11 +277,6 @@ export default function emailsReducer(state = initialState, action) {
     case SELECT_NONE:
       return {
         ...state, emails: payload.emails,
-      };
-    case GET_EMAIL:
-      return {
-        ...state,
-        email: payload.email,
       };
     case MOVE_EMAILS:
     {

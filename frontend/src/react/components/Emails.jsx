@@ -3,7 +3,8 @@ import { connect } from 'react-redux';
 import { Table } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { Link, Route, Switch } from 'react-router-dom';
-import { isChecked, asyncGetEmail } from '../../redux/reducers/emailsReducer';
+import { isChecked } from '../../redux/reducers/emailsReducer';
+import { asyncGetEmail } from '../../redux/reducers/emailReducer';
 
 const Loader = require('react-loader');
 
