@@ -5,11 +5,14 @@ function Email(props) {
   return (
     <div className="col-10 mt-4">
       <h1>EMAIL COMPONENT</h1>
+      <p>Sender: {this.props.sender}</p>
     </div>
   );
 }
-function mapStateToProps() {
-  return {};
+function mapStateToProps(state) {
+  return {
+    email: state.email,
+  };
 }
 
 function mapDispatchToProps(dispatch) {

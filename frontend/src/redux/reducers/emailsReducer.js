@@ -1,6 +1,6 @@
 /* eslint no-underscore-dangle: 0 */
 const initialState = {
-  emails: [], name: '', folders: [], loading: true, errors: [], loaded: false,
+  emails: [], name: '', loading: true, errors: [], loaded: false, email: {},
 };
 
 /**
@@ -29,7 +29,7 @@ function getEmails(result) {
   return {
     type: GET_EMAILS,
     payload: {
-      emails: result.emailsToSend, folders: result.folders, inboxCount: result.inboxCount,
+      emails: result.emailsToSend, errors: result.errors,
     },
   };
 }
@@ -85,7 +85,7 @@ function refresh(result) {
   return {
     type: REFRESH,
     payload: {
-      emails: result.emailsToSend, folders: result.folders, inboxCount: result.inboxCount,
+      emails: result.emailsToSend,
     },
   };
 }
@@ -257,6 +257,16 @@ export default function emailsReducer(state = initialState, action) {
   const { type, payload } = action;
 
   switch (type) {
+    case GET_EMAILS:
+      return {
+        ...state,
+        emails: [
+          ...state.emails,
+          ...payload.emails
+            .map(email => Object.assign({}, email, { isChecked: !!email.isChecked }))],
+        errors: payload.errors,
+        loaded: true,
+      };
     case GET_USERNAME:
       return {
         ...state,
@@ -291,7 +301,10 @@ export default function emailsReducer(state = initialState, action) {
         ...state, emails: payload.emails,
       };
     case GET_EMAIL:
-      return state;
+      return {
+        ...state,
+        email: payload.email,
+      };
     case MOVE_EMAILS:
     {
       let emailsAfterMove = state.emails.map((email) => {

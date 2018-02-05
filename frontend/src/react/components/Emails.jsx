@@ -31,23 +31,23 @@ class Emails extends Component {
             </thead>
             <tbody>
               {this.props.emails.map(item => (
-                <tr key={item.emailID} className={item.isRead ? '' : 'isUnread'}>
+                <tr key={item.emailId} className={item.isRead ? '' : 'isUnread'}>
                   <td>
                     <div className="checkbox checkbox-success">
                       <input
-                        type="checkbox" key={item.emailID} checked={item.isChecked}
+                        type="checkbox" key={item.emailId} checked={item.isChecked}
                         onClick={() => this.toggleCheckbox(item)}
                         ref={(a) => { this._inputElement = a; }}
                       />
                     </div>
                   </td>
                   <td >
-                    <Link className={item.isRead ? 'text-center' : 'text-center bold'} to={`/email/${item.emailID}`} data-id={item.emailID} onClick={this.openEmail}>
+                    <Link className={item.isRead ? 'text-center' : 'text-center bold'} to={`/email/${item.emailId}`} data-id={item.emailId} onClick={this.openEmail}>
                       {item.sender}
                     </Link>
                   </td>
                   <td>
-                    <Link to={`/email/${item.emailID}`} data-id={item.emailID} onClick={this.openEmail}>>
+                    <Link to={`/email/${item.emailId}`} data-id={item.emailId} onClick={this.openEmail}>
                       <span className={item.isRead ? '' : 'bold'}>
                         {item.subject}
                       </span>

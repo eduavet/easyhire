@@ -144,14 +144,20 @@ emailHandlers.getEmail = (req, res) => {
   req.checkParams('ID').notEmpty().withMessage('Email id is required');
   const userId = req.session.userID;
   const emailId = req.params.id;
-  const { name, accessToken } = req.session;
+  const { accessToken } = req.session;
   const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
   const errors = req.validationErrors();
   if (errors) {
     return res.json({ errors });
   }
-  fetch(`${fetchUrl}${userId}/messages/${emailId}?access_token=${accessToken}`)
-    .then(() => res.json({ userId, emailId }))
+  EmailsModel.findOne({ emailId, userId })
+    .then((email) =>
+      fetch(`${fetchUrl}${userId}/messages/${emailId}?access_token=${accessToken}`)
+        .then((response) => {
+          const emailToSend = helper.extract(response, email.folder, '', email.isRead);
+          emailToSend.htmlBody = Buffer.from(response.payload.parts[0].body.data, 'base64').toString();
+          res.json({ email: emailToSend });
+        }))
     .catch(err => res.json({ errors: [] }));
 };
 // console.log(util.inspect(res, { depth: 8 }));
