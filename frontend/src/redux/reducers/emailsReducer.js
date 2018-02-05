@@ -26,6 +26,7 @@ const MARK = 'Mark';
  * Action creator
  */
 function getEmails(result) {
+  console.log(result.emailsToSend, 'emails')
   return {
     type: GET_EMAILS,
     payload: {
@@ -50,6 +51,7 @@ function getFolderEmails(result) {
 }
 
 function getStatusEmails(result) {
+  console.log(result, 'result')
   return {
     type: GET_STATUS_EMAILS,
     payload: {
@@ -160,7 +162,7 @@ export function asyncGetStatusEmails(statusId) {
 
 export function isChecked(item) {
   return {
-    type: IS_CHECKED, payload: { isChecked: !item.isChecked, id: item.emailID },
+    type: IS_CHECKED, payload: { isChecked: !item.isChecked, id: item.emailId },
   };
 }
 
@@ -259,7 +261,6 @@ export default function emailsReducer(state = initialState, action) {
 
   switch (type) {
     case GET_EMAILS:
-      console.log(payload.emails)
       return {
         ...state,
         emails: [
@@ -295,7 +296,7 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         emails: state.emails.map((email) => {
-          if (email.emailID === payload.id) {
+          if (email.emailId === payload.id) {
             Object.assign(email, { isChecked: payload.isChecked });
           }
           return email;
@@ -312,7 +313,7 @@ export default function emailsReducer(state = initialState, action) {
     case MOVE_EMAILS:
     {
       let emailsAfterMove = state.emails.map((email) => {
-        if (payload.emailsToMove.indexOf(email.emailID) !== -1) {
+        if (payload.emailsToMove.indexOf(email.emailId) !== -1) {
           email.folderId = payload.folderId;
           email.folderName = payload.folderName;
         }
@@ -342,7 +343,7 @@ export default function emailsReducer(state = initialState, action) {
     {
       let emailsAfterDelete = state.emails.filter((email) => {
         email.isChecked = false;
-        return payload.emailsToDelete.indexOf(email.emailID) === -1;
+        return payload.emailsToDelete.indexOf(email.emailId) === -1;
       });
       let nOffDeleted = 0;
       const afterDelete = state.folders.map((folder) => {
@@ -382,7 +383,7 @@ export default function emailsReducer(state = initialState, action) {
     case MARK:
     {
       const updatedEmails = state.emails.map((email) => {
-        if (payload.emailsToMark.includes(email.emailID)) {
+        if (payload.emailsToMark.includes(email.emailId)) {
           email.isRead = payload.newValue;
           email.isChecked = false;
         }

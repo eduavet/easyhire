@@ -145,12 +145,12 @@ Sidebar.propTypes = {
   deleteFolder: PropTypes.func.isRequired,
   isActive: PropTypes.func.isRequired,
   getFolderEmails: PropTypes.func.isRequired,
-  folders: PropTypes.array.isRequired,
+  folders: PropTypes.array,
   getEmails: PropTypes.func.isRequired,
 };
 
 Folder.propTypes = {
-  folder: PropTypes.object.isRequired,
+  folder: PropTypes.object,
   folderToggler: PropTypes.func.isRequired,
   openFolder: PropTypes.func.isRequired,
   toggleUpdateModal: PropTypes.func.isRequired,

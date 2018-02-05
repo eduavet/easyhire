@@ -25,7 +25,7 @@ emailHandlers.emails = (req, response) => {
     .then((account) => {
       const { messages } = account;
       const promises = [];
-      for (let i = 0; i < 1; i += 1) {
+      for (let i = 0; i < 5; i += 1) {
         if (!messages) break;
         const { id } = messages[i];
         let upperEmail = '';
@@ -51,7 +51,7 @@ emailHandlers.emails = (req, response) => {
           })
           .then((folder) => {
             upperFolder = folder;
-            return StatusesModel.findOne({ name: 'Not Reviewed' }, '_id')
+            return StatusesModel.findOne({ name: 'Not Reviewed' }, '_id');
           })
           .then((status) => {
             const newEmail = helper.buildNewEmailModel(userId, upperEmail, upperFolder, status);
@@ -72,7 +72,8 @@ emailHandlers.emails = (req, response) => {
           response.json(packed);
         });
     })
-    .catch(() => {
+    .catch((err) => {
+    console.log(err, 'errrrrrrrr')
       response.json({
         name: '', emailsToSend: [], errors: [{ msg: 'Something went wrong' }],
       });

@@ -1,6 +1,6 @@
 const fetch = require('node-fetch');
 const EmailsModel = require('../models/EmailsModel.js');
-const StatusesModel = require('../models/FoldersModel.js');
+const StatusesModel = require('../models/StatusesModel.js');
 const emailHelpers = require('../helpers/email.helper.js');
 
 const statusHandlers = {};
@@ -145,7 +145,7 @@ statusHandlers.getEmails = (req, res) => {
   const emailsToSend = [];
   const promises = [];
   return EmailsModel.find({ status: statusId, userId }, ['emailId', 'isRead'])
-    .populate('status', 'name').populate('folder', 'name _id')
+    .populate('status', 'name')
     .then((result) => {
       for (let i = 0; i < result.length; i += 1) {
         const id = result[i].emailId;
@@ -154,10 +154,11 @@ statusHandlers.getEmails = (req, res) => {
           .then((msgRes) => {
             emailsToSend[i] = emailHelpers.extract(
               msgRes,
-
+              '',
+              '',
+              result[i].isRead,
               statusId,
               result[i].status.name,
-              result[i].isRead,
             );
           }));
       }
