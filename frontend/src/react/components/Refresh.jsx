@@ -9,7 +9,7 @@ function Refresh(props) {
     <div className="col-2">
       <button className="btn sync-btn" onClick={() => { props.refresh(); props.asyncRefreshFolders(); }}>
         <i className="fa fa-sync-alt" />
-        Refresh
+        &nbsp;Refresh
       </button>
     </div>
   );

@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const fetch = require('node-fetch');
-const util = require('util');
 const EmailsModel = require('../models/EmailsModel.js');
 const FoldersModel = require('../models/FoldersModel.js');
 const StatusesModel = require('../models/StatusesModel.js');
@@ -24,7 +23,7 @@ emailHandlers.emails = (req, response) => {
     .then((account) => {
       const { messages } = account;
       const promises = [];
-      for (let i = 0; i < 7; i += 1) {
+      for (let i = 0; i < messages.length; i += 1) {
         if (!messages) break;
         const { id } = messages[i];
         let upperEmail = '';
@@ -35,31 +34,32 @@ emailHandlers.emails = (req, response) => {
           .then((group) => {
             if (group) {
               emailsToSend[i] = helper.groupExtract(group);
-              return;
+            } else {
+              return fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`)
+                .then(email => email.json())
+                .then((email) => {
+                  upperEmail = email;
+                  return FoldersModel.findOne({ name: 'Not Reviewed' }, '_id');
+                })
+                .then((folder) => {
+                  upperFolder = folder;
+                  return StatusesModel.findOne({ name: 'Not Reviewed' }, '_id');
+                })
+                .then((status) => {
+                  const newEmail = helper.buildNewEmailModel(userId, upperEmail, upperFolder, status);
+                  return newEmail.save();
+                })
+                .then(() => EmailsModel.findOne({ emailId: upperEmail.id })
+                  .populate('folder status').then((group1) => {
+                    emailsToSend[i] = helper.groupExtract(group1);
+                  }));
             }
-            return fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`)
-              .then(email => email.json())
-              .then((email) => {
-                upperEmail = email;
-                return FoldersModel.findOne({ name: 'Not Reviewed' }, '_id');
-              })
-              .then((folder) => {
-                upperFolder = folder;
-                return StatusesModel.findOne({ name: 'Not Reviewed' }, '_id');
-              })
-              .then((status) => {
-                const newEmail = helper.buildNewEmailModel(userId, upperEmail, upperFolder, status);
-                return newEmail.save();
-              })
-              .then(() => EmailsModel.findOne({ emailId: upperEmail.id })
-                .populate('folder status').then((group1) => {
-                  emailsToSend[i] = helper.groupExtract(group1);
-                }));
           }));
       }
 
       return Promise.all(promises)
         .then(() => {
+          // console.log(packed);
           const packed = {
             name,
             emailsToSend,
@@ -67,7 +67,7 @@ emailHandlers.emails = (req, response) => {
           response.json(packed);
         });
     })
-    .catch((err) => {
+    .catch(() => {
       response.json({
         name: '', emailsToSend: [], errors: [{ msg: 'Something went wrong' }],
       });
@@ -79,24 +79,20 @@ emailHandlers.emailsMoveToFolder = (req, res) => {
   const emailsToMove = req.body.emailIds;
   const folderToMove = req.body.folderId;
   const originalFolder = [];
-  let folderName = '';
   EmailsModel.find({ emailId: { $in: emailsToMove } }, { folder: true, _id: false })
     .then((result) => {
       result.forEach(r => originalFolder.push(r.folder));
     })
-    .then(() => FoldersModel.findOne({ _id: mongoose.Types.ObjectId(folderToMove) }, 'name')
-      .then((response) => { folderName = response.name; }))
-    .then(() => {
-      EmailsModel.updateMany(
-        { emailId: { $in: emailsToMove } },
-        { $set: { folder: mongoose.Types.ObjectId(folderToMove) } },
-      );
-    })
-    .then(() => res.json({
-      emailsToMove, errors: [], folderId: folderToMove, folderName, originalFolder,
-    }))
+    .then(() => EmailsModel.updateMany(
+      { emailId: { $in: emailsToMove } },
+      { $set: { folder: mongoose.Types.ObjectId(folderToMove) } },
+    ))
+    .then(() => EmailsModel.find({ emailId: { $in: emailsToMove } })
+      .populate('folder').then(result => res.json({
+        errors: [], emailsToMove: result, originalFolder,
+      })))
     .catch(err => res.json({
-      errors: err, emailsToMove: [], folderId: '', folderName: '', originalFolder: [],
+      errors: err, emailsToMove: [], originalFolder: [],
     }));
 };
 

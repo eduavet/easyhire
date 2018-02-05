@@ -1,7 +1,5 @@
-const fetch = require('node-fetch');
 const EmailsModel = require('../models/EmailsModel.js');
 const StatusesModel = require('../models/StatusesModel.js');
-const emailHelpers = require('../helpers/email.helper.js');
 
 const statusHandlers = {};
 module.exports = statusHandlers;
@@ -141,11 +139,11 @@ statusHandlers.getEmails = (req, res) => {
   }
   const userId = req.session.userID;
   const statusId = req.params.ID;
-  const { accessToken } = req.session;
-  const emailsToSend = [];
+  // const { accessToken } = req.session;
+  // const emailsToSend = [];
   const promises = [];
   return EmailsModel.find({ status: statusId, userId })
-    .populate('status', 'name as statusName')
+    .populate('status folder')
     .then((result) => {
       // for (let i = 0; i < result.length; i += 1) {
       //   const id = result[i].emailId;
@@ -162,7 +160,7 @@ statusHandlers.getEmails = (req, res) => {
       //       );
       //     }));
       // }
-      return Promise.all(promises)
+      Promise.all(promises)
         .then(() => {
           res.json({ emailsToSend: result, errors: [] });
         });

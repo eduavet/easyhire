@@ -107,7 +107,7 @@ function Folder(props) {
       onClick={() => {
         props.folderToggler(props.folder);
         if (props.folder._id === 'allEmails') {
-            props.getEmails();
+            props.openFolder('allEmails');
         } else { props.openFolder(props.folder._id); }
     }}
     >
@@ -145,12 +145,12 @@ Sidebar.propTypes = {
   deleteFolder: PropTypes.func.isRequired,
   isActive: PropTypes.func.isRequired,
   getFolderEmails: PropTypes.func.isRequired,
-  folders: PropTypes.array,
+  folders: PropTypes.array.isRequired,
   getEmails: PropTypes.func.isRequired,
 };
 
 Folder.propTypes = {
-  folder: PropTypes.object,
+  folder: PropTypes.object.isRequired,
   folderToggler: PropTypes.func.isRequired,
   openFolder: PropTypes.func.isRequired,
   toggleUpdateModal: PropTypes.func.isRequired,

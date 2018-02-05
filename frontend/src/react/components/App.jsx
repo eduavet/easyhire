@@ -5,7 +5,7 @@ import Notifications from 'react-notify-toast';
 import PropTypes from 'prop-types';
 import Dashboard from './Dashboard.jsx';
 import { asyncGetEmails, asyncGetUsername } from '../../redux/reducers/emailsReducer';
-import { asyncGetFolders } from '../../redux/reducers/folderReducer';
+import { asyncGetFolders, updateCount } from '../../redux/reducers/folderReducer';
 import { asyncGetStatuses } from '../../redux/reducers/statusReducer';
 import Login from './Login.jsx';
 
@@ -17,7 +17,11 @@ export class App extends Component {
     this.props.getFolders();
     this.props.getStatuses();
   }
-
+  componentWillReceiveProps(nextProps) {
+    if (this.props.emails !== nextProps.emails) {
+      this.props.updateCount();
+    }
+  }
   render() {
     return (
       <BrowserRouter>
@@ -39,12 +43,16 @@ App.propTypes = {
   username: PropTypes.string,
   getFolders: PropTypes.func.isRequired,
   getStatuses: PropTypes.func.isRequired,
+  emails: PropTypes.array,
+  updateCount: PropTypes.func,
 };
 
 function mapStateToProps(state) {
   return {
     username: state.emails.name,
     loading: state.emails.loading,
+    loaded: state.emails.loaded,
+    emails: state.emails.emails,
   };
 }
 
@@ -54,6 +62,7 @@ function mapDispatchToProps(dispatch) {
     getUsername: () => dispatch(asyncGetUsername()),
     getFolders: () => dispatch(asyncGetFolders()),
     getStatuses: () => dispatch(asyncGetStatuses()),
+    updateCount: () => dispatch(updateCount()),
   };
 }
 
