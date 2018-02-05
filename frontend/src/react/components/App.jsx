@@ -18,7 +18,7 @@ export class App extends Component {
     this.props.getStatuses();
   }
   componentWillReceiveProps(nextProps) {
-    if (this.props.loaded !== nextProps.loaded) {
+    if (this.props.emails !== nextProps.emails) {
       this.props.updateCount();
     }
   }
@@ -43,7 +43,6 @@ App.propTypes = {
   username: PropTypes.string,
   getFolders: PropTypes.func.isRequired,
   getStatuses: PropTypes.func.isRequired,
-  loaded: PropTypes.bool.isRequired,
   emails: PropTypes.array,
   updateCount: PropTypes.func,
 };

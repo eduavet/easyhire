@@ -9,6 +9,8 @@ const UPDATE_FOLDER = 'Update folder';
 const DELETE_FOLDER = 'Delete folder';
 const IS_ACTIVE = 'Is active';
 const REFRESH = 'Refresh';
+const DELETE_EMAILS = 'Delete emails';
+const MOVE_EMAILS = 'Update Email Folders';
 
 function getFolders(result) {
   return {
@@ -19,11 +21,6 @@ function getFolders(result) {
   };
 }
 
-export function updateCount() {
-  return {
-    type: UPDATE_COUNT,
-  };
-}
 
 function createFolder(response) {
   return {
@@ -52,6 +49,27 @@ function deleteFolder(response) {
   };
 }
 
+function moveEmails(response) {
+  return {
+    type: MOVE_EMAILS,
+    payload: {
+      emailsToMove: response.emailsToMove,
+      errors: response.errors,
+      originalFolder: response.originalFolder,
+    },
+  };
+}
+
+function deleteEmails(response) {
+  return {
+    type: DELETE_EMAILS,
+    payload: {
+      emailsToDelete: response.emailsToDelete,
+      errors: response.errors,
+      originalFolder: response.originalFolder,
+    },
+  };
+}
 
 export function isActive(item) {
   return {
@@ -132,6 +150,38 @@ export function asyncDeleteFolder(id) {
   };
 }
 
+export function asyncMoveEmails(emailIds, folderId) {
+  return function asyncPostEmailsToFolderInner(dispatch) {
+    fetch('http://localhost:3000/api/emails/move', {
+      method: 'POST',
+      body: JSON.stringify({ emailIds, folderId }),
+      headers: {
+        Origin: '', 'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+        dispatch(moveEmails(result));
+      }).catch(() => {});
+  };
+}
+
+export function asyncDeleteEmails(emailIds) {
+  return function asyncDeleteEmailsInner(dispatch) {
+    fetch(`http://localhost:3000/api/emails/${emailIds}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+        dispatch(deleteEmails(result));
+      }).catch(() => {});
+  };
+}
 export function asyncRefreshFolders() {
   return function asyncRefreshInner(dispatch) {
     fetch('http://localhost:3000/api/folders', {
@@ -144,6 +194,12 @@ export function asyncRefreshFolders() {
   };
 }
 
+export function updateCount() {
+  asyncGetFolders();
+  return {
+    type: UPDATE_COUNT,
+  };
+}
 /**
  * Reducer
  */
@@ -184,6 +240,42 @@ export default function folderReducer(state = initialState, action) {
           return folder;
         }),
       };
+    case MOVE_EMAILS: {
+      let nOffAffected = 0;
+      const foldersAfterMove = state.folders.map((folder) => {
+        nOffAffected = payload.originalFolder.map(origF => origF === folder._id.toString).length;
+        if (payload.originalFolder.indexOf(folder._id) !== -1) {
+          folder.count -= nOffAffected;
+        }
+        if (payload.emailsToMove[0].folder._id === folder._id) {
+          folder.count += nOffAffected;
+        }
+        return folder;
+      });
+      return {
+        ...state,
+        folders: foldersAfterMove,
+        folderErrors: payload.errors,
+      };
+    }
+    case DELETE_EMAILS: {
+      let nOffDeleted = 0;
+      const afterDelete = state.folders.map((folder) => {
+        nOffDeleted = payload.originalFolder.map(origF => origF === folder._id).length;
+        if (folder._id === 'allEmails') {
+          folder.count -= nOffDeleted;
+        }
+        if (payload.originalFolder.indexOf(folder._id) !== -1) {
+          folder.count -= nOffDeleted;
+        }
+        return folder;
+      });
+      return {
+        ...state,
+        folders: afterDelete,
+        fodlerErrors: payload.errors,
+      };
+    }
     case CREATE_FOLDER: {
       const folders = payload.createdFolder._id ? [
         ...state.folders,

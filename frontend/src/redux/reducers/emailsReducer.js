@@ -64,8 +64,6 @@ function moveEmails(response) {
     payload: {
       emailsToMove: response.emailsToMove,
       errors: response.errors,
-      folderId: response.folderId,
-      folderName: response.folderName,
       originalFolder: response.originalFolder,
     },
   };
@@ -198,8 +196,8 @@ export function asyncMoveEmails(emailIds, folderId) {
       credentials: 'include',
     })
       .then(res => res.json())
-      .then((res) => {
-        dispatch(moveEmails(res));
+      .then((result) => {
+        dispatch(moveEmails(result));
       }).catch(() => {});
   };
 }
@@ -277,7 +275,6 @@ export default function emailsReducer(state = initialState, action) {
         successMsgs: payload.successMsgs,
       };
     case GET_FOLDER_EMAILS:
-      console.log(payload.emails)
       return {
         ...state,
         emails: payload.emails
@@ -325,55 +322,26 @@ export default function emailsReducer(state = initialState, action) {
       };
     case MOVE_EMAILS:
     {
-      let emailsAfterMove = state.emails.map((email) => {
+      const emailsAfterMove = state.emails.map((email) => {
         if (payload.emailsToMove.indexOf(email.emailId) !== -1) {
-          email.folderId = payload.folderId;
-          email.folderName = payload.folderName;
+          email.folderId = payload.emailsToMove.folder._id;
+          email.folderName = payload.emailsToMove.folder.name;
         }
         email.isChecked = false;
         return email;
       });
-      let nOffAffected = 0;
-      const foldersAfterMove = state.folders.map((folder) => {
-        if (folder.isActive && folder._id !== 'allEmails') {
-          emailsAfterMove = emailsAfterMove.filter(email => email.folderId !== payload.folderId);
-        }
-        nOffAffected = payload.originalFolder.map(origF => origF === folder._id).length;
-        if (payload.originalFolder.indexOf(folder._id) !== -1) {
-          folder.count -= nOffAffected;
-        }
-        if (payload.folderId === folder._id) {
-          folder.count += nOffAffected;
-        }
-        return folder;
-      });
-
       return {
-        ...state, emails: emailsAfterMove, folders: foldersAfterMove, errors: payload.errors,
+        ...state, emails: emailsAfterMove,
       };
     }
     case DELETE_EMAILS:
     {
-      let emailsAfterDelete = state.emails.filter((email) => {
+      const emailsAfterDelete = state.emails.filter((email) => {
         email.isChecked = false;
         return payload.emailsToDelete.indexOf(email.emailId) === -1;
       });
-      let nOffDeleted = 0;
-      const afterDelete = state.folders.map((folder) => {
-        if (folder.isActive && folder._id !== 'allEmails') {
-          emailsAfterDelete = emailsAfterDelete
-            .filter(email => email.folderId !== payload.folderId);
-        }
-        nOffDeleted = payload.originalFolder.map(origF => origF === folder._id).length;
-
-        if (payload.originalFolder.indexOf(folder._id) !== -1) {
-          folder.count -= nOffDeleted;
-        }
-        return folder;
-      });
-
       return {
-        ...state, emails: emailsAfterDelete, folders: afterDelete, errors: payload.errors,
+        ...state, emails: emailsAfterDelete, errors: payload.errors,
       };
     }
     case REFRESH:

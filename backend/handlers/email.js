@@ -79,24 +79,20 @@ emailHandlers.emailsMoveToFolder = (req, res) => {
   const emailsToMove = req.body.emailIds;
   const folderToMove = req.body.folderId;
   const originalFolder = [];
-  let folderName = '';
   EmailsModel.find({ emailId: { $in: emailsToMove } }, { folder: true, _id: false })
     .then((result) => {
       result.forEach(r => originalFolder.push(r.folder));
     })
-    .then(() => FoldersModel.findOne({ _id: mongoose.Types.ObjectId(folderToMove) }, 'name')
-      .then((response) => { folderName = response.name; }))
-    .then(() => {
-      EmailsModel.updateMany(
-        { emailId: { $in: emailsToMove } },
-        { $set: { folder: mongoose.Types.ObjectId(folderToMove) } },
-      );
-    })
-    .then(() => res.json({
-      emailsToMove, errors: [], folderId: folderToMove, folderName, originalFolder,
-    }))
+    .then(() => EmailsModel.updateMany(
+      { emailId: { $in: emailsToMove } },
+      { $set: { folder: mongoose.Types.ObjectId(folderToMove) } },
+    ))
+    .then(() => EmailsModel.find({ emailId: { $in: emailsToMove } })
+      .populate('folder').then(result => res.json({
+        errors: [], emailsToMove: result, originalFolder,
+      })))
     .catch(err => res.json({
-      errors: err, emailsToMove: [], folderId: '', folderName: '', originalFolder: [],
+      errors: err, emailsToMove: [], originalFolder: [],
     }));
 };
 
@@ -154,7 +150,6 @@ emailHandlers.getEmail = (req, res) => {
         res.json({ email: emailToSend, errors: [] });
       }))
     .catch((err) => {
-      console.log(err, 'errr');
       res.json({ errors: [{ msg: 'Something went wrong', err }] });
     });
 };

@@ -45,21 +45,21 @@ class Toolbar extends Component {
   };
   moveToFolder=(id) => {
     const emailsToMove = this.props.emails.filter(email =>
-      email.isChecked).map(email => email.emailID);
+      email.isChecked).map(email => email.emailId);
     this.props.postEmailsToFolder(emailsToMove, id);
     notify.show('Emails(s) moved!', 'success', 1500);
   };
 
   mark = (isRead) => {
     const emailsToMark = this.props.emails.filter(email =>
-      email.isChecked).map(email => email.emailID);
+      email.isChecked).map(email => email.emailId);
     this.props.asyncMark(emailsToMark, isRead);
     notify.show('Email(s) updated!', 'success', 1500);
   };
 
   deleteEmail=() => {
     const emailsToDelete = this.props.emails.filter(email =>
-      email.isChecked).map(email => email.emailID);
+      email.isChecked).map(email => email.emailId);
     this.props.deleteEmails(emailsToDelete);
     this.setState({ deleteModal: !this.state.deleteModal, deleteCount: 0 });
     notify.show('Email(s) deleted!', 'success', 1500);
