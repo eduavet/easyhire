@@ -3,6 +3,7 @@ const initialState = {
 };
 
 const GET_FOLDERS = 'Get folders';
+const UPDATE_COUNT = 'Update count';
 const CREATE_FOLDER = 'Create folder';
 const UPDATE_FOLDER = 'Update folder';
 const DELETE_FOLDER = 'Delete folder';
@@ -17,6 +18,13 @@ function getFolders(result) {
     },
   };
 }
+
+export function updateCount() {
+  return {
+    type: UPDATE_COUNT,
+  };
+}
+
 function createFolder(response) {
   return {
     type: CREATE_FOLDER,
@@ -160,6 +168,10 @@ export default function folderReducer(state = initialState, action) {
             .map(folder => Object.assign({}, folder, { isActive: !!folder.isActive })),
         ],
       };
+    case UPDATE_COUNT:
+      return {
+        ...state,
+      }
     case IS_ACTIVE:
       return {
         ...state,

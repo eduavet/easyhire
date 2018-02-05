@@ -144,7 +144,6 @@ export default function statusReducer(state = initialState, action) {
   const { type, payload } = action;
   switch (type) {
     case GET_STATUSES:
-      console.log(payload, 'payload')
       return {
         ...state,
         statuses: [

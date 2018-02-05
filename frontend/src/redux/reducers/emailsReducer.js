@@ -277,17 +277,32 @@ export default function emailsReducer(state = initialState, action) {
         successMsgs: payload.successMsgs,
       };
     case GET_FOLDER_EMAILS:
+      console.log(payload.emails)
       return {
         ...state,
         emails: payload.emails
-          .map(email => Object.assign({}, email, { isChecked: !!email.isChecked })),
+          .map(email =>
+            Object.assign({}, email, {
+              isChecked: !!email.isChecked,
+              folderName: email.folder.name,
+              folderId: email.folder._id,
+              statusName: email.status.name,
+              statusId: email.status._id,
+            })),
         loaded: true,
       };
     case GET_STATUS_EMAILS:
       return {
         ...state,
         emails: payload.emails
-          .map(email => Object.assign({}, email, { isChecked: !!email.isChecked }, { statusName: email.status.name })),
+          .map(email =>
+            Object.assign({}, email, {
+              isChecked: !!email.isChecked,
+              folderName: email.folder.name,
+              folderId: email.folder._id,
+              statusName: email.status.name,
+              statusId: email.status._id,
+            })),
         loaded: true,
       };
     case IS_CHECKED:

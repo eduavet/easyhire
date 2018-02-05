@@ -141,11 +141,11 @@ statusHandlers.getEmails = (req, res) => {
   }
   const userId = req.session.userID;
   const statusId = req.params.ID;
-  const { accessToken } = req.session;
-  const emailsToSend = [];
+  // const { accessToken } = req.session;
+  // const emailsToSend = [];
   const promises = [];
   return EmailsModel.find({ status: statusId, userId })
-    .populate('status', 'name as statusName')
+    .populate('status folder')
     .then((result) => {
       // for (let i = 0; i < result.length; i += 1) {
       //   const id = result[i].emailId;

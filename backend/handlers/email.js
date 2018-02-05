@@ -24,7 +24,7 @@ emailHandlers.emails = (req, response) => {
     .then((account) => {
       const { messages } = account;
       const promises = [];
-      for (let i = 0; i < 7; i += 1) {
+      for (let i = 0; i < messages.length; i += 1) {
         if (!messages) break;
         const { id } = messages[i];
         let upperEmail = '';
