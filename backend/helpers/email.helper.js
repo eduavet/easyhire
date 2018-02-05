@@ -9,7 +9,7 @@ module.exports = emailHelpers;
 
 emailHelpers.decodeHtmlEntity = str => str.replace(/&#(\d+);/g, (match, dec) => String.fromCharCode(dec));
 
-emailHelpers.extract = (res, folderId, folderName, isReadParam, statusId, statusName) => {
+emailHelpers.extract = (res, folderId, folderName, isReadParam, statusId='', statusName='') => {
   const emailId = res.id;
   const sender = res.payload.headers.find(item => item.name === 'From').value;
   const subject = res.payload.headers.find(item => item.name === 'Subject').value;
