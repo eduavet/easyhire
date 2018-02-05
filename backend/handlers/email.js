@@ -2,18 +2,21 @@ const mongoose = require('mongoose');
 const fetch = require('node-fetch');
 const util = require('util');
 const EmailsModel = require('../models/EmailsModel.js');
-const foldersModel = require('../models/FoldersModel.js');
+const FoldersModel = require('../models/FoldersModel.js');
+const StatusesModel = require('../models/StatusesModel.js');
+
 const helper = require('../helpers/email.helper.js');
+
 
 const emailHandlers = {};
 module.exports = emailHandlers;
 
 emailHandlers.emails = (req, response) => {
+  console.log('calling backend emails function');
   const userId = req.session.userID;
   const { name, accessToken } = req.session;
   const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
   const emailsToSend = [];
-
   if (!userId) {
     return response.json({ emailsToSend });
   }
@@ -22,31 +25,44 @@ emailHandlers.emails = (req, response) => {
     .then((account) => {
       const { messages } = account;
       const promises = [];
-      for (let i = 0; i < 7; i += 1) {
+      for (let i = 0; i < 1; i += 1) {
+        if (!messages) break;
         const { id } = messages[i];
-        promises.push(fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`)
+        let upperEmail = '';
+        let upperFolder = '';
+        promises.push(EmailsModel.findOne({ emailId: id })
+          .populate('folder')
+          .populate('status')
+          .then((group) => {
+            if (group) {
+              emailsToSend[i] = helper.groupExtract(group);
+              return true;
+            }
+            return false;
+          })
+          .then((found) => {
+            if (found) Promise.resolve();
+            return fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`);
+          })
           .then(email => email.json())
-          .then(email => EmailsModel
-            .findOne({ emailId: id })
-            .populate('folder')
-            .then((group1) => {
-              if (group1) {
-                const { folder } = group1;
-                emailsToSend[i] = helper.extract(email, folder._id, folder.name, group1.isRead);
-              } else {
-                return foldersModel.findOne({ name: 'Not Reviewed' }, '_id').then((folder) => {
-                  const newEmail = helper.buildNewEmailModel(userId, id, folder);
-                  return newEmail.save().then(email2 => EmailsModel
-                    .findOne({ emailId: email2.emailId })
-                    .populate('folder').then((group2) => {
-                      const fold = group2.folder;
-                      emailsToSend[i] = helper.extract(email2, fold._id, fold.name, false);
-                    }));
-                });
-              }
-              return Promise.resolve();
+          .then((email) => {
+            upperEmail = email;
+            return FoldersModel.findOne({ name: 'Not Reviewed' }, '_id');
+          })
+          .then((folder) => {
+            upperFolder = folder;
+            return StatusesModel.findOne({ name: 'Not Reviewed' }, '_id')
+          })
+          .then((status) => {
+            const newEmail = helper.buildNewEmailModel(userId, upperEmail, upperFolder, status);
+            return newEmail.save();
+          })
+          .then(() => EmailsModel.findOne({ emailId: upperEmail.id })
+            .populate('folder status').then((group) => {
+              emailsToSend[i] = helper.groupExtract(group);
             })));
       }
+
       return Promise.all(promises)
         .then(() => {
           const packed = {
@@ -73,7 +89,7 @@ emailHandlers.emailsMoveToFolder = (req, res) => {
     .then((result) => {
       result.forEach(r => originalFolder.push(r.folder));
     })
-    .then(() => foldersModel.findOne({ _id: mongoose.Types.ObjectId(folderToMove) }, 'name')
+    .then(() => FoldersModel.findOne({ _id: mongoose.Types.ObjectId(folderToMove) }, 'name')
       .then((response) => { folderName = response.name; }))
     .then(() => {
       EmailsModel.updateMany(
@@ -122,11 +138,11 @@ emailHandlers.getEmail = (req, res) => {
   if (errors) {
     return res.json({ errors });
   }
-  EmailsModel.findOne({ emailId, userId })
+  return EmailsModel.findOne({ emailId, userId })
     .then(email => fetch(`${fetchUrl}${userId}/messages/${emailId}?access_token=${accessToken}`)
       .then(response => response.json())
       .then((response) => {
-        const emailToSend = helper.extract(response, email.folder, '', email.isRead),
+        const emailToSend = helper.extract(response, email.folder, '', email.isRead, '', ''),
           emailParts = {},
           htmlBody = { value: '' },
           plainText = { value: '' };
@@ -150,6 +166,7 @@ emailHandlers.getEmail = (req, res) => {
     .catch((err) => {
       res.json({ errors: [{ msg: 'Something went wrong', err }] });
     });
+
 };
 // console.log(util.inspect(res, { depth: 8 }));
 // console.log(res.payload.parts, 'payload parts')

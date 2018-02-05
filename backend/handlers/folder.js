@@ -141,7 +141,7 @@ folderHandlers.getEmails = (req, res) => {
   const { accessToken } = req.session;
   const emailsToSend = [];
   const promises = [];
-  return EmailsModel.find({ folder: folderId, userId }, ['email_id', 'isRead'])
+  return EmailsModel.find({ folder: folderId, userId }, ['emailId', 'isRead'])
     .populate('folder', 'name')
     .then((result) => {
       for (let i = 0; i < result.length; i += 1) {
