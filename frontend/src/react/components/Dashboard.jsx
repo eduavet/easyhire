@@ -14,6 +14,7 @@ export default function Dashboard() {
       <div>
         <Header />
         <div className="container-fluid mt-4">
+          <Link to={`/email/161423e6ff3049de`} data-id={item.emailID} onClick={this.openEmail}>>
           <div className="row">
             <Refresh />
             <Toolbar />

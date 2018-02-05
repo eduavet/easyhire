@@ -1,6 +1,6 @@
 /* eslint no-underscore-dangle: 0 */
 const initialState = {
-  emails: [], name: '', folders: [], loading: true, errors: [], loaded: false,
+  emails: [], name: '', folders: [], loading: true, errors: [], loaded: false, email: {},
 };
 
 /**
@@ -291,7 +291,10 @@ export default function emailsReducer(state = initialState, action) {
         ...state, emails: payload.emails,
       };
     case GET_EMAIL:
-      return state;
+      return {
+        ...state,
+        email: payload.email,
+      };
     case MOVE_EMAILS:
     {
       let emailsAfterMove = state.emails.map((email) => {
