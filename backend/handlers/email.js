@@ -12,7 +12,6 @@ const emailHandlers = {};
 module.exports = emailHandlers;
 
 emailHandlers.emails = (req, response) => {
-  console.log('calling backend emails function');
   const userId = req.session.userID;
   const { name, accessToken } = req.session;
   const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
@@ -25,7 +24,7 @@ emailHandlers.emails = (req, response) => {
     .then((account) => {
       const { messages } = account;
       const promises = [];
-      for (let i = 0; i < 3; i += 1) {
+      for (let i = 0; i < messages.length; i += 1) {
         if (!messages) break;
         const { id } = messages[i];
         let upperEmail = '';
@@ -36,7 +35,7 @@ emailHandlers.emails = (req, response) => {
           .then((group) => {
             if (group) {
               emailsToSend[i] = helper.groupExtract(group);
-              return true;
+              return;
             } else {
               return fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`)
                 .then(email => email.json())
