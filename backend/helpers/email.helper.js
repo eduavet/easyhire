@@ -22,22 +22,19 @@ emailHelpers.extract = (res, folderId, folderName, isReadParam) => {
 };
 
 emailHelpers.groupExtract = (group) => {
-  const emailID = group.emailId;
-  const sender = group.sender;
-  const subject = group.subject;
-  const snippet = group.snippet;
-  const date = group.date;
+  const {
+    emailId, sender, subject, snippet, date, isRead,
+  } = group;
   const folderId = group.folder._id;
   const folderName = group.folder.name;
-  const isRead = group.isRead;
   return {
-    emailID, sender, subject, snippet, date, folderId, folderName, isRead,
+    emailId, sender, subject, snippet, date, folderId, folderName, isRead,
   };
 };
 
 emailHelpers.buildNewEmailModel = (userId, email, folder) => {
   const emailId = email.id;
-  const threadId = email.threadId;
+  const { threadId } = email;
   const sender = email.payload.headers.find(item => item.name === 'From').value;
   const subject = email.payload.headers.find(item => item.name === 'Subject').value;
   const snippet = emailHelpers.decodeHtmlEntity(email.snippet);
@@ -52,5 +49,5 @@ emailHelpers.buildNewEmailModel = (userId, email, folder) => {
     date: date.toString(),
     folder: mongoose.Types.ObjectId(folder._id),
     isRead: false,
-  })
+  });
 };

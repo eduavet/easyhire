@@ -8,6 +8,7 @@ const emailHandlers = {};
 module.exports = emailHandlers;
 
 emailHandlers.emails = (req, response) => {
+  console.log('calling backend emails function');
   const userId = req.session.userID;
   const { name, accessToken } = req.session;
   const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
@@ -21,70 +22,48 @@ emailHandlers.emails = (req, response) => {
     .then((account) => {
       const { messages } = account;
       const promises = [];
-      // console.log(account);
       for (let i = 0; i < 1; i += 1) {
+        if (!messages) break;
         const { id } = messages[i];
+        let upperEmail = '';
         promises.push(EmailsModel.findOne({ emailId: id })
-          .then(email => {
-            if (email) {
-              EmailsModel.findOne({ emailId: id })
-                .populate('folder')
-                .then((group) => {
-                  // console.log('found');
-                  // console.log(group);
-                  if (group) {
-                    const { folder } = group;
-                    // emailsToSend[i] = helper.groupExtract(email, folder._id, folder.name, group.isRead);
-                    emailsToSend[i] = helper.groupExtract(group);
-                    console.log('found');
-                    console.log(emailsToSend[i]);
-                  }
-                })
-              return true
-            } else return false
+          .populate('folder')
+          .then((group) => {
+            if (group) {
+              emailsToSend[i] = helper.groupExtract(group);
+              return true;
+            }
+            return false;
           })
-          .then(found => {
-            if (!found) return
-            promises.push(fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`)
-              .then(email => email.json())
-              .then(email => EmailsModel
-                .findOne({ emailId: id })
-                .populate('folder')
-                .then((group1) => {
-                  // console.log('didnt find');
-                  // console.log(email);
-                  if (group1) {
-                    const { folder } = group1;
-                    emailsToSend[i] = helper.extract(email, folder._id, folder.name, group1.isRead);
-                  } else {
-                    return foldersModel.findOne({ name: 'Not Reviewed' }, '_id').then((folder) => {
-                      const newEmail = helper.buildNewEmailModel(userId, email, folder);
-                      return newEmail.save().then(email2 => EmailsModel
-                        .findOne({ emailId: email2.emailId })
-                        .populate('folder').then((group2) => {
-                          const fold = group2.folder;
-                          // console.log('created');
-                          emailsToSend[i] = helper.extract(email2, fold._id, fold.name, false);
-                        }));
-                    });
-                  }
-                  return Promise.resolve();
-                })));
+          .then((found) => {
+            if (found) Promise.resolve();
+            return fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`);
           })
-        )
+          .then(email => email.json())
+          .then((email) => {
+            upperEmail = email;
+            return foldersModel.findOne({ name: 'Not Reviewed' }, '_id');
+          })
+          .then((folder) => {
+            const newEmail = helper.buildNewEmailModel(userId, upperEmail, folder);
+            return newEmail.save();
+          })
+          .then(() => EmailsModel.findOne({ emailId: upperEmail.id })
+            .populate('folder').then((group) => {
+              emailsToSend[i] = helper.groupExtract(group);
+            })));
       }
+
       return Promise.all(promises)
         .then(() => {
           const packed = {
             name,
             emailsToSend,
           };
-          console.log(packed.emailsToSend.length);
           response.json(packed);
         });
     })
-    .catch((err) => {
-      console.log(err);
+    .catch(() => {
       response.json({
         name: '', emailsToSend: [], errors: [{ msg: 'Something went wrong' }],
       });
@@ -150,15 +129,15 @@ emailHandlers.getEmail = (req, res) => {
   if (errors) {
     return res.json({ errors });
   }
-  EmailsModel.findOne({ emailId, userId })
-    .then((email) =>
+  return EmailsModel.findOne({ emailId, userId })
+    .then(email =>
       fetch(`${fetchUrl}${userId}/messages/${emailId}?access_token=${accessToken}`)
         .then((response) => {
           const emailToSend = helper.extract(response, email.folder, '', email.isRead);
           emailToSend.htmlBody = Buffer.from(response.payload.parts[0].body.data, 'base64').toString();
           res.json({ email: emailToSend });
         }))
-    .catch(err => res.json({ errors: [] }));
+    .catch(() => res.json({ errors: [] }));
 };
 // console.log(util.inspect(res, { depth: 8 }));
 // console.log(res.payload.parts, 'payload parts')
