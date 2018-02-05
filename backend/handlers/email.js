@@ -52,11 +52,11 @@ emailHandlers.emails = (req, response) => {
                   return newEmail.save();
                 })
                 .then(() => EmailsModel.findOne({ emailId: upperEmail.id })
-                  .populate('folder status').then((group) => {
-                    emailsToSend[i] = helper.groupExtract(group);
+                  .populate('folder status').then((group1) => {
+                    emailsToSend[i] = helper.groupExtract(group1);
                   }));
               }
-          }))
+          }));
       }
 
       return Promise.all(promises)
@@ -65,12 +65,10 @@ emailHandlers.emails = (req, response) => {
             name,
             emailsToSend,
           };
-          // console.log(packed);
           response.json(packed);
         });
     })
     .catch((err) => {
-      console.log(err);
       response.json({
         name: '', emailsToSend: [], errors: [{ msg: 'Something went wrong' }],
       });

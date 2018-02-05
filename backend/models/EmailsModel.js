@@ -5,7 +5,7 @@ const { Schema } = mongoose;
 const emailsSchema = new Schema({
   userId: String,
   emailId: String,
-  folder: { type: Schema.Types.ObjectId, ref: 'folders' },
+  folder: { type: Schema.Types.ObjectId, ref: 'folders', default: null },
   isRead: Boolean,
   sender: String,
   subject: String,

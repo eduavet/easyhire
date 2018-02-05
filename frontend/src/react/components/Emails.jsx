@@ -57,7 +57,7 @@ class Emails extends Component {
                       </span>
                     </Link>
                   </td>
-                  <td>{item.folderName}</td>
+                  <td>{item.statusName}</td>
                   <td>{item.date}</td>
                   <td>{item.attachment ? <i className="fas fa-paperclip" /> : ''}</td>
                 </tr>))}
