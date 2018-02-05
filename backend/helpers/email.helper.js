@@ -21,10 +21,37 @@ emailHelpers.extract = (res, folderId, folderName, isReadParam, statusId, status
   };
 };
 
-emailHelpers.buildNewEmailModel = (userId, id, folder, status) => new EmailsModel({
-  userId: userId,
-  emailId: id,
-  folder: mongoose.Types.ObjectId(folder._id),
-  status: mongoose.Types.ObjectId(status._id),
-  isRead: false,
-});
+emailHelpers.groupExtract = (group) => {
+  const {
+    emailId, sender, subject, snippet, date, isRead,
+  } = group;
+  const folderId = group.folder._id;
+  const folderName = group.folder.name;
+  const statusId = group.status._id;
+  const statusName = group.status.name;
+  return {
+    emailId, sender, subject, snippet, date, folderId, folderName, statusId, statusName, isRead,
+  };
+};
+
+emailHelpers.buildNewEmailModel = (userId, email, folder, status) => {
+  const emailId = email.id;
+  const { threadId } = email;
+  const sender = email.payload.headers.find(item => item.name === 'From').value;
+  const subject = email.payload.headers.find(item => item.name === 'Subject').value;
+  const snippet = emailHelpers.decodeHtmlEntity(email.snippet);
+  const date = moment.unix(email.internalDate / 1000).format('DD/MM/YYYY, HH:mm:ss');
+  return new EmailsModel({
+    userId,
+    emailId,
+    threadId,
+    sender,
+    subject,
+    snippet,
+    date: date.toString(),
+    folder: mongoose.Types.ObjectId(folder._id),
+    status: mongoose.Types.ObjectId(status._id),
+    isRead: false,
+  });
+};
+
