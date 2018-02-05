@@ -37,30 +37,27 @@ emailHandlers.emails = (req, response) => {
             if (group) {
               emailsToSend[i] = helper.groupExtract(group);
               return true;
-            }
-            return false;
-          })
-          .then((found) => {
-            if (found) Promise.resolve();
-            return fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`);
-          })
-          .then(email => email.json())
-          .then((email) => {
-            upperEmail = email;
-            return FoldersModel.findOne({ name: 'Not Reviewed' }, '_id');
-          })
-          .then((folder) => {
-            upperFolder = folder;
-            return StatusesModel.findOne({ name: 'Not Reviewed' }, '_id');
-          })
-          .then((status) => {
-            const newEmail = helper.buildNewEmailModel(userId, upperEmail, upperFolder, status);
-            return newEmail.save();
-          })
-          .then(() => EmailsModel.findOne({ emailId: upperEmail.id })
-            .populate('folder status').then((group) => {
-              emailsToSend[i] = helper.groupExtract(group);
-            })));
+            } else {
+              return fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`)
+                .then(email => email.json())
+                .then((email) => {
+                  upperEmail = email;
+                  return FoldersModel.findOne({ name: 'Not Reviewed' }, '_id');
+                })
+                .then((folder) => {
+                  upperFolder = folder;
+                  return StatusesModel.findOne({ name: 'Not Reviewed' }, '_id')
+                })
+                .then((status) => {
+                  const newEmail = helper.buildNewEmailModel(userId, upperEmail, upperFolder, status);
+                  return newEmail.save();
+                })
+                .then(() => EmailsModel.findOne({ emailId: upperEmail.id })
+                  .populate('folder status').then((group1) => {
+                    emailsToSend[i] = helper.groupExtract(group1);
+                  }));
+              }
+          }));
       }
 
       return Promise.all(promises)
@@ -73,7 +70,6 @@ emailHandlers.emails = (req, response) => {
         });
     })
     .catch((err) => {
-    console.log(err, 'errrrrrrrr')
       response.json({
         name: '', emailsToSend: [], errors: [{ msg: 'Something went wrong' }],
       });

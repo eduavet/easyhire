@@ -26,7 +26,6 @@ const MARK = 'Mark';
  * Action creator
  */
 function getEmails(result) {
-  console.log(result.emailsToSend, 'emails')
   return {
     type: GET_EMAILS,
     payload: {
@@ -51,7 +50,6 @@ function getFolderEmails(result) {
 }
 
 function getStatusEmails(result) {
-  console.log(result, 'result')
   return {
     type: GET_STATUS_EMAILS,
     payload: {
@@ -289,7 +287,7 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         emails: payload.emails
-          .map(email => Object.assign({}, email, { isChecked: !!email.isChecked })),
+          .map(email => Object.assign({}, email, { isChecked: !!email.isChecked }, { statusName: email.status.name })),
         loaded: true,
       };
     case IS_CHECKED:
