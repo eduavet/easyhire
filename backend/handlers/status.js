@@ -1,6 +1,6 @@
 const fetch = require('node-fetch');
 const EmailsModel = require('../models/EmailsModel.js');
-const StatusesModel = require('../models/FoldersModel.js');
+const StatusesModel = require('../models/StatusesModel.js');
 const emailHelpers = require('../helpers/email.helper.js');
 
 const statusHandlers = {};
@@ -144,27 +144,30 @@ statusHandlers.getEmails = (req, res) => {
   const { accessToken } = req.session;
   const emailsToSend = [];
   const promises = [];
-  return EmailsModel.find({ status: statusId, userId }, ['emailId', 'isRead'])
-    .populate('status', 'name').populate('folder', 'name _id')
+  return EmailsModel.find({ status: statusId, userId })
+    .populate('status', 'name as statusName')
     .then((result) => {
-      for (let i = 0; i < result.length; i += 1) {
-        const id = result[i].emailId;
-        promises.push(fetch(`https://www.googleapis.com/gmail/v1/users/${userId}/messages/${id}?access_token=${accessToken}`)
-          .then(response => response.json())
-          .then((msgRes) => {
-            emailsToSend[i] = emailHelpers.extract(
-              msgRes,
-
-              statusId,
-              result[i].status.name,
-              result[i].isRead,
-            );
-          }));
-      }
+      // for (let i = 0; i < result.length; i += 1) {
+      //   const id = result[i].emailId;
+      //   promises.push(fetch(`https://www.googleapis.com/gmail/v1/users/${userId}/messages/${id}?access_token=${accessToken}`)
+      //     .then(response => response.json())
+      //     .then((msgRes) => {
+      //       emailsToSend[i] = emailHelpers.extract(
+      //         msgRes,
+      //         '',
+      //         '',
+      //         result[i].isRead,
+      //         statusId,
+      //         result[i].status.name,
+      //       );
+      //     }));
+      // }
       return Promise.all(promises)
         .then(() => {
-          res.json({ emailsToSend, errors: [] });
+          res.json({ emailsToSend: result, errors: [] });
         });
     })
-    .catch(err => res.json({ emailsToSend: [], errors: err }));
+    .catch((err) => {
+      res.json({ emailsToSend: [], errors: err });
+    });
 };

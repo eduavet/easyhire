@@ -12,7 +12,6 @@ const emailHandlers = {};
 module.exports = emailHandlers;
 
 emailHandlers.emails = (req, response) => {
-  console.log('calling backend emails function');
   const userId = req.session.userID;
   const { name, accessToken } = req.session;
   const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
@@ -36,31 +35,27 @@ emailHandlers.emails = (req, response) => {
           .then((group) => {
             if (group) {
               emailsToSend[i] = helper.groupExtract(group);
-              return true;
+              return;
             }
-            return false;
-          })
-          .then((found) => {
-            if (found) Promise.resolve();
-            return fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`);
-          })
-          .then(email => email.json())
-          .then((email) => {
-            upperEmail = email;
-            return FoldersModel.findOne({ name: 'Not Reviewed' }, '_id');
-          })
-          .then((folder) => {
-            upperFolder = folder;
-            return StatusesModel.findOne({ name: 'Not Reviewed' }, '_id')
-          })
-          .then((status) => {
-            const newEmail = helper.buildNewEmailModel(userId, upperEmail, upperFolder, status);
-            return newEmail.save();
-          })
-          .then(() => EmailsModel.findOne({ emailId: upperEmail.id })
-            .populate('folder status').then((group) => {
-              emailsToSend[i] = helper.groupExtract(group);
-            })));
+            return fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`)
+              .then(email => email.json())
+              .then((email) => {
+                upperEmail = email;
+                return FoldersModel.findOne({ name: 'Not Reviewed' }, '_id');
+              })
+              .then((folder) => {
+                upperFolder = folder;
+                return StatusesModel.findOne({ name: 'Not Reviewed' }, '_id');
+              })
+              .then((status) => {
+                const newEmail = helper.buildNewEmailModel(userId, upperEmail, upperFolder, status);
+                return newEmail.save();
+              })
+              .then(() => EmailsModel.findOne({ emailId: upperEmail.id })
+                .populate('folder status').then((group1) => {
+                  emailsToSend[i] = helper.groupExtract(group1);
+                }));
+          }));
       }
 
       return Promise.all(promises)
@@ -72,7 +67,7 @@ emailHandlers.emails = (req, response) => {
           response.json(packed);
         });
     })
-    .catch(() => {
+    .catch((err) => {
       response.json({
         name: '', emailsToSend: [], errors: [{ msg: 'Something went wrong' }],
       });
@@ -143,9 +138,9 @@ emailHandlers.getEmail = (req, res) => {
     .then(email => fetch(`${fetchUrl}${userId}/messages/${emailId}?access_token=${accessToken}`)
       .then(response => response.json())
       .then((response) => {
-        const emailToSend = helper.extract(response, email.folder, email.folder.name, email.isRead, '', ''),
-          emailParts = {},
-          htmlBody = { value: '' };
+        const emailToSend = helper.extract(response, email.folder, email.folder.name, email.isRead, '', '');
+        const emailParts = {};
+        const htmlBody = { value: '' };
         emailParts.findHtml = response.payload;
         if (emailParts.findHtml.mimeType !== 'text/html' && response.payload.parts) {
           emailParts.findHtml = response.payload.parts.find(item => item.mimeType === 'text/html');
@@ -162,7 +157,6 @@ emailHandlers.getEmail = (req, res) => {
       console.log(err, 'errr');
       res.json({ errors: [{ msg: 'Something went wrong', err }] });
     });
-
 };
 // console.log(util.inspect(res, { depth: 8 }));
 // console.log(res.payload.parts, 'payload parts')
