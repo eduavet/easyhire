@@ -94,15 +94,15 @@ class Emails extends Component {
   sortByStatus = () => {
     if (!this.state.sortedStatus) {
       this.props.emails.sort((a, b) => {
-        const nameA = a.status.toUpperCase(); // ignore upper and lowercase
-        const nameB = b.status.toUpperCase(); // ignore upper and lowercase
+        const nameA = a.statusName.toUpperCase(); // ignore upper and lowercase
+        const nameB = b.statusName.toUpperCase(); // ignore upper and lowercase
         return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
       });
       this.setState({ sortedStatus: !this.state.sortedStatus });
     } else {
       this.props.emails.sort((a, b) => {
-        const nameA = a.status.toUpperCase(); // ignore upper and lowercase
-        const nameB = b.status.toUpperCase(); // ignore upper and lowercase
+        const nameA = a.statusName.toUpperCase(); // ignore upper and lowercase
+        const nameB = b.statusName.toUpperCase(); // ignore upper and lowercase
         return nameA < nameB ? 1 : nameA > nameB ? -1 : 0;
       });
       this.setState({ sortedStatus: !this.state.sortedStatus });
