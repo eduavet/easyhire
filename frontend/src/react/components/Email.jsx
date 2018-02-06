@@ -38,8 +38,7 @@ class Email extends Component {
     return (
       <div className="col-10 mt-4">
         <div className="d-flex justify-content-between text-center wrap-words">
-          <h4 className="w-20"><small>lastUpdatedNoteId: </small><br />{this.props.lastUpdatedNoteId}</h4>
-          {/*<h4 className="w-20"><small>Sender: </small><br />{this.props.email.sender}</h4>*/}
+          <h4 className="w-20"><small>Sender: </small><br />{this.props.email.sender}</h4>
           <h3 className="w-20"><small>Subject: </small><br />{this.props.email.subject}</h3>
           <div className="w-20">
             <label htmlFor="selectStatus">Change Status</label>

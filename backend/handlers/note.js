@@ -33,7 +33,7 @@ noteHandlers.addNote = (req, res) => {
 
 // Get all notes
 noteHandlers.getNotes = (req, res) => {
-  req.checkBody('folderName').notEmpty().withMessage('Folder name is required');
+  req.checkParams('emailId').notEmpty().withMessage('Email id is required');
   const errors = req.validationErrors();
   if (errors) {
     return res.json({ errors, notes: [] });
