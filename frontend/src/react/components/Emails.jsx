@@ -15,18 +15,26 @@ class Emails extends Component {
   openEmail = (evt) => {
     this.props.getEmail(evt.target.dataset.id);
   };
+  sortBySender = () => {
+  };
+  sortBySubject = () => {
+  };
+  sortByStatus = () => {
+  };
+  sortByDate = () => {
+  };
   render() {
     return (
       <div className="col-10 mt-4">
         <Loader loaded={this.props.loaded}>
-          <Table size="sm" className="emailsTable">
+          <table size="" className="table-sm emailsTable" data-toggle="table">
             <thead>
               <tr>
                 <th />
-                <th>Sender</th>
-                <th>Subject</th>
-                <th>Status</th>
-                <th>Date</th>
+                <th>Sender<div className="btn" onClick={this.sortBySender}><i className="fa fa-fw fa-sort" /></div></th>
+                <th>Subject<div className="btn" onClick={this.sortBySubject}><i className="fa fa-fw fa-sort" /></div></th>
+                <th>Status<div className="btn" onClick={this.sortByStatus}><i className="fa fa-fw fa-sort" /></div></th>
+                <th>Date<div className="btn" onClick={this.sortByDate}><i className="fa fa-fw fa-sort" /></div></th>
                 <th />
               </tr>
             </thead>
@@ -62,7 +70,7 @@ class Emails extends Component {
                   <td>{item.attachment ? <i className="fas fa-paperclip" /> : ''}</td>
                 </tr>))}
             </tbody>
-          </Table>
+          </table>
         </Loader>
       </div>
     );
