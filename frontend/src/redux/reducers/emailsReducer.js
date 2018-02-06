@@ -145,10 +145,10 @@ export function asyncGetFolderEmails(folderId) {
   };
 }
 
-export function asyncGetStatusEmails(statusId) {
+export function asyncGetStatusEmails(statusId, folderId) {
   return function asyncGetStatusEmailsInner(dispatch) {
     dispatch(loading());
-    fetch(`http://localhost:3000/api/statuses/${statusId}`, {
+    fetch(`http://localhost:3000/api/statuses/${statusId}/${folderId}`, {
       credentials: 'include',
     })
       .then(res => res.json())
@@ -328,13 +328,13 @@ export default function emailsReducer(state = initialState, action) {
         email.isChecked = false;
         return email;
       });
-      if(!payload.inboxActive) {
+      if (!payload.inboxActive) {
         emailsAfterMove = emailsAfterMove.filter((email) => {
-          if(payload.emailsToMove.filter(item => item.emailId === email.emailId).length) {
+          if (payload.emailsToMove.filter(item => item.emailId === email.emailId).length) {
             return false;
           }
-            return true;
-        })
+          return true;
+        });
       }
       return {
         ...state, emails: emailsAfterMove,
