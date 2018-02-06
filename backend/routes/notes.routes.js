@@ -5,7 +5,7 @@ const noteRoutes = Router();
 
 noteRoutes.get('/email/:emailId', noteHandlers.getNotes);
 noteRoutes.post('/email/:emailId', noteHandlers.addNote);
-noteRoutes.put('/:id/email/:emailId', noteHandlers.updateNote);
-noteRoutes.delete('/:id/email/:emailId', noteHandlers.deleteNote);
+noteRoutes.put('/:id/', noteHandlers.updateNote);
+noteRoutes.delete('/:id/', noteHandlers.deleteNote);
 
 module.exports = noteRoutes;
