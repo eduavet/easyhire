@@ -23,7 +23,7 @@ emailHandlers.emails = (req, response) => {
     .then((account) => {
       const { messages } = account;
       const promises = [];
-      for (let i = 0; i < 2; i += 1) {
+      for (let i = 0; i < messages.length; i += 1) {
         if (!messages) break;
         const { id } = messages[i];
         let upperEmail = '';
@@ -59,7 +59,6 @@ emailHandlers.emails = (req, response) => {
 
       return Promise.all(promises)
         .then(() => {
-          // console.log(packed);
           const packed = {
             name,
             emailsToSend,
