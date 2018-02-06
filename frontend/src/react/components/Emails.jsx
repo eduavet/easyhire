@@ -9,43 +9,47 @@ import { asyncgetEmailFromDb } from '../../redux/reducers/emailReducer';
 const Loader = require('react-loader');
 
 class Emails extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
     this.state = {
-      pageActive: Object.assign([], new Array(10).fill(false), {1: true}),
+      pageActive: Object.assign([], new Array(10).fill(false), { 1: true }),
       currentPage: 1,
-      emailsPerPage: 15
-    }
+      emailsPerPage: 15,
+      sortedSender: false,
+      sortedSubject: false,
+      sortedStatus: false,
+      sortedDate: false,
+    };
   }
 
   componentDidMount = () => {
-    this.setState({pageCount: (this.props.emails.length/2 + 1)})
-  }
+    this.setState({ pageCount: (this.props.emails.length / 2 + 1) });
+  };
 
   openPage = (e) => {
     this.setState({
-      pageActive: Object.assign([], new Array(10).fill(false), {[e.target.textContent]: true}),
-      currentPage: parseInt(e.target.textContent)
+      pageActive: Object.assign([], new Array(10).fill(false), { [e.target.textContent]: true }),
+      currentPage: parseInt(e.target.textContent),
     });
-  }
+  };
 
   prevPage = (e) => {
-    if(this.state.currentPage > 1) {
+    if (this.state.currentPage > 1) {
       this.setState({
-        pageActive: Object.assign([], new Array(10).fill(false), {[this.state.currentPage - 1]: true}),
-        currentPage: parseInt(this.state.currentPage - 1)
+        pageActive: Object.assign([], new Array(10).fill(false), { [this.state.currentPage - 1]: true }),
+        currentPage: parseInt(this.state.currentPage - 1),
       });
     }
-  }
+  };
 
   nextPage = (e) => {
-    if(this.state.currentPage < this.props.emails.length/this.state.emailsPerPage) {
+    if (this.state.currentPage < this.props.emails.length / this.state.emailsPerPage) {
       this.setState({
-        pageActive: Object.assign([], new Array(10).fill(false), {[this.state.currentPage + 1]: true}),
-        currentPage: parseInt(this.state.currentPage + 1)
+        pageActive: Object.assign([], new Array(10).fill(false), { [this.state.currentPage + 1]: true }),
+        currentPage: parseInt(this.state.currentPage + 1),
       });
     }
-  }
+  };
 
   toggleCheckbox = (item) => {
     this.props.isChecked(item);
@@ -53,33 +57,95 @@ class Emails extends Component {
   openEmail = (evt) => {
     this.props.getEmailFromDb(evt.target.dataset.id);
   };
+  sortBySender = () => {
+    if (!this.state.sortedSender) {
+      this.props.emails.sort((a, b) => {
+        const nameA = a.sender.toUpperCase(); // ignore upper and lowercase
+        const nameB = b.sender.toUpperCase(); // ignore upper and lowercase
+        return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
+      });
+      this.setState({ sortedSender: !this.state.sortedSender });
+    } else {
+      this.props.emails.sort((a, b) => {
+        const nameA = a.sender.toUpperCase(); // ignore upper and lowercase
+        const nameB = b.sender.toUpperCase(); // ignore upper and lowercase
+        return nameA < nameB ? 1 : nameA > nameB ? -1 : 0;
+      });
+      this.setState({ sortedSender: !this.state.sortedSender });
+    }
+  };
+  sortBySubject = () => {
+    if (!this.state.sortedSubject) {
+      this.props.emails.sort((a, b) => {
+        const nameA = a.subject.toUpperCase(); // ignore upper and lowercase
+        const nameB = b.subject.toUpperCase(); // ignore upper and lowercase
+        return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
+      });
+      this.setState({ sortedSubject: !this.state.sortedSubject });
+    } else {
+      this.props.emails.sort((a, b) => {
+        const nameA = a.subject.toUpperCase(); // ignore upper and lowercase
+        const nameB = b.subject.toUpperCase(); // ignore upper and lowercase
+        return nameA < nameB ? 1 : nameA > nameB ? -1 : 0;
+      });
+      this.setState({ sortedSubject: !this.state.sortedSubject });
+    }
+  };
+  sortByStatus = () => {
+    if (!this.state.sortedStatus) {
+      this.props.emails.sort((a, b) => {
+        const nameA = a.status.toUpperCase(); // ignore upper and lowercase
+        const nameB = b.status.toUpperCase(); // ignore upper and lowercase
+        return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
+      });
+      this.setState({ sortedStatus: !this.state.sortedStatus });
+    } else {
+      this.props.emails.sort((a, b) => {
+        const nameA = a.status.toUpperCase(); // ignore upper and lowercase
+        const nameB = b.status.toUpperCase(); // ignore upper and lowercase
+        return nameA < nameB ? 1 : nameA > nameB ? -1 : 0;
+      });
+      this.setState({ sortedStatus: !this.state.sortedStatus });
+    }
+  };
+  sortByDate = () => {
+    if (!this.state.sortedDate) {
+      this.props.emails.sort((a, b) => new Date(a.date) - new Date(b.date));
+      this.setState({ sortedDate: !this.state.sortedDate });
+    } else {
+      this.props.emails.sort((a, b) => new Date(b.date) - new Date(a.date));
+      this.setState({ sortedDate: !this.state.sortedDate });
+    }
+  };
   render() {
     const pages = [];
-    for (let i = 1; i <= Math.ceil(this.props.emails.length/this.state.emailsPerPage); i += 1) {
+    for (let i = 1; i <= Math.ceil(this.props.emails.length / this.state.emailsPerPage); i += 1) {
       pages.push(
-        <li key={i} className={this.state.pageActive[i] ? "page-item active" : "page-item"}
-          onClick={this.openPage}>
-          <a className="page-link" href="#">{i}</a>
-        </li>
-      )
+        <li
+          key={i}
+          className={this.state.pageActive[i] ? 'page-item active' : 'page-item'}
+          onClick={this.openPage}
+        >
+          <a className="page-link paging" href="#">{i}</a>
+        </li>);
     }
     return (
       <div className="col-10 mt-4">
         <Loader loaded={this.props.loaded}>
-          <Table size="sm" className="emailsTable">
+          <table size="" className="table-sm emailsTable" data-toggle="table">
             <thead>
               <tr>
                 <th />
-                <th>Sender</th>
-                <th>Subject</th>
-                <th>Status</th>
-                <th>Date</th>
+                <th>Sender<div className="btn" onClick={this.sortBySender}><i className="fa fa-fw fa-sort" /></div></th>
+                <th>Subject<div className="btn" onClick={this.sortBySubject}><i className="fa fa-fw fa-sort" /></div></th>
+                <th>Status<div className="btn d-inline" onClick={this.sortByStatus}><i className="fa fa-fw fa-sort" /></div></th>
+                <th>Date<div className="btn" onClick={this.sortByDate}><i className="fa fa-fw fa-sort" /></div></th>
                 <th />
               </tr>
             </thead>
             <tbody>
               {this.props.emails.map((item, index) => {
-                if(index < this.state.emailsPerPage * (this.state.currentPage - 1) ||
+                if (index < this.state.emailsPerPage * (this.state.currentPage - 1) ||
                    index >= this.state.emailsPerPage * (this.state.currentPage)) {
                      return;
                    }
@@ -116,16 +182,16 @@ class Emails extends Component {
               })
             }
             </tbody>
-          </Table>
+          </table>
           {this.props.emails.length > this.state.emailsPerPage ?
-                <nav aria-label="Email pages">
-                  <ul className="pagination justify-content-center">
-                    <li className="page-item" onClick={this.prevPage}><a className="page-link" href="#">Previous</a></li>
-                    {pages}
-                    <li className="page-item" onClick={this.nextPage}><a className="page-link" href="#">Next</a></li>
-                  </ul>
-                </nav>
-                : ''
+            <nav aria-label="Email pages" className="paging">
+              <ul className="pagination justify-content-center">
+                <li className="page-item" onClick={this.prevPage}><a className="page-link paging" href="#">Previous</a></li>
+                {pages}
+                <li className="page-item" onClick={this.nextPage}><a className="page-link paging" href="#">Next</a></li>
+              </ul>
+            </nav>
+            : ''
           }
         </Loader>
       </div>

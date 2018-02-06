@@ -171,6 +171,7 @@ emailHandlers.getEmailFromGapi = (req, res) => {
       res.json({ errors: [{ msg: 'Something went wrong', err }] });
     });
 };
+
 // Change Email Status
 emailHandlers.changeEmailStatus = (req, res) => {
   req.checkParams('emailId').notEmpty().withMessage('Email id is required');
@@ -192,6 +193,7 @@ emailHandlers.changeEmailStatus = (req, res) => {
       res.json({ errors: [{ msg: 'Something went wrong', err }], statusId: '' });
     });
 };
+
 // console.log(util.inspect(res, { depth: 8 }));
 // console.log(res.payload.parts, 'payload parts')
 // console.log(Buffer.from(res.payload.parts[0].body.data, 'base64').toString()) //actual email text
