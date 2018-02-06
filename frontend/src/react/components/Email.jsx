@@ -1,14 +1,19 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncSendNote } from '../../redux/reducers/emailReducer';
+import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncSendNote, asyncGetAttachmentFromGapi } from '../../redux/reducers/emailReducer';
 
 
 class Email extends Component {
   componentWillMount() {
     const emailId = this.props.email.emailId;
-    console.log('componentWillMount', emailId);
     this.props.getEmailFromGapi(emailId);
+  }
+  componentDidUpdate() {
+    const emailId = this.props.email.emailId;
+    const attachments = this.props.email.attachments;
+    console.log('componentWillMount', attachments);
+    this.props.getAttachmentFromGapi(emailId, attachments);
   }
   // componentWillReceiveProps(nextProps) {
   //
@@ -78,6 +83,7 @@ Email.propTypes = {
   sendNote: PropTypes.func.isRequired,
   lastUpdatedNoteId: PropTypes.string,
   noteStatus: PropTypes.string,
+  getAttachmentFromGapi: PropTypes.func,
 };
 Email.defaultProps = {
   lastUpdatedNoteId: '',
@@ -96,6 +102,7 @@ function mapDispatchToProps(dispatch) {
     getEmailFromGapi: emailId => dispatch(asyncGetEmailFromGapi(emailId)),
     changeEmaulStatus: (emailId, statusId) => dispatch(asyncChangeEmailStatus(emailId, statusId)),
     sendNote: (emailId, note, noteId) => dispatch(asyncSendNote(emailId, note, noteId)),
+    getAttachmentFromGapi: (emailId, attachments) => dispatch(asyncGetAttachmentFromGapi(emailId, attachments)),
   };
 }
 

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const fetch = require('node-fetch');
 const util = require('util');
+const fs = require('fs');
 const EmailsModel = require('../models/EmailsModel.js');
 const FoldersModel = require('../models/FoldersModel.js');
 const StatusesModel = require('../models/StatusesModel.js');
@@ -196,6 +197,35 @@ emailHandlers.changeEmailStatus = (req, res) => {
     .catch((err) => {
       res.json({ errors: [{ msg: 'Something went wrong', err }], status: '' });
     });
+};
+
+// Get email attachment data from gmail such as attachment body
+emailHandlers.getAttachmentFromGapi = (req, res) => {
+  req.checkParams('emailId').notEmpty().withMessage('Email id is required');
+  const userId = req.session.userID;
+  const { emailId, attachments } = req.params;
+  const { accessToken } = req.session;
+  const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
+  const errors = req.validationErrors();
+  const emailToSend = {};
+  if (errors) {
+    return res.json({ errors });
+  }
+  attachments.map(attachment =>
+    fetch(`${fetchUrl}${userId}/messages/${emailId}/attachments/${attachment.attachmentId}?access_token=${accessToken}`)
+      .then(response => response.json())
+      .then((response) => {
+        const attach = {};
+        const body = { value: '' };
+        const isPlainText = { value: false };
+        body.value = response.data ? response.data : '';
+        attach.body = Buffer.from(body.value, 'base64');
+        fs.writeFileSync(`./attachments/${userId}/${emailId}/${attachment.attachmentName}`, attach.body);
+        res.json({ email: emailToSend, errors: [], isPlainText });
+      })
+      .catch((err) => {
+        res.json({ errors: [{ msg: 'Something went wrong', err }] });
+      }));
 };
 
 // console.log(util.inspect(res, { depth: 8 }));
