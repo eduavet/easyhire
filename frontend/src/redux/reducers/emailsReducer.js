@@ -58,13 +58,14 @@ function getStatusEmails(result) {
   };
 }
 
-function moveEmails(response) {
+function moveEmails(response, inboxActive) {
   return {
     type: MOVE_EMAILS,
     payload: {
       emailsToMove: response.emailsToMove,
       errors: response.errors,
       originalFolder: response.originalFolder,
+      inboxActive
     },
   };
 }
@@ -185,7 +186,7 @@ export function selectNone(emails) {
     },
   };
 }
-export function asyncMoveEmails(emailIds, folderId) {
+export function asyncMoveEmails(emailIds, folderId, inboxActive) {
   return function asyncPostEmailsToFolderInner(dispatch) {
     fetch('http://localhost:3000/api/emails/move', {
       method: 'POST',
@@ -197,7 +198,7 @@ export function asyncMoveEmails(emailIds, folderId) {
     })
       .then(res => res.json())
       .then((result) => {
-        dispatch(moveEmails(result));
+        dispatch(moveEmails(result, inboxActive));
       }).catch(() => {});
   };
 }
@@ -322,14 +323,18 @@ export default function emailsReducer(state = initialState, action) {
       };
     case MOVE_EMAILS:
     {
-      const emailsAfterMove = state.emails.map((email) => {
-        if (payload.emailsToMove.indexOf(email.emailId) !== -1) {
-          email.folderId = payload.emailsToMove.folder._id;
-          email.folderName = payload.emailsToMove.folder.name;
-        }
+      let emailsAfterMove = state.emails.map((email) => {
         email.isChecked = false;
         return email;
       });
+      if(!payload.inboxActive) {
+        emailsAfterMove = emailsAfterMove.filter((email) => {
+          if(payload.emailsToMove.filter(item => item.emailId === email.emailId).length) {
+            return false;
+          }
+            return true;
+        })
+      }
       return {
         ...state, emails: emailsAfterMove,
       };
