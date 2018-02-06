@@ -10,6 +10,7 @@ const initialState = {
     status: '',
     subject: '',
     isPlainText: false,
+    attachments: [],
   },
   lastUpdatedNoteId: '',
   noteStatus: 'noteSaveStatus',
@@ -24,6 +25,7 @@ const initialState = {
  */
 const GET_EMAIL_FROM_DB = 'Get email from database';
 const GET_EMAIL_FROM_GAPI = 'Get email from google api';
+const GET_ATTACHMENT_FROM_GAPI = 'Get attachment from google api';
 const CHANGE_EMAIL_STATUS = 'Change email status';
 const GET_NOTES = 'Get notes';
 const SEND_NOTE = 'Send note. Add or update';
@@ -43,6 +45,7 @@ function getEmailFromDb(result) {
     },
   };
 }
+
 function getEmailFromGapi(result) {
   return {
     type: GET_EMAIL_FROM_GAPI,
@@ -51,6 +54,16 @@ function getEmailFromGapi(result) {
     },
   };
 }
+
+function getAttachmentFromGapi(result) {
+  return {
+    type: GET_ATTACHMENT_FROM_GAPI,
+    payload: {
+      attachment: result.attachment, isPlainText: result.isPlainText,
+    },
+  };
+}
+
 function changeEmailStatus(result) {
   return {
     type: CHANGE_EMAIL_STATUS,
@@ -134,6 +147,28 @@ export function asyncGetEmailFromGapi(id) {
       .catch(() => {});
   };
 }
+
+export function asyncGetAttachmentFromGapi(emailId, attachments) {
+  return function asyncGetAttachmentFromGapiInner(dispatch) {
+    dispatch(loading());
+    fetch(`http://localhost:3000/api/emails/${emailId}/attachments/gapi`, {
+      method: 'POST',
+      body: JSON.stringify({ attachments }),
+      headers: {
+        Origin: '', 'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+      console.log(result);
+        //dispatch(getEmailFromGapi(result));
+      })
+      .catch(() => {});
+  };
+}
+
+
 export function asyncChangeEmailStatus(emailId, statusId) {
   return function asyncChangeEmailStatusInner(dispatch) {
     dispatch(loading());

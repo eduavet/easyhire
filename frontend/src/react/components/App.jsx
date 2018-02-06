@@ -17,11 +17,11 @@ export class App extends Component {
     this.props.getFolders();
     this.props.getStatuses();
   }
-  componentWillReceiveProps(nextProps) {
-    if (this.props.emails !== nextProps.emails) {
-      this.props.updateCount();
-    }
-  }
+  // componentWillReceiveProps(nextProps) {
+  //   if (this.props.emails !== nextProps.emails) {
+  //     this.props.updateCount();
+  //   }
+  // }
   render() {
     return (
       <BrowserRouter>

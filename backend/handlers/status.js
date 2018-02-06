@@ -132,34 +132,33 @@ statusHandlers.deleteStatus = (req, res) => {
 
 // Get status emails
 statusHandlers.getEmails = (req, res) => {
-  req.checkParams('ID').notEmpty().withMessage('Status ID is required');
+  req.checkParams('statusId').notEmpty().withMessage('Status ID is required');
   const errors = req.validationErrors();
   if (errors) {
     return res.json({ errors });
   }
   const userId = req.session.userID;
-  const statusId = req.params.ID;
+  const statusId = req.params.statusId;
+  const folderId = req.params.folderId;
   // const { accessToken } = req.session;
   // const emailsToSend = [];
   const promises = [];
-  return EmailsModel.find({ status: statusId, userId })
+  if (folderId === 'allEmails') {
+    return EmailsModel.find({ status: statusId, userId })
+      .populate('status folder')
+      .then((result) => {
+        Promise.all(promises)
+          .then(() => {
+            res.json({ emailsToSend: result, errors: [] });
+          });
+      })
+      .catch((err) => {
+        res.json({ emailsToSend: [], errors: err });
+      });
+  }
+  return EmailsModel.find({ status: statusId, userId, folder: folderId })
     .populate('status folder')
     .then((result) => {
-      // for (let i = 0; i < result.length; i += 1) {
-      //   const id = result[i].emailId;
-      //   promises.push(fetch(`https://www.googleapis.com/gmail/v1/users/${userId}/messages/${id}?access_token=${accessToken}`)
-      //     .then(response => response.json())
-      //     .then((msgRes) => {
-      //       emailsToSend[i] = emailHelpers.extract(
-      //         msgRes,
-      //         '',
-      //         '',
-      //         result[i].isRead,
-      //         statusId,
-      //         result[i].status.name,
-      //       );
-      //     }));
-      // }
       Promise.all(promises)
         .then(() => {
           res.json({ emailsToSend: result, errors: [] });

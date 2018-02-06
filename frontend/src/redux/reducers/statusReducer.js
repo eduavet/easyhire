@@ -45,13 +45,13 @@ function getStatuses(result) {
 // }
 
 
-export function isActive(item) {
+export function isStatusActive(item) {
   return {
     type: IS_ACTIVE, payload: { isActive: true, id: item._id },
   };
 }
 
-function refresh(result) {
+function refreshStatus(result) {
   return {
     type: REFRESH,
     payload: {
@@ -124,14 +124,14 @@ export function asyncGetStatuses() {
 //   };
 // }
 
-export function asyncRefreshFolders() {
+export function asyncRefreshStatuses() {
   return function asyncRefreshInner(dispatch) {
     fetch('http://localhost:3000/api/statuses', {
       credentials: 'include',
     })
       .then(res => res.json())
       .then((result) => {
-        dispatch(refresh(result));
+        dispatch(refreshStatus(result));
       }).catch(() => {});
   };
 }
@@ -148,14 +148,6 @@ export default function statusReducer(state = initialState, action) {
         ...state,
         statuses: [
           ...state.statuses,
-          // {
-          //   _id: 'allEmails',
-          //   name: 'Inbox',
-          //   icon: 'fa-inbox',
-          //   isActive: true,
-          //   count: payload.inboxCount,
-          //   user_id: null,
-          // },
           ...payload.statuses
             .map(status => Object.assign({}, status, { isActive: !!status.isActive })),
         ],
@@ -203,13 +195,6 @@ export default function statusReducer(state = initialState, action) {
       return {
         ...state,
         statuses: [
-          // {
-          //   _id: 'allEmails',
-          //   name: 'Inbox',
-          //   icon: 'fa-inbox',
-          //   isActive: true,
-          //   count: payload.inboxCount,
-          // },
           ...payload.statuses
             .map(status => Object.assign({}, status, { isActive: !!status.isActive }))],
       };
