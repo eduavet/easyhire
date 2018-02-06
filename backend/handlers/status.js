@@ -1,7 +1,5 @@
-const fetch = require('node-fetch');
 const EmailsModel = require('../models/EmailsModel.js');
 const StatusesModel = require('../models/StatusesModel.js');
-const emailHelpers = require('../helpers/email.helper.js');
 
 const statusHandlers = {};
 module.exports = statusHandlers;
@@ -141,12 +139,12 @@ statusHandlers.getEmails = (req, res) => {
   }
   const userId = req.session.userID;
   const statusId = req.params.ID;
-  const { accessToken } = req.session;
-  const emailsToSend = [];
+  // const { accessToken } = req.session;
+  // const emailsToSend = [];
   const promises = [];
   return EmailsModel.find({ status: statusId, userId })
-    .populate('status', 'name as statusName')
-    .then(result =>
+    .populate('status folder')
+    .then((result) => {
       // for (let i = 0; i < result.length; i += 1) {
       //   const id = result[i].emailId;
       //   promises.push(fetch(`https://www.googleapis.com/gmail/v1/users/${userId}/messages/${id}?access_token=${accessToken}`)
@@ -165,7 +163,8 @@ statusHandlers.getEmails = (req, res) => {
       Promise.all(promises)
         .then(() => {
           res.json({ emailsToSend: result, errors: [] });
-        }))
+        });
+    })
     .catch((err) => {
       res.json({ emailsToSend: [], errors: err });
     });

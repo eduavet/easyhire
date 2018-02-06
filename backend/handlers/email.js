@@ -66,8 +66,7 @@ emailHandlers.emails = (req, response) => {
           response.json(packed);
         });
     })
-    .catch((err) => {
-      console.log(err);
+    .catch(() => {
       response.json({
         name: '', emailsToSend: [], errors: [{ msg: 'Something went wrong' }],
       });
@@ -79,24 +78,20 @@ emailHandlers.emailsMoveToFolder = (req, res) => {
   const emailsToMove = req.body.emailIds;
   const folderToMove = req.body.folderId;
   const originalFolder = [];
-  let folderName = '';
   EmailsModel.find({ emailId: { $in: emailsToMove } }, { folder: true, _id: false })
     .then((result) => {
       result.forEach(r => originalFolder.push(r.folder));
     })
-    .then(() => FoldersModel.findOne({ _id: mongoose.Types.ObjectId(folderToMove) }, 'name')
-      .then((response) => { folderName = response.name; }))
-    .then(() => {
-      EmailsModel.updateMany(
-        { emailId: { $in: emailsToMove } },
-        { $set: { folder: mongoose.Types.ObjectId(folderToMove) } },
-      );
-    })
-    .then(() => res.json({
-      emailsToMove, errors: [], folderId: folderToMove, folderName, originalFolder,
-    }))
+    .then(() => EmailsModel.updateMany(
+      { emailId: { $in: emailsToMove } },
+      { $set: { folder: mongoose.Types.ObjectId(folderToMove) } },
+    ))
+    .then(() => EmailsModel.find({ emailId: { $in: emailsToMove } })
+      .populate('folder').then(result => res.json({
+        errors: [], emailsToMove: result, originalFolder,
+      })))
     .catch(err => res.json({
-      errors: err, emailsToMove: [], folderId: '', folderName: '', originalFolder: [],
+      errors: err, emailsToMove: [], originalFolder: [],
     }));
 };
 
@@ -122,40 +117,79 @@ emailHandlers.deleteEmails = (req, res) => {
     .catch(err => res.json({ errors: err, emailsToDelete: [], originalFolder: [] }));
 };
 
-// Get specified email data | NOT FINISHED
-emailHandlers.getEmail = (req, res) => {
+// Get specified email data from database
+emailHandlers.getEmailFromDb = (req, res) => {
+  req.checkParams('id').notEmpty().withMessage('Email id is required');
+  const userId = req.session.userID;
+  const emailId = req.params.id;
+  const errors = req.validationErrors();
+  if (errors) {
+    return res.json({ errors });
+  }
+  return EmailsModel.findOne({ emailId, userId })
+    .then((email) => {
+      email.isRead = true;
+      return email.save()
+        .then((response) => {
+          res.json({ email: response, errors: [] });
+        });
+    })
+    .catch((err) => {
+      res.json({ errors: [{ msg: 'Something went wrong', err }] });
+    });
+};
+// Get specified email data from gmail such as email body
+emailHandlers.getEmailFromGapi = (req, res) => {
   req.checkParams('id').notEmpty().withMessage('Email id is required');
   const userId = req.session.userID;
   const emailId = req.params.id;
   const { accessToken } = req.session;
   const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
   const errors = req.validationErrors();
+  const emailToSend = {};
   if (errors) {
     return res.json({ errors });
   }
-  return EmailsModel.findOne({ emailId, userId })
-    .populate('folder')
-    .then(email => fetch(`${fetchUrl}${userId}/messages/${emailId}?access_token=${accessToken}`)
-      .then(response => response.json())
-      .then((response) => {
-        const emailToSend = helper.extract(response, email.folder, email.folder.name, email.isRead, '', '');
-        const emailParts = {};
-        const htmlBody = { value: '' };
-        emailParts.findHtml = response.payload;
-        if (emailParts.findHtml.mimeType !== 'text/html' && response.payload.parts) {
-          emailParts.findHtml = response.payload.parts.find(item => item.mimeType === 'text/html');
-          if (!emailParts.findHtml) {
-            emailParts.findHtmlPartCountainer = response.payload.parts.find(item => item.mimeType === 'multipart/alternative') ? response.payload.parts.find(item => item.mimeType === 'multipart/alternative') : { parts: [] };
-            emailParts.findHtml = emailParts.findHtmlPartCountainer.parts.find(item => item.mimeType === 'text/html');
-          }
+  fetch(`${fetchUrl}${userId}/messages/${emailId}?access_token=${accessToken}`)
+    .then(response => response.json())
+    .then((response) => {
+      const emailParts = {};
+      const htmlBody = { value: '' };
+      emailParts.findHtml = response.payload;
+      if (emailParts.findHtml.mimeType !== 'text/html' && response.payload.parts) {
+        emailParts.findHtml = response.payload.parts.find(item => item.mimeType === 'text/html');
+        if (!emailParts.findHtml) {
+          emailParts.findHtmlPartCountainer = response.payload.parts.find(item => item.mimeType === 'multipart/alternative') ? response.payload.parts.find(item => item.mimeType === 'multipart/alternative') : { parts: [] };
+          emailParts.findHtml = emailParts.findHtmlPartCountainer.parts.find(item => item.mimeType === 'text/html');
         }
-        htmlBody.value = emailParts.findHtml ? emailParts.findHtml.body.data : '';
-        emailToSend.htmlBody = Buffer.from(htmlBody.value, 'base64').toString();
-        res.json({ email: emailToSend, errors: [] });
-      }))
+      }
+      htmlBody.value = emailParts.findHtml ? emailParts.findHtml.body.data : '';
+      emailToSend.htmlBody = Buffer.from(htmlBody.value, 'base64').toString();
+      res.json({ email: emailToSend, errors: [] });
+    })
     .catch((err) => {
-      console.log(err, 'errr');
       res.json({ errors: [{ msg: 'Something went wrong', err }] });
+    });
+};
+// Change Email Status
+emailHandlers.changeEmailStatus = (req, res) => {
+  req.checkParams('emailId').notEmpty().withMessage('Email id is required');
+  req.checkParams('statusId').notEmpty().withMessage('Status id is required');
+  const userId = req.session.userID;
+  const emailId = req.params.emailId;
+  const statusId = req.params.statusId;
+  const errors = req.validationErrors();
+  if (errors) {
+    return res.json({ errors, statusId: '' });
+  }
+  return EmailsModel.findOne({ emailId, userId })
+    .then((email) => {
+      email.status = mongoose.Types.ObjectId(statusId);
+      email.save();
+      res.json({ errors: [], statusId });
+    })
+    .catch((err) => {
+      res.json({ errors: [{ msg: 'Something went wrong', err }], statusId: '' });
     });
 };
 // console.log(util.inspect(res, { depth: 8 }));
