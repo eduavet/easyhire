@@ -4,13 +4,16 @@ const initialState = {
     date: 'DD/MM/YYYY, HH:mm:ss',
     emailId: '',
     folderId: '',
-    htmlBody: '<div dir="auto"></div>↵',
+    htmlBody: '',
     isRead: true,
     sender: '',
     snippet: '',
     status: '',
     subject: '',
+    isPlainText: false,
   },
+  lastUpdatedNoteId: '',
+  noteStatus: 'noteSaveStatus',
   loading: true,
   errors: [],
   loaded: false,
@@ -22,6 +25,8 @@ const initialState = {
 const GET_EMAIL_FROM_DB = 'Get email from database';
 const GET_EMAIL_FROM_GAPI = 'Get email from google api';
 const CHANGE_EMAIL_STATUS = 'Change email status';
+const SEND_NOTE = 'Send note. Add or update';
+const CHANGE_NOTE_STATUS = 'Change note status';
 // const REFRESH = 'Refresh';
 const LOADING = 'Loading';
 const SET_EMAIL_ID = 'Set email id';
@@ -41,7 +46,7 @@ function getEmailFromGapi(result) {
   return {
     type: GET_EMAIL_FROM_GAPI,
     payload: {
-      email: result.email,
+      email: result.email, isPlainText: result.isPlainText,
     },
   };
 }
@@ -54,7 +59,15 @@ function changeEmailStatus(result) {
     },
   };
 }
-
+function sendNote(result) {
+  return {
+    type: SEND_NOTE,
+    payload: {
+      note: result.note,
+      errors: result.errors,
+    },
+  };
+}
 
 // function refresh(result) {
 //   return {
@@ -75,6 +88,12 @@ function setEmailId(emailId) {
   return {
     type: SET_EMAIL_ID,
     payload: { emailId },
+  };
+}
+function changeNoteStatus(status) {
+  return {
+    type: CHANGE_NOTE_STATUS,
+    payload: { status },
   };
 }
 
@@ -119,7 +138,28 @@ export function asyncChangeEmailStatus(emailId, statusId) {
   };
 }
 
-
+export function asyncSendNote(emailId, note, noteId) {
+  const method = noteId ? 'PUT' : 'POST';
+  const url = noteId ?
+    `http://localhost:3000/api/notes/${noteId}/email/${emailId}`
+    : `http://localhost:3000/api/notes/email/${emailId}`;
+  return function asyncSendNoteInner(dispatch) {
+    dispatch(loading());
+    fetch(url, {
+      method,
+      body: JSON.stringify({ content: note }),
+      headers: {
+        Origin: '', 'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+        dispatch(sendNote(result));
+      })
+      .catch(() => {});
+  };
+}
 // export function asyncRefresh() {
 //   return function asyncRefreshInner(dispatch) {
 //     dispatch(loading());
@@ -144,17 +184,25 @@ export default function emailsReducer(state = initialState, action) {
   switch (type) {
     case GET_EMAIL_FROM_DB:
     {
-      asyncGetEmailFromGapi(state.email.emailId)
+      const checkHtmlBody = state.htmlBody ? state.htmlBody : '<div dir="auto"></div>';
       return {
         ...state,
-        email: Object.assign({}, payload.email, { htmlBody: '' }),
+        email: Object.assign({}, payload.email, { htmlBody: checkHtmlBody }),
         loaded: true,
       };
     }
     case GET_EMAIL_FROM_GAPI:
       return {
         ...state,
-        email: Object.assign({}, state.email, { htmlBody: payload.email.htmlBody }),
+        email: Object
+          .assign(
+            {},
+            state.email,
+            {
+              htmlBody: payload.email.htmlBody,
+              isPlainText: payload.isPlainText.value,
+            },
+          ),
         loaded: true,
       };
     case CHANGE_EMAIL_STATUS:
@@ -166,6 +214,12 @@ export default function emailsReducer(state = initialState, action) {
         email: Object.assign({}, state.email, { status: emailNewStatus }),
       };
     }
+    case SEND_NOTE:
+      return {
+        ...state,
+        lastUpdatedNoteId: payload.note._id,
+        errors: [],
+      };
     case LOADING:
       return {
         ...state, loaded: false,
@@ -174,7 +228,12 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         email: Object.assign({}, state.email, { emailId: payload.emailId })
-      }
+      };
+    case CHANGE_NOTE_STATUS:
+      return {
+        ...state,
+        noteStatus: payload.status,
+      };
     default:
       return state;
   }

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const fetch = require('node-fetch');
+const util = require('util');
 const EmailsModel = require('../models/EmailsModel.js');
 const FoldersModel = require('../models/FoldersModel.js');
 const StatusesModel = require('../models/StatusesModel.js');
@@ -154,8 +155,10 @@ emailHandlers.getEmailFromGapi = (req, res) => {
   fetch(`${fetchUrl}${userId}/messages/${emailId}?access_token=${accessToken}`)
     .then(response => response.json())
     .then((response) => {
+      // console.log('response', util.inspect(response, { depth: 8 }));
       const emailParts = {};
       const htmlBody = { value: '' };
+      const isPlainText = { value: false };
       emailParts.findHtml = response.payload;
       if (emailParts.findHtml.mimeType !== 'text/html' && response.payload.parts) {
         emailParts.findHtml = response.payload.parts.find(item => item.mimeType === 'text/html');
@@ -165,11 +168,12 @@ emailHandlers.getEmailFromGapi = (req, res) => {
         }
       }
       htmlBody.value = emailParts.findHtml ? emailParts.findHtml.body.data : '';
+      isPlainText.value = emailParts.findHtml.mimeType === 'text/plain';
       emailToSend.htmlBody = Buffer.from(htmlBody.value, 'base64').toString();
-      res.json({ email: emailToSend, errors: [] });
+      res.json({ email: emailToSend, errors: [], isPlainText });
     })
     .catch((err) => {
-      res.json({ errors: [{ msg: 'Something went wrong', err }] });
+      res.json({ errors: [{ msg: 'Something went wrong', err, isPlainText: { value: false } }] });
     });
 };
 // Change Email Status
@@ -181,16 +185,16 @@ emailHandlers.changeEmailStatus = (req, res) => {
   const statusId = req.params.statusId;
   const errors = req.validationErrors();
   if (errors) {
-    return res.json({ errors, statusId: '' });
+    return res.json({ errors, status: '' });
   }
   return EmailsModel.findOne({ emailId, userId })
     .then((email) => {
       email.status = mongoose.Types.ObjectId(statusId);
-      email.save();
-      res.json({ errors: [], statusId });
+      email.save()
+        .then(() => res.json({ errors: [], status: statusId }));
     })
     .catch((err) => {
-      res.json({ errors: [{ msg: 'Something went wrong', err }], statusId: '' });
+      res.json({ errors: [{ msg: 'Something went wrong', err }], status: '' });
     });
 };
 // console.log(util.inspect(res, { depth: 8 }));

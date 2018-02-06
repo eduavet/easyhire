@@ -6,7 +6,8 @@ const notesSchema = new Schema({
   content: String,
   userId: String,
   emailId: String,
-  date: Date,
+  dateCreated: Date,
+  dateUpdated: { type: Date, default: Date.now() },
 }, {
   versionKey: false,
 });
