@@ -1,4 +1,3 @@
-/* eslint no-underscore-dangle: 0 */
 const initialState = {
   email: {
     date: 'DD/MM/YYYY, HH:mm:ss',

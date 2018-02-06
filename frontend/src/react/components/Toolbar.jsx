@@ -44,9 +44,10 @@ class Toolbar extends Component {
     });
   };
   moveToFolder=(id) => {
+    const inboxActive = this.props.folders[0].isActive;
     const emailsToMove = this.props.emails.filter(email =>
       email.isChecked).map(email => email.emailId);
-    this.props.postEmailsToFolder(emailsToMove, id);
+    this.props.postEmailsToFolder(emailsToMove, id, inboxActive);
     notify.show('Emails(s) moved!', 'success', 1500);
   };
 
@@ -198,8 +199,8 @@ function mapDispatchToProps(dispatch) {
     selectAll: emails => dispatch(selectAll(emails)),
     selectNone: emails => dispatch(selectNone(emails)),
     asyncMark: (emailIds, isRead) => dispatch(asyncMark(emailIds, isRead)),
-    postEmailsToFolder: (emailIds, folderId) =>
-      dispatch(asyncMoveEmails(emailIds, folderId)),
+    postEmailsToFolder: (emailIds, folderId, inboxActive) =>
+      dispatch(asyncMoveEmails(emailIds, folderId, inboxActive)),
     deleteEmails: emailIds => dispatch(asyncDeleteEmails(emailIds)),
     getStatusEmails: statusId => dispatch(asyncGetStatusEmails(statusId)),
     isActive: item => dispatch(isActive(item)),
