@@ -1,4 +1,3 @@
-/* eslint no-underscore-dangle: 0 */
 const initialState = {
   emails: [], name: '', loading: true, errors: [], loaded: false,
 };
@@ -22,6 +21,7 @@ const SELECT_ALL = 'Select all';
 const SELECT_NONE = 'Select none';
 
 const MARK = 'Mark';
+const SEARCH = 'Search';
 /**
  * Action creator
  */
@@ -29,7 +29,8 @@ function getEmails(result) {
   return {
     type: GET_EMAILS,
     payload: {
-      emails: result.emailsToSend, errors: result.errors,
+      emails: result.emailsToSend,
+      errors: result.errors,
     },
   };
 }
@@ -44,7 +45,8 @@ function getFolderEmails(result) {
   return {
     type: GET_FOLDER_EMAILS,
     payload: {
-      emails: result.emailsToSend, errors: result.errors,
+      emails: result.emailsToSend,
+      errors: result.errors,
     },
   };
 }
@@ -53,7 +55,8 @@ function getStatusEmails(result) {
   return {
     type: GET_STATUS_EMAILS,
     payload: {
-      emails: result.emailsToSend, errors: result.errors,
+      emails: result.emailsToSend,
+      errors: result.errors,
     },
   };
 }
@@ -94,7 +97,8 @@ function mark(result) {
   return {
     type: MARK,
     payload: {
-      emailsToMark: result.emailsToMark, newValue: result.newValue,
+      emailsToMark: result.emailsToMark,
+      newValue: result.newValue,
     },
   };
 }
@@ -102,6 +106,16 @@ function mark(result) {
 function loading() {
   return {
     type: LOADING,
+  };
+}
+
+function search(result) {
+  return {
+    type: SEARCH,
+    payload: {
+      emails: result.emailsToSend,
+      errors: result.errors,
+    },
   };
 }
 
@@ -250,6 +264,25 @@ export function asyncMark(emailIds, isRead) {
   };
 }
 
+export function asyncSearch(text) {
+  return function asyncSearchInner(dispatch) {
+    dispatch(loading());
+    fetch('http://localhost:3000/api/emails/search', {
+      method: 'POST',
+      body: JSON.stringify({ text }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+        console.log({result});
+        dispatch(search(result));
+      }).catch(() => {});
+  };
+}
+
 /**
  * Reducer
  */
@@ -380,6 +413,13 @@ export default function emailsReducer(state = initialState, action) {
         ...state, emails: updatedEmails, errors: payload.errors,
       };
     }
+    case SEARCH:
+      return {
+        ...state,
+        emails: payload.emails,
+        errors: payload.errors,
+        loaded: true,
+      };
     case LOADING:
       return {
         ...state, loaded: false,

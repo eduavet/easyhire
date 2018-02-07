@@ -199,6 +199,51 @@ emailHandlers.changeEmailStatus = (req, res) => {
     });
 };
 
+// Search query to google API
+emailHandlers.search = (req, res) => {
+  req.checkBody('text').notEmpty().withMessage('Search field is required');
+  const errors = req.validationErrors();
+  if(errors) {
+    return emailHandlers.emails(req, res);
+    // return;
+    // return res.json({ errors });
+  }
+  const text = req.body.text;
+  const userId = req.session.userID;
+  const { accessToken } = req.session;
+  const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
+  const emailsToSend = [];
+  return fetch(`${fetchUrl}${userId}/messages?access_token=${accessToken}&q=${text}`)
+  .then(result => result.json())
+  .then((result) => {
+    const { messages } = result;
+    const promises = [];
+    if (!messages) res.json({emailsToSend});
+    for (let i = 0; i < messages.length; i += 1) {
+      const { id } = messages[i];
+      promises.push(EmailsModel.findOne({ emailId: id })
+        .populate('folder')
+        .populate('status')
+        .then((group) => {
+          if (group) {
+            emailsToSend[i] = helper.groupExtract(group);
+          }
+        })
+      )
+    }
+
+    return Promise.all(promises)
+      .then(() => {
+        const packed = {
+          emailsToSend,
+        };
+        console.log(packed);
+        res.json(packed);
+      });
+  })
+  .catch(console.error)
+}
+
 // Get email attachment data from gmail such as attachment body
 emailHandlers.getAttachmentFromGapi = (req, res) => {
   req.checkParams('emailId').notEmpty().withMessage('Email id is required');
