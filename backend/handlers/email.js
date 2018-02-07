@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const fetch = require('node-fetch');
-const util = require('util');
 const fs = require('fs');
+const path = require('path');
+const request = require('request');
 const EmailsModel = require('../models/EmailsModel.js');
 const FoldersModel = require('../models/FoldersModel.js');
 const StatusesModel = require('../models/StatusesModel.js');
@@ -35,27 +36,32 @@ emailHandlers.emails = (req, response) => {
           .populate('status')
           .then((group) => {
             if (group) {
-              emailsToSend[i] = helper.groupExtract(group);
-            } else {
-              return fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`)
-                .then(email => email.json())
-                .then((email) => {
-                  upperEmail = email;
-                  return FoldersModel.findOne({ name: 'Not Reviewed' }, '_id');
-                })
-                .then((folder) => {
-                  upperFolder = folder;
-                  return StatusesModel.findOne({ name: 'Not Reviewed' }, '_id');
-                })
-                .then((status) => {
-                  const newEmail = helper.buildNewEmailModel(userId, upperEmail, upperFolder, status);
-                  return newEmail.save();
-                })
-                .then(() => EmailsModel.findOne({ emailId: upperEmail.id })
-                  .populate('folder status').then((group1) => {
-                    emailsToSend[i] = helper.groupExtract(group1);
-                  }));
+              if (!group.deleted) emailsToSend[i] = helper.groupExtract(group);
+              return '';
             }
+            return fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`)
+              .then(email => email.json())
+              .then((email) => {
+                upperEmail = email;
+                return FoldersModel.findOne({ name: 'Not Reviewed' }, '_id');
+              })
+              .then((folder) => {
+                upperFolder = folder;
+                return StatusesModel.findOne({ name: 'Not Reviewed' }, '_id');
+              })
+              .then((status) => {
+                const newEmail = helper.buildNewEmailModel(
+                  userId,
+                  upperEmail,
+                  upperFolder,
+                  status,
+                );
+                return newEmail.save();
+              })
+              .then(() => EmailsModel.findOne({ emailId: upperEmail.id })
+                .populate('folder status').then((group1) => {
+                  emailsToSend[i] = helper.groupExtract(group1);
+                }));
           }));
       }
 
@@ -63,7 +69,7 @@ emailHandlers.emails = (req, response) => {
         .then(() => {
           const packed = {
             name,
-            emailsToSend,
+            emailsToSend: emailsToSend.filter(email => email != null),
           };
           response.json(packed);
         });
@@ -114,7 +120,10 @@ emailHandlers.deleteEmails = (req, res) => {
     .then((result) => {
       result.forEach(r => originalFolder.push(r.folder));
     })
-    .then(() => EmailsModel.remove({ emailId: { $in: emailsToDelete } }))
+    .then(() => EmailsModel.updateMany(
+      { emailId: { $in: emailsToDelete } },
+      { $set: { deleted: true } },
+    ))
     .then(() => res.json({ emailsToDelete, originalFolder, errors: [] }))
     .catch(err => res.json({ errors: err, emailsToDelete: [], originalFolder: [] }));
 };
@@ -152,7 +161,7 @@ emailHandlers.getEmailFromGapi = (req, res) => {
   if (errors) {
     return res.json({ errors });
   }
-  fetch(`${fetchUrl}${userId}/messages/${emailId}?access_token=${accessToken}`)
+  return fetch(`${fetchUrl}${userId}/messages/${emailId}?access_token=${accessToken}`)
     .then(response => response.json())
     .then((response) => {
       // console.log('response', util.inspect(response, { depth: 8 }));
@@ -182,8 +191,7 @@ emailHandlers.changeEmailStatus = (req, res) => {
   req.checkParams('emailId').notEmpty().withMessage('Email id is required');
   req.checkParams('statusId').notEmpty().withMessage('Status id is required');
   const userId = req.session.userID;
-  const emailId = req.params.emailId;
-  const statusId = req.params.statusId;
+  const { emailId, statusId } = req.params;
   const errors = req.validationErrors();
   if (errors) {
     return res.json({ errors, status: '' });
@@ -210,81 +218,89 @@ emailHandlers.search = (req, res) => {
   req.checkBody('text').notEmpty().withMessage('Search field is required');
   const errors = req.validationErrors();
   // If search field is empty
-  if(errors) {
+  if (errors) {
     if (folderId === 'allEmails') {
       return emailHandlers.emails(req, res);
     }
-    return EmailsModel.find({ userId, folder: folderId })
+    return EmailsModel.find({ userId, folder: folderId, deleted: false })
       .then((messages) => {
-        if (!messages) return res.json({emailsToSend});
+        if (!messages) return res.json({ emailsToSend });
         for (let i = 0; i < messages.length; i += 1) {
           emailsToSend[i] = helper.groupExtract(messages[i]);
         }
-        res.json({emailsToSend});
-      })
+        return res.json({ emailsToSend });
+      });
   }
   // If search field is NOT empty
   return fetch(`${fetchUrl}${userId}/messages?access_token=${accessToken}&q=${text}`)
-  .then(result => result.json())
-  .then((result) => {
-    const { messages } = result;
-    if (!messages) return res.json({emailsToSend});
-    for (let i = 0; i < messages.length; i += 1) {
-      const { id } = messages[i];
-      promises.push(EmailsModel.findOne({ emailId: id })
-        .populate('folder')
-        .populate('status')
-        .then((group) => {
-          if (group) {
-            emailsToSend[i] = helper.groupExtract(group);
-          }
-        })
-      )
-    }
+    .then(result => result.json())
+    .then((result) => {
+      const { messages } = result;
+      if (!messages) return res.json({ emailsToSend });
+      for (let i = 0; i < messages.length; i += 1) {
+        const { id } = messages[i];
+        promises.push(EmailsModel.findOne({ emailId: id, deleted: false })
+          .populate('folder')
+          .populate('status')
+          .then((group) => {
+            if (group) {
+              emailsToSend[i] = helper.groupExtract(group);
+            }
+          }));
+      }
 
-    return Promise.all(promises)
-      .then(() => {
-        if (folderId !== 'allEmails') {
-          emailsToSend = emailsToSend.filter(email => String(email.folderId) === folderId)
-        }
-        const packed = {
-          emailsToSend,
-        };
-        // console.log(packed);
-        res.json(packed);
-      });
-  })
-  .catch(console.error)
-}
+      return Promise.all(promises)
+        .then(() => {
+          if (folderId !== 'allEmails') {
+            emailsToSend = emailsToSend.filter(email => String(email.folderId) === folderId);
+          }
+          const packed = {
+            emailsToSend: emailsToSend.filter(email => email != null),
+          };
+          res.json(packed);
+        });
+    })
+    .catch();
+};
 
 // Get email attachment data from gmail such as attachment body
 emailHandlers.getAttachmentFromGapi = (req, res) => {
   req.checkParams('emailId').notEmpty().withMessage('Email id is required');
   const userId = req.session.userID;
-  const { emailId, attachments } = req.params;
+  const { emailId } = req.params;
+  const attachment = JSON.parse(req.params.strAttachment);
   const { accessToken } = req.session;
   const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
   const errors = req.validationErrors();
-  const emailToSend = {};
+  const attach = {};
+  const body = { value: '' };
+  const filePath = `attachments/${userId}/${emailId}/`;
+  const dirname = path.dirname(filePath);
+  const fullpath = `http://localhost:3000/${userId}/${emailId}/${attachment.attachmentName}`;
   if (errors) {
     return res.json({ errors });
   }
-  attachments.map(attachment =>
-    fetch(`${fetchUrl}${userId}/messages/${emailId}/attachments/${attachment.attachmentId}?access_token=${accessToken}`)
-      .then(response => response.json())
-      .then((response) => {
-        const attach = {};
-        const body = { value: '' };
-        const isPlainText = { value: false };
-        body.value = response.data ? response.data : '';
-        attach.body = Buffer.from(body.value, 'base64');
-        fs.writeFileSync(`./attachments/${userId}/${emailId}/${attachment.attachmentName}`, attach.body);
-        res.json({ email: emailToSend, errors: [], isPlainText });
-      })
-      .catch((err) => {
-        res.json({ errors: [{ msg: 'Something went wrong', err }] });
-      }));
+  return fetch(`${fetchUrl}${userId}/messages/${emailId}/attachments/${attachment.attachmentId}?access_token=${accessToken}`)
+    .then(response => response.json())
+    .then((response) => {
+      body.value = response.data ? response.data : '';
+      attach.body = Buffer.from(body.value, 'base64');
+      if (!fs.existsSync(`attachments/${userId}`)) {
+        fs.mkdirSync(`attachments/${userId}`);
+      }
+      if (!fs.existsSync(`attachments/${userId}/${emailId}`)) {
+        fs.mkdirSync(`attachments/${userId}/${emailId}`);
+      }
+      if (!fs.existsSync(`attachments/${userId}/${emailId}/${attachment.attachmentName}`)) {
+        fs.writeFileSync(`attachments/${userId}/${emailId}/${attachment.attachmentName}`, attach.body);
+      }
+      request(fullpath).pipe(res);
+    })
+    .catch((err) => {
+      res.json({ errors: [{ msg: 'Something went wrong', err }] });
+    });
 };
+
 
 // console.log(util.inspect(res, { depth: 8 }));
 // console.log(res.payload.parts, 'payload parts')

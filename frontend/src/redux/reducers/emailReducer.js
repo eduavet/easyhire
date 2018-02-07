@@ -17,6 +17,7 @@ const initialState = {
   loading: true,
   errors: [],
   loaded: false,
+  url: '',
 };
 
 /**
@@ -64,11 +65,11 @@ function getEmailFromGapi(result) {
   };
 }
 
-function getAttachmentFromGapi(result) {
+function getAttachmentFromGapi(objectURL) {
   return {
     type: GET_ATTACHMENT_FROM_GAPI,
     payload: {
-      attachment: result.attachment, isPlainText: result.isPlainText,
+      url: objectURL,
     },
   };
 }
@@ -141,20 +142,17 @@ export function asyncGetEmailFromGapi(id) {
   };
 }
 
-export function asyncGetAttachmentFromGapi(emailId, attachments) {
+export function asyncGetAttachmentFromGapi(emailId, attachment) {
+  const strAttachment = JSON.stringify(attachment);
   return function asyncGetAttachmentFromGapiInner(dispatch) {
     dispatch(loading());
-    fetch(`http://localhost:3000/api/emails/${emailId}/attachments/gapi`, {
-      method: 'POST',
-      body: JSON.stringify({ attachments }),
-      headers: {
-        Origin: '', 'Content-Type': 'application/json',
-      },
+    fetch(`http://localhost:3000/api/emails/${emailId}/${strAttachment}/gapi`, {
       credentials: 'include',
     })
-      .then(res => res.json())
+      .then(res => res.blob())
       .then((result) => {
-        //dispatch(getEmailFromGapi(result));
+        const objectURL = URL.createObjectURL(result);
+        dispatch(getAttachmentFromGapi(objectURL));
       })
       .catch(() => {});
   };
@@ -245,6 +243,16 @@ export default function emailsReducer(state = initialState, action) {
           ),
         loaded: true,
       };
+    case GET_ATTACHMENT_FROM_GAPI:
+      return {
+        ...state,
+        url: payload.url,
+      };
+    // case GET_ATTACHMENT:
+    //   return {
+    //     ...state,
+    //     url: payload.url,
+    //   };
     case CHANGE_EMAIL_STATUS:
     {
       const emailNewStatus = payload.emailNewStatus ? payload.emailNewStatus : state.email.status;

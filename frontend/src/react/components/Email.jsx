@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncGetNote, asyncSendNote, changeNoteStatus } from '../../redux/reducers/emailReducer';
 
-
 class Email extends Component {
   constructor(...args) {
     super(...args);
@@ -15,6 +14,7 @@ class Email extends Component {
     const emailId = this.props.email.emailId;
     this.props.getEmailFromGapi(emailId);
   }
+
   componentWillReceiveProps(nextProps) {
     if (nextProps === this.props) {
       return;
@@ -33,6 +33,7 @@ class Email extends Component {
       this.setState({ noteContent: nextProps.note.content });
     }
   }
+
   sendNoteInfo = { time: 0 };
   changeStatus = (evt) => {
     const statusId = evt.target.value;
@@ -65,6 +66,20 @@ class Email extends Component {
           <p className="w-20"><small>Date: </small><br />{this.props.email.date}</p>
         </div>
         <hr />
+        <div>
+          {
+            this.props.email.attachments ?
+            this.props.email.attachments.map((attachment) => {
+              this.props.getAttachmentFromGapi(this.props.email.emailId, attachment);
+              return (
+                <a
+                  key={attachment.attachmentId} href={this.props.url}
+                  download={attachment.attachmentName}
+                >{attachment.attachmentName}
+                </a>);
+            }) : ''
+          }
+        </div>
         <div className="btn-group" role="group">
           <button type="button" className="btn bg-light-blue rounded tooltip-toggle" data-tooltip="Email will be sent in this thread">Reply</button>
           <button type="button" className="btn btn-success rounded ml-2 tooltip-toggle" data-tooltip="This will send new email">Send Email</button>
@@ -95,7 +110,10 @@ Email.propTypes = {
   getNote: PropTypes.func.isRequired,
   sendNote: PropTypes.func.isRequired,
   noteStatus: PropTypes.string,
+  notes: PropTypes.array,
+  url: PropTypes.string,
   changeNoteStatus: PropTypes.func.isRequired,
+
 };
 Email.defaultProps = {
   noteStatus: 'noteSaveStatus',
@@ -107,6 +125,8 @@ function mapStateToProps(state) {
     statuses: state.statuses.statuses,
     note: state.email.note,
     noteStatus: state.email.noteStatus,
+    url: state.email.url,
+
   };
 }
 
@@ -116,8 +136,8 @@ function mapDispatchToProps(dispatch) {
     changeEmaulStatus: (emailId, statusId) => dispatch(asyncChangeEmailStatus(emailId, statusId)),
     getAttachmentFromGapi: (
       emailId,
-      attachments,
-    ) => dispatch(asyncGetAttachmentFromGapi(emailId, attachments)),
+      attachment,
+    ) => dispatch(asyncGetAttachmentFromGapi(emailId, attachment)),
     getNote: sender => dispatch(asyncGetNote(sender)),
     sendNote: (
       sender,

@@ -1,5 +1,5 @@
 const initialState = {
-  folders: [], folderErrors: [],
+  folders: [], folderErrors: [], loaded: false
 };
 
 const GET_FOLDERS = 'Get folders';
@@ -20,7 +20,6 @@ function getFolders(result) {
     },
   };
 }
-
 
 function createFolder(response) {
   return {
@@ -314,8 +313,10 @@ export default function folderReducer(state = initialState, action) {
             isActive: true,
             count: payload.inboxCount,
           },
-          ...payload.folders
-            .map(folder => Object.assign({}, folder, { isActive: !!folder.isActive }))],
+          ...payload.folders.map(folder =>
+            Object.assign({}, folder, { isActive: !!folder.isActive }))
+        ],
+        loaded: true,
       };
     default:
       return state;

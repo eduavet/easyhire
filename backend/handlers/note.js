@@ -14,8 +14,8 @@ noteHandlers.getNote = (req, res) => {
     return res.json({ errors, notes: [] });
   }
   const userId = req.session.userID;
-  const sender = req.params.sender;
-  NotesModel.findOne({ userId, sender })
+  const { sender } = req.params;
+  return NotesModel.findOne({ userId, sender })
     .then(note => res.json({ note, errors: [] }))
     .catch(() => res.json({ note: {}, errors: [{ msg: 'Something went wrong' }] }));
 };
@@ -29,9 +29,8 @@ noteHandlers.addNote = (req, res) => {
     return res.json({ errors, note: {} });
   }
   const userId = req.session.userID;
-  const content = req.body.content;
-  const sender = req.params.sender;
-  const emailId = req.body.emailId;
+  const { content, emailId } = req.body;
+  const { sender } = req.params;
   const dateCreated = Date.now();
   const newNote = new NotesModel({
     content,
@@ -56,13 +55,30 @@ noteHandlers.updateNote = (req, res) => {
   }
   const noteId = req.params.id;
   const userId = req.session.userID;
-  NotesModel.findOne({ _id: mongoose.Types.ObjectId(noteId), userId })
+  return NotesModel.findOne({ _id: mongoose.Types.ObjectId(noteId), userId })
     .then((note) => {
       note.content = req.body.content;
       note.dateUpdated = Date.now();
       return note.save()
         .then(updatedNote => res.json({ note: updatedNote, errors: [] }));
     })
-    .catch(() => res.json({ note: {}, errors: [{ msg: 'Something went wrong' }] }));
+<<<<<<< HEAD
+    .catch(() => res.json({ note: {}, errors: [{ msg: 'Something went wrong' }], noteUpdated: 0 }));
 };
-
+// Delete note
+noteHandlers.deleteNote = (req, res) => {
+  req.checkParams('id').notEmpty().withMessage('Note id is required');
+  const errors = req.validationErrors();
+  if (errors) {
+    return res.json({ errors, _id: '' });
+  }
+  const noteId = req.params.id;
+  const userId = req.session.userID;
+  return NotesModel.findOne({ _id: mongoose.Types.ObjectId(noteId), userId })
+    .then(note => note.remove())
+    .then(() => res.json({ _id: noteId, errors: [] }))
+    .catch(() => res.json({ _id: '', errors: [{ msg: 'Something went wrong, try again' }] }));
+=======
+    .catch(() => res.json({ note: {}, errors: [{ msg: 'Something went wrong' }] }));
+>>>>>>> d1b950cc8a11261e387f1c151083d8c06a347cc5
+};
