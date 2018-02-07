@@ -62,5 +62,5 @@ noteHandlers.updateNote = (req, res) => {
       return note.save()
         .then(updatedNote => res.json({ note: updatedNote, errors: [] }));
     })
-    .catch(() => res.json({ note: {}, errors: [{ msg: 'Something went wrong' }], noteUpdated: 0 }));
+    .catch(() => res.json({ note: {}, errors: [{ msg: 'Something went wrong' }] }));
 };
