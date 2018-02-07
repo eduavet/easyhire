@@ -2,26 +2,37 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncGetNotes, asyncSendNote, changeNoteStatus } from '../../redux/reducers/emailReducer';
+import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncGetNotes, asyncSendNote, changeNoteStatus, changeLastUpdatedNoteId, asyncDeleteNote } from '../../redux/reducers/emailReducer';
 
 
 class Email extends Component {
-  componentWillMount() {
+  // componentWillMount() {
+  //
+  // }
+  componentDidMount() {
     const emailId = this.props.email.emailId;
     this.props.getEmailFromGapi(emailId);
   }
-  componentDidMount() {
-    const emailId = this.props.email.emailId;
-    this.props.getNotes(emailId);
-  }
   componentDidUpdate() {
-    const emailId = this.props.email.emailId;
-    const attachments = this.props.email.attachments;
-    this.props.getAttachmentFromGapi(emailId, attachments);
+    // const sender = this.props.email.sender;
+    // this.props.getNotes(sender);
+    // const emailId = this.props.email.emailId;
+    // const attachments = this.props.email.attachments;
+    // this.props.getAttachmentFromGapi(emailId, attachments);
   }
-  // componentWillReceiveProps(nextProps) {
-  //
-  // }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps === this.props) {
+      return;
+    }
+    if (nextProps.email.emailId !== this.props.email.emailId) {
+      const emailId = nextProps.email.emailId;
+      this.props.getEmailFromGapi(emailId);
+    }
+    if (nextProps.email.sender !== this.props.email.sender) {
+      const sender = nextProps.email.sender;
+      this.props.getNotes(sender);
+    }
+  }
   sendNoteInfo = { time: 0 };
   changeStatus = (evt) => {
     const statusId = evt.target.value;
@@ -30,10 +41,12 @@ class Email extends Component {
   };
   typeNote = (evt) => {
     clearTimeout(this.sendNoteInfo.time);
+    const sender = this.props.email.sender;
     const emailId = this.props.email.emailId;
     const note = evt.target.value;
     const noteId = evt.target.dataset.id;
-    this.sendNoteInfo.time = setTimeout(this.props.sendNote, 3000, emailId, note, noteId);
+    this.props.changeNoteStatus('noteSaveStatus');
+    this.sendNoteInfo.time = setTimeout(this.props.sendNote, 3000, sender, emailId, note, noteId);
   };
   checkNoteId = (evt) => {
     const note = evt.target.value;
@@ -41,13 +54,24 @@ class Email extends Component {
   };
   clearNote = () => {
     this.noteTextareaRef.value = '';
+    this.noteTextareaRef.dataset.id = '';
     this.props.changeNoteStatus('noteSaveStatus');
   };
   editNote = (evt) => {
-    //TODO
+    const noteId = evt.target.dataset.id ?
+      evt.target.dataset.id :
+      evt.target.parentElement.dataset.id;
+    const noteContent = evt.target.dataset.content ?
+      evt.target.dataset.content :
+      evt.target.parentElement.dataset.content;
+    this.props.changeLastUpdatedNoteId(noteId);
+    this.noteTextareaRef.value = noteContent;
   };
   deleteNote = (evt) => {
-    //TODO
+    const noteId = evt.target.dataset.id ?
+      evt.target.dataset.id :
+      evt.target.parentElement.dataset.id;
+    this.props.deleteNote(noteId);
   };
   render() {
     return (
@@ -90,36 +114,42 @@ class Email extends Component {
                 <th>Created at</th>
                 <th>Updated at</th>
                 <th>See Email</th>
-                <th></th>
+                <th />
               </tr>
             </thead>
-            <tbody>
-              { this.props.notes.map(note => (
-                <tr key={note._id}>
-                  <td>{note.content}</td>
-                  <td>{moment(note.dateCreated).format('DD/MM/YYYY, HH:mm:ss')}</td>
-                  <td>{moment(note.dateUpdated).format('DD/MM/YYYY, HH:mm:ss')}</td>
-                  <td>{note.emailId}</td>
-                  <td>
-                    <div className="d-inline">
-                      <button
-                        className="btn btn-outline-success"
-                        data-id={note._id}
-                        data-content={note.content}
-                        onClick={this.editNote}>
-                        <i className="fa fa-pencil-alt" aria-hidden="true" />
-                      </button>
-                      <button
-                        className="btn btn-danger ml-2"
-                        data-id={note._id}
-                        onClick={this.deleteNote}>
-                        <i className="fa fa-trash" aria-hidden="true" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>))
+            {this.props.notes.length < 1 ?
+              <tbody><tr><td colSpan="5" className="text-center">No Notes</td></tr></tbody> :
+              <tbody>
+                { this.props.notes.map(note => (
+                  <tr key={note._id}>
+                    <td>{note.content}</td>
+                    <td>{moment(note.dateCreated).format('DD/MM/YYYY, HH:mm:ss')}</td>
+                    <td>{moment(note.dateUpdated).format('DD/MM/YYYY, HH:mm:ss')}</td>
+                    <td>{note.emailId}</td>
+                    <td>
+                      <div className="d-inline">
+                        <button
+                          className="btn btn-outline-success"
+                          data-id={note._id}
+                          data-content={note.content}
+                          onClick={this.editNote}
+                        >
+                          <i className="fa fa-pencil-alt" aria-hidden="true" />
+                        </button>
+                        <button
+                          className="btn btn-danger ml-2"
+                          data-id={note._id}
+                          onClick={this.deleteNote}
+                        >
+                          <i className="fa fa-trash" aria-hidden="true" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>))
+              }
+              </tbody>
             }
-            </tbody>
+
           </table>
         </div>
         {/* <iframe dangerouslySetInnerHTML={{ __html: props.email.htmlBody }} title="Email Content"></iframe> */}
@@ -134,7 +164,9 @@ Email.propTypes = {
   getEmailFromGapi: PropTypes.func.isRequired,
   sendNote: PropTypes.func.isRequired,
   getNotes: PropTypes.func.isRequired,
+  deleteNote: PropTypes.func.isRequired,
   changeNoteStatus: PropTypes.func.isRequired,
+  changeLastUpdatedNoteId: PropTypes.func.isRequired,
   lastUpdatedNoteId: PropTypes.string,
   noteStatus: PropTypes.string,
   notes: PropTypes.array,
@@ -159,10 +191,12 @@ function mapDispatchToProps(dispatch) {
   return {
     getEmailFromGapi: emailId => dispatch(asyncGetEmailFromGapi(emailId)),
     changeEmaulStatus: (emailId, statusId) => dispatch(asyncChangeEmailStatus(emailId, statusId)),
-    getNotes: emailId => dispatch(asyncGetNotes(emailId)),
-    sendNote: (emailId, note, noteId) => dispatch(asyncSendNote(emailId, note, noteId)),
+    getNotes: sender => dispatch(asyncGetNotes(sender)),
+    deleteNote: noteId => dispatch(asyncDeleteNote(noteId)),
+    sendNote: (sender, emailId, note, noteId) => dispatch(asyncSendNote(sender, emailId, note, noteId)),
     changeNoteStatus: status => dispatch(changeNoteStatus(status)),
     getAttachmentFromGapi: (emailId, attachments) => dispatch(asyncGetAttachmentFromGapi(emailId, attachments)),
+    changeLastUpdatedNoteId: noteId => dispatch(changeLastUpdatedNoteId(noteId)),
   };
 }
 

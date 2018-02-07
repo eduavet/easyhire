@@ -5,6 +5,7 @@ const { Schema } = mongoose;
 const notesSchema = new Schema({
   content: String,
   userId: String,
+  sender: String,
   emailId: String,
   dateCreated: Date,
   dateUpdated: { type: Date, default: Date.now() },
