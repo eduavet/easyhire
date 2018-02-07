@@ -39,7 +39,7 @@ emailHelpers.buildNewEmailModel = (userId, email, folder, status) => {
   if (email.payload.parts) {
     email.payload.parts.forEach((item) => {
       if ('attachmentId' in item.body) {
-        attachments.push(item.body.attachmentId);
+        attachments.push({ attachmentId: item.body.attachmentId, attachmentName: item.filename });
       }
     });
   }

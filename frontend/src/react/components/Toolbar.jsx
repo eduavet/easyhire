@@ -5,7 +5,7 @@ import { Nav, NavItem, Dropdown, DropdownItem, DropdownToggle, DropdownMenu, Nav
 import { notify } from 'react-notify-toast';
 import { selectAll, selectNone, asyncMoveEmails, asyncDeleteEmails, asyncMark, asyncGetStatusEmails, asyncSearch } from '../../redux/reducers/emailsReducer';
 import ModalDeleteEmails from './ModalDeleteEmails.jsx';
-import { isActive } from '../../redux/reducers/statusReducer';
+import { isStatusActive } from '../../redux/reducers/statusReducer';
 
 
 class Toolbar extends Component {
@@ -76,12 +76,12 @@ class Toolbar extends Component {
     }
   };
 
-  filterBy = (statusId) => {
-    this.props.getStatusEmails(statusId);
+  filterBy = (statusId, folderId) => {
+    this.props.getStatusEmails(statusId, folderId);
   };
 
   statusToggler = (status) => {
-    this.props.isActive(status);
+    this.props.isStatusActive(status);
   };
 
   search = (e) => {
@@ -150,15 +150,18 @@ class Toolbar extends Component {
             </DropdownToggle>
             <DropdownMenu>
               {
-                this.props.statuses.map(status => (
-                  <DropdownItem key={status._id}>
-                    <div onClick={() => {
-                      this.statusToggler(status);
-                      this.filterBy(status._id);
-                    }}
-                    >{status.name}
-                    </div>
-                  </DropdownItem>))
+                this.props.statuses.map((status) => {
+                  const activeFolder = this.props.folders.filter(folder => folder.isActive)[0];
+                  return (
+                    <DropdownItem key={status._id}>
+                      <div onClick={() => {
+                        this.statusToggler(status);
+                        this.filterBy(status._id, activeFolder._id);
+                      }}
+                      >{status.name}
+                      </div>
+                    </DropdownItem>);
+                })
               }
             </DropdownMenu>
           </Dropdown>
@@ -197,7 +200,7 @@ Toolbar.propTypes = {
   selectAll: PropTypes.func.isRequired,
   selectNone: PropTypes.func.isRequired,
   statuses: PropTypes.array,
-  isActive: PropTypes.func.isRequired,
+  isStatusActive: PropTypes.func.isRequired,
   getStatusEmails: PropTypes.func.isRequired,
   asyncSearch: PropTypes.func.isRequired,
 };
@@ -218,8 +221,8 @@ function mapDispatchToProps(dispatch) {
     postEmailsToFolder: (emailIds, folderId, inboxActive) =>
       dispatch(asyncMoveEmails(emailIds, folderId, inboxActive)),
     deleteEmails: emailIds => dispatch(asyncDeleteEmails(emailIds)),
-    getStatusEmails: statusId => dispatch(asyncGetStatusEmails(statusId)),
-    isActive: item => dispatch(isActive(item)),
+    getStatusEmails: (statusId, folderId) => dispatch(asyncGetStatusEmails(statusId, folderId)),
+    isStatusActive: item => dispatch(isStatusActive(item)),
     asyncSearch: text => dispatch(asyncSearch(text)),
   };
 }

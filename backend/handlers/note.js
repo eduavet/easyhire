@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 // const fetch = require('node-fetch');
 // const EmailsModel = require('../models/EmailsModel.js');
 const NotesModel = require('../models/NotesModel.js');
@@ -5,7 +6,19 @@ const NotesModel = require('../models/NotesModel.js');
 const noteHandlers = {};
 module.exports = noteHandlers;
 
-
+// Get all notes
+noteHandlers.getNotes = (req, res) => {
+  req.checkParams('emailId').notEmpty().withMessage('Email id is required');
+  const errors = req.validationErrors();
+  if (errors) {
+    return res.json({ errors, notes: [] });
+  }
+  const userId = req.session.userID;
+  const emailId = req.params.emailId;
+  NotesModel.find({ userId, emailId })
+    .then(notes => res.json({ notes, errors: [] }))
+    .catch(() => res.json({ notes: [], errors: [{ msg: 'Something went wrong' }] }));
+};
 // Add new note
 noteHandlers.addNote = (req, res) => {
   req.checkParams('emailId').notEmpty().withMessage('Email id is required');
@@ -26,39 +39,41 @@ noteHandlers.addNote = (req, res) => {
     dateUpdated: dateCreated,
   });
   return newNote.save()
-    .then(note => res.json({ note, errors: [] }))
-    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], note: {} }));
+    .then(note => res.json({ note, errors: [], noteUpdated: 0 }))
+    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], note: {}, noteUpdated: 0 }));
 };
 
-
-// Get all notes
-noteHandlers.getNotes = (req, res) => {
-  req.checkParams('emailId').notEmpty().withMessage('Email id is required');
-  const errors = req.validationErrors();
-  if (errors) {
-    return res.json({ errors, notes: [] });
-  }
-  res.json({ notes: [], errors: [] });
-};
 // Update existing note
 noteHandlers.updateNote = (req, res) => {
-  req.checkParams('noteId').notEmpty().withMessage('Note id is required');
-  req.checkParams('emailId').notEmpty().withMessage('Email id is required');
+  req.checkParams('id').notEmpty().withMessage('Note id is required');
   req.checkBody('content').notEmpty().withMessage('Note content is required');
   const errors = req.validationErrors();
   if (errors) {
     return res.json({ errors, note: {} });
   }
-  res.json({ note: {}, errors: [] });
+  const noteId = req.params.id;
+  const userId = req.session.userID;
+  NotesModel.findOne({ _id: mongoose.Types.ObjectId(noteId), userId })
+    .then((note) => {
+      note.content = req.body.content;
+      note.dateUpdated = Date.now();
+      return note.save()
+        .then(updatedNote => res.json({ note: updatedNote, errors: [], noteUpdated: 1 }));
+    })
+    .catch(() => res.json({ note: {}, errors: [{ msg: 'Something went wrong' }], noteUpdated: 0 }));
 };
 // Delete note
 noteHandlers.deleteNote = (req, res) => {
   req.checkParams('noteId').notEmpty().withMessage('Note id is required');
-  req.checkParams('emailId').notEmpty().withMessage('Email id is required');
   const errors = req.validationErrors();
   if (errors) {
-    return res.json({ errors, note: {} });
+    return res.json({ errors, _id: '' });
   }
-  res.json({ note: {}, errors: [] });
+  const noteId = req.params.noteId;
+  const userId = req.session.userID;
+  NotesModel.findOne({ _id: mongoose.Types.ObjectId(noteId), userId })
+    .then(note => note.remove())
+    .then(() => res.json({ _id: noteId, errors: [] }))
+    .catch(() => res.json({ _id: '', errors: [{ msg: 'Something went wrong, try again' }] }));
 };
 

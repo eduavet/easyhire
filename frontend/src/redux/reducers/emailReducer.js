@@ -1,6 +1,6 @@
 const initialState = {
   email: {
-    date: 'DD/MM/YYYY, HH:mm:ss',
+    date: 'MM/DD/YYYY, HH:mm:ss',
     emailId: '',
     folderId: '',
     htmlBody: '',
@@ -10,9 +10,11 @@ const initialState = {
     status: '',
     subject: '',
     isPlainText: false,
+    attachments: [],
   },
   lastUpdatedNoteId: '',
   noteStatus: 'noteSaveStatus',
+  notes: [],
   loading: true,
   errors: [],
   loaded: false,
@@ -23,7 +25,9 @@ const initialState = {
  */
 const GET_EMAIL_FROM_DB = 'Get email from database';
 const GET_EMAIL_FROM_GAPI = 'Get email from google api';
+const GET_ATTACHMENT_FROM_GAPI = 'Get attachment from google api';
 const CHANGE_EMAIL_STATUS = 'Change email status';
+const GET_NOTES = 'Get notes';
 const SEND_NOTE = 'Send note. Add or update';
 const CHANGE_NOTE_STATUS = 'Change note status';
 // const REFRESH = 'Refresh';
@@ -41,6 +45,7 @@ function getEmailFromDb(result) {
     },
   };
 }
+
 function getEmailFromGapi(result) {
   return {
     type: GET_EMAIL_FROM_GAPI,
@@ -49,6 +54,16 @@ function getEmailFromGapi(result) {
     },
   };
 }
+
+function getAttachmentFromGapi(result) {
+  return {
+    type: GET_ATTACHMENT_FROM_GAPI,
+    payload: {
+      attachment: result.attachment, isPlainText: result.isPlainText,
+    },
+  };
+}
+
 function changeEmailStatus(result) {
   return {
     type: CHANGE_EMAIL_STATUS,
@@ -58,12 +73,21 @@ function changeEmailStatus(result) {
     },
   };
 }
+function getNotes(result) {
+  return {
+    type: GET_NOTES,
+    payload: {
+      notes: result.notes,
+    },
+  };
+}
 function sendNote(result) {
   return {
     type: SEND_NOTE,
     payload: {
       note: result.note,
       errors: result.errors,
+      noteUpdated: result.noteUpdated,
     },
   };
 }
@@ -89,7 +113,7 @@ function setEmailId(emailId) {
     payload: { emailId },
   };
 }
-function changeNoteStatus(status) {
+export function changeNoteStatus(status) {
   return {
     type: CHANGE_NOTE_STATUS,
     payload: { status },
@@ -123,6 +147,28 @@ export function asyncGetEmailFromGapi(id) {
       .catch(() => {});
   };
 }
+
+export function asyncGetAttachmentFromGapi(emailId, attachments) {
+  return function asyncGetAttachmentFromGapiInner(dispatch) {
+    dispatch(loading());
+    fetch(`http://localhost:3000/api/emails/${emailId}/attachments/gapi`, {
+      method: 'POST',
+      body: JSON.stringify({ attachments }),
+      headers: {
+        Origin: '', 'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+      console.log(result);
+        //dispatch(getEmailFromGapi(result));
+      })
+      .catch(() => {});
+  };
+}
+
+
 export function asyncChangeEmailStatus(emailId, statusId) {
   return function asyncChangeEmailStatusInner(dispatch) {
     dispatch(loading());
@@ -140,7 +186,7 @@ export function asyncChangeEmailStatus(emailId, statusId) {
 export function asyncSendNote(emailId, note, noteId) {
   const method = noteId ? 'PUT' : 'POST';
   const url = noteId ?
-    `http://localhost:3000/api/notes/${noteId}/email/${emailId}`
+    `http://localhost:3000/api/notes/${noteId}/`
     : `http://localhost:3000/api/notes/email/${emailId}`;
   return function asyncSendNoteInner(dispatch) {
     dispatch(loading());
@@ -155,6 +201,19 @@ export function asyncSendNote(emailId, note, noteId) {
       .then(res => res.json())
       .then((result) => {
         dispatch(sendNote(result));
+      })
+      .catch(() => {});
+  };
+}
+export function asyncGetNotes(emailId) {
+  return function asyncGetNotesInner(dispatch) {
+    dispatch(loading());
+    fetch(`http://localhost:3000/api/notes/email/${emailId}`, {
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+        dispatch(getNotes(result));
       })
       .catch(() => {});
   };
@@ -213,12 +272,35 @@ export default function emailsReducer(state = initialState, action) {
         email: Object.assign({}, state.email, { status: emailNewStatus }),
       };
     }
+    case GET_NOTES:
+    {
+      return {
+        ...state,
+        notes: [...state.notes, ...payload.notes],
+        loaded: true,
+      };
+    }
     case SEND_NOTE:
+    {
+      let notesAfterUpdate = [];
+      if (payload.noteUpdated) {
+        notesAfterUpdate = state.notes.map((note) => {
+          if (note._id === payload.note._id) {
+            note = payload.note;
+          }
+          return note;
+        });
+      } else {
+        notesAfterUpdate = payload.note._id ? [...state.notes, payload.note] : state.notes;
+      }
       return {
         ...state,
         lastUpdatedNoteId: payload.note._id,
         errors: [],
+        noteStatus: payload.note ? 'noteSaveStatus active' : 'noteSaveStatus',
+        notes: notesAfterUpdate,
       };
+    }
     case LOADING:
       return {
         ...state, loaded: false,
@@ -226,7 +308,7 @@ export default function emailsReducer(state = initialState, action) {
     case SET_EMAIL_ID:
       return {
         ...state,
-        email: Object.assign({}, state.email, { emailId: payload.emailId })
+        email: Object.assign({}, state.email, { emailId: payload.emailId }),
       };
     case CHANGE_NOTE_STATUS:
       return {

@@ -38,6 +38,7 @@
     "css-loader": "^0.28.9",
     "history": "^4.7.2",
     "jsonwebtoken": "^8.1.1",
+    "moment": "^2.20.1",
     "prop-types": "^15.6.0",
     "react": "^16.2.0",
     "react-bootstrap-table": "^4.3.1",
