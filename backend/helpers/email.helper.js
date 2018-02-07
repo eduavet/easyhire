@@ -23,14 +23,14 @@ emailHelpers.extract = (res, folderId, folderName, isReadParam, statusId='', sta
 
 emailHelpers.groupExtract = (group) => {
   const {
-    emailId, sender, subject, snippet, date, isRead,
+    emailId, sender, subject, snippet, date, isRead, attachments,
   } = group;
   const folderId = group.folder._id;
   const folderName = group.folder.name;
   const statusId = group.status._id;
   const statusName = group.status.name;
   return {
-    emailId, sender, subject, snippet, date, folderId, folderName, statusId, statusName, isRead,
+    emailId, sender, subject, snippet, date, folderId, folderName, statusId, statusName, isRead, attachments,
   };
 };
 

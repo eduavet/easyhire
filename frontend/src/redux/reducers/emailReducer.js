@@ -143,10 +143,14 @@ export function asyncGetEmailFromGapi(id) {
 }
 
 export function asyncGetAttachmentFromGapi(emailId, attachment) {
-  const strAttachment = JSON.stringify(attachment);
   return function asyncGetAttachmentFromGapiInner(dispatch) {
     dispatch(loading());
-    fetch(`http://localhost:3000/api/emails/${emailId}/${strAttachment}/gapi`, {
+    fetch(`http://localhost:3000/api/emails/${emailId}/attachment/gapi`, {
+      method: 'POST',
+      body: JSON.stringify({ attachment }),
+      headers: {
+        Origin: '', 'Content-Type': 'application/json',
+      },
       credentials: 'include',
     })
       .then(res => res.blob())

@@ -141,9 +141,9 @@ class Emails extends Component {
                 <th />
                 <th>Sender<div className="btn" onClick={this.sortBySender}><i className="fa fa-fw fa-sort" /></div></th>
                 <th>Subject<div className="btn" onClick={this.sortBySubject}><i className="fa fa-fw fa-sort" /></div></th>
+                <th />
                 <th>Status<div className="btn d-inline" onClick={this.sortByStatus}><i className="fa fa-fw fa-sort" /></div></th>
                 <th>Date<div className="btn" onClick={this.sortByDate}><i className="fa fa-fw fa-sort" /></div></th>
-                <th />
               </tr>
             </thead>
             <tbody>
@@ -178,9 +178,9 @@ class Emails extends Component {
                         </span>
                       </Link>
                     </td>
+                    <td>{item.attachments.length > 0 ? <i className="fas fa-paperclip" /> : ''}</td>
                     <td>{item.statusName}</td>
                     <td>{item.date}</td>
-                    <td>{item.attachment ? <i className="fas fa-paperclip" /> : ''}</td>
                   </tr>);
               })
             }

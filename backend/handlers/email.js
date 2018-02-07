@@ -264,38 +264,34 @@ emailHandlers.getAttachmentFromGapi = (req, res) => {
   req.checkParams('emailId').notEmpty().withMessage('Email id is required');
   const userId = req.session.userID;
   const { emailId } = req.params;
-  const attachment = JSON.parse(req.params.strAttachment);
+  const { attachment } = req.body;
   const { accessToken } = req.session;
   const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
   const errors = req.validationErrors();
   const attach = {};
   const body = { value: '' };
-  const filePath = `attachments/${userId}/${emailId}/`;
-  const dirname = path.dirname(filePath);
-  const fullpath = `http://localhost:3000/${userId}/${emailId}/${attachment.attachmentName}`;
+  const splitted = attachment.attachmentName.split('.');
+  const extension = splitted[splitted.length - 1];
+  const filename = `${attachment.attachmentId.slice(0, 20)}.${extension}`;
+  const fullpath = `http://localhost:3000/${userId}/${emailId}/${filename}`;
   if (errors) {
     return res.json({ errors });
   }
   return fetch(`${fetchUrl}${userId}/messages/${emailId}/attachments/${attachment.attachmentId}?access_token=${accessToken}`)
     .then(response => response.json())
     .then((response) => {
-      console.log('aa')
       body.value = response.data ? response.data : '';
       attach.body = Buffer.from(body.value, 'base64');
       if (!fs.existsSync(`attachments/${userId}`)) {
-        console.log(userId, 'useriD')
         fs.mkdirSync(`attachments/${userId}`);
       }
       if (!fs.existsSync(`attachments/${userId}/${emailId}`)) {
-        console.log(emailId, 'eail')
         fs.mkdirSync(`attachments/${userId}/${emailId}`);
       }
-      if (!fs.existsSync(`attachments/${userId}/${emailId}/${attachment.attachmentName}`)) {
-        console.log(attachment.attachmentName, 'attachment.attachmentName')
-        fs.writeFileSync(`attachments/${userId}/${emailId}/${attachment.attachmentName}`, attach.body);
+      if (!fs.existsSync(`attachments/${userId}/${emailId}/${filename}`)) {
+        fs.writeFileSync(`attachments/${userId}/${emailId}/${filename}`, attach.body);
       }
 
-      console.log(fullpath);
       request(fullpath).pipe(res);
     })
     .catch((err) => {

@@ -32,6 +32,9 @@ class Email extends Component {
       nextProps.note.content !== this.props.note.content) {
       this.setState({ noteContent: nextProps.note.content });
     }
+    if (nextProps.email.attachments !== this.props.email.attachments) {
+      nextProps.email.attachments.map(attachment => this.props.getAttachmentFromGapi(nextProps.email.emailId, attachment));
+    }
   }
 
   sendNoteInfo = { time: 0 };
@@ -69,15 +72,12 @@ class Email extends Component {
         <div>
           {
             this.props.email.attachments ?
-            this.props.email.attachments.map((attachment) => {
-              this.props.getAttachmentFromGapi(this.props.email.emailId, attachment);
-              return (
-                <a
-                  key={attachment.attachmentId} href={this.props.url}
-                  download={attachment.attachmentName}
-                >{attachment.attachmentName}
-                </a>);
-            }) : ''
+            this.props.email.attachments.map(attachment => (
+              <a
+                key={attachment.attachmentId} href={this.props.url}
+                download={attachment.attachmentName}
+              >{attachment.attachmentName}
+              </a>)) : ''
           }
         </div>
         <div className="btn-group" role="group">
