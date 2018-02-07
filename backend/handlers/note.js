@@ -62,23 +62,5 @@ noteHandlers.updateNote = (req, res) => {
       return note.save()
         .then(updatedNote => res.json({ note: updatedNote, errors: [] }));
     })
-<<<<<<< HEAD
     .catch(() => res.json({ note: {}, errors: [{ msg: 'Something went wrong' }], noteUpdated: 0 }));
-};
-// Delete note
-noteHandlers.deleteNote = (req, res) => {
-  req.checkParams('id').notEmpty().withMessage('Note id is required');
-  const errors = req.validationErrors();
-  if (errors) {
-    return res.json({ errors, _id: '' });
-  }
-  const noteId = req.params.id;
-  const userId = req.session.userID;
-  return NotesModel.findOne({ _id: mongoose.Types.ObjectId(noteId), userId })
-    .then(note => note.remove())
-    .then(() => res.json({ _id: noteId, errors: [] }))
-    .catch(() => res.json({ _id: '', errors: [{ msg: 'Something went wrong, try again' }] }));
-=======
-    .catch(() => res.json({ note: {}, errors: [{ msg: 'Something went wrong' }] }));
->>>>>>> d1b950cc8a11261e387f1c151083d8c06a347cc5
 };
