@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const fetch = require('node-fetch');
 const util = require('util');
 const fs = require('fs');
+const path = require('path');
+const request = require('request');
 const EmailsModel = require('../models/EmailsModel.js');
 const FoldersModel = require('../models/FoldersModel.js');
 const StatusesModel = require('../models/StatusesModel.js');
@@ -203,30 +205,46 @@ emailHandlers.changeEmailStatus = (req, res) => {
 emailHandlers.getAttachmentFromGapi = (req, res) => {
   req.checkParams('emailId').notEmpty().withMessage('Email id is required');
   const userId = req.session.userID;
-  const { emailId, attachments } = req.params;
+  const { emailId } = req.params;
+  const attachment = JSON.parse(req.params.strAttachment);
   const { accessToken } = req.session;
   const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
   const errors = req.validationErrors();
-  const emailToSend = {};
+  const attach = {};
+  const body = { value: '' };
+  const filePath = `attachments/${userId}/${emailId}/`;
+  const dirname = path.dirname(filePath);
+  const fullpath = `http://localhost:3000/${userId}/${emailId}/${attachment.attachmentName}`;
   if (errors) {
     return res.json({ errors });
   }
-  attachments.map(attachment =>
-    fetch(`${fetchUrl}${userId}/messages/${emailId}/attachments/${attachment.attachmentId}?access_token=${accessToken}`)
-      .then(response => response.json())
-      .then((response) => {
-        const attach = {};
-        const body = { value: '' };
-        const isPlainText = { value: false };
-        body.value = response.data ? response.data : '';
-        attach.body = Buffer.from(body.value, 'base64');
-        fs.writeFileSync(`./attachments/${userId}/${emailId}/${attachment.attachmentName}`, attach.body);
-        res.json({ email: emailToSend, errors: [], isPlainText });
-      })
-      .catch((err) => {
-        res.json({ errors: [{ msg: 'Something went wrong', err }] });
-      }));
+  return fetch(`${fetchUrl}${userId}/messages/${emailId}/attachments/${attachment.attachmentId}?access_token=${accessToken}`)
+    .then(response => response.json())
+    .then((response) => {
+      console.log('aa')
+      body.value = response.data ? response.data : '';
+      attach.body = Buffer.from(body.value, 'base64');
+      if (!fs.existsSync(`attachments/${userId}`)) {
+        console.log(userId, 'useriD')
+        fs.mkdirSync(`attachments/${userId}`);
+      }
+      if (!fs.existsSync(`attachments/${userId}/${emailId}`)) {
+        console.log(emailId, 'eail')
+        fs.mkdirSync(`attachments/${userId}/${emailId}`);
+      }
+      if (!fs.existsSync(`attachments/${userId}/${emailId}/${attachment.attachmentName}`)) {
+        console.log(attachment.attachmentName, 'attachment.attachmentName')
+        fs.writeFileSync(`attachments/${userId}/${emailId}/${attachment.attachmentName}`, attach.body);
+      }
+
+      console.log(fullpath);
+      request(fullpath).pipe(res);
+    })
+    .catch((err) => {
+      res.json({ errors: [{ msg: 'Something went wrong', err }] });
+    });
 };
+
 
 // console.log(util.inspect(res, { depth: 8 }));
 // console.log(res.payload.parts, 'payload parts')

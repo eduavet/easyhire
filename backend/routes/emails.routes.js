@@ -10,6 +10,7 @@ emailRoutes.post('/mark', emailHandlers.mark);
 emailRoutes.get('/:id', emailHandlers.getEmailFromDb);
 emailRoutes.get('/:id/gapi/', emailHandlers.getEmailFromGapi);
 emailRoutes.get('/:emailId/status/:statusId', emailHandlers.changeEmailStatus);
-emailRoutes.post('/:emailId/attachments/gapi', emailHandlers.getAttachmentFromGapi);
+emailRoutes.get('/:emailId/:strAttachment/gapi', emailHandlers.getAttachmentFromGapi);
+// emailRoutes.post('/:emailId/attachments/', emailHandlers.downloadAttachments);
 
 module.exports = emailRoutes;

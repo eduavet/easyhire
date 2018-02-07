@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncGetNotes, asyncSendNote, changeNoteStatus } from '../../redux/reducers/emailReducer';
+import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncGetAttachments, asyncGetNotes, asyncSendNote, changeNoteStatus } from '../../redux/reducers/emailReducer';
 
 
 class Email extends Component {
@@ -14,14 +14,6 @@ class Email extends Component {
     const emailId = this.props.email.emailId;
     this.props.getNotes(emailId);
   }
-  componentDidUpdate() {
-    const emailId = this.props.email.emailId;
-    const attachments = this.props.email.attachments;
-    this.props.getAttachmentFromGapi(emailId, attachments);
-  }
-  // componentWillReceiveProps(nextProps) {
-  //
-  // }
   sendNoteInfo = { time: 0 };
   changeStatus = (evt) => {
     const statusId = evt.target.value;
@@ -65,6 +57,20 @@ class Email extends Component {
           <p className="w-20"><small>Date: </small><br />{this.props.email.date}</p>
         </div>
         <hr />
+        <div>
+          {
+            this.props.email.attachments ?
+            this.props.email.attachments.map((attachment) => {
+              this.props.getAttachmentFromGapi(this.props.email.emailId, attachment);
+              return (
+                <a
+                  key={attachment.attachmentId} href={this.props.url}
+                  download={attachment.attachmentName}
+                >{attachment.attachmentName}
+                </a>);
+            }) : ''
+          }
+        </div>
         <div className="btn-group" role="group">
           <button type="button" className="btn bg-light-blue rounded tooltip-toggle" data-tooltip="Email will be sent in this thread">Reply</button>
           <button type="button" className="btn btn-success rounded ml-2 tooltip-toggle" data-tooltip="This will send new email">Send Email</button>
@@ -90,7 +96,7 @@ class Email extends Component {
                 <th>Created at</th>
                 <th>Updated at</th>
                 <th>See Email</th>
-                <th></th>
+                <th />
               </tr>
             </thead>
             <tbody>
@@ -138,7 +144,9 @@ Email.propTypes = {
   lastUpdatedNoteId: PropTypes.string,
   noteStatus: PropTypes.string,
   notes: PropTypes.array,
+  url: PropTypes.string,
   getAttachmentFromGapi: PropTypes.func,
+  downloadAttachment: PropTypes.func,
 };
 Email.defaultProps = {
   lastUpdatedNoteId: '',
@@ -152,6 +160,7 @@ function mapStateToProps(state) {
     statuses: state.statuses.statuses,
     noteStatus: state.email.noteStatus,
     notes: state.email.notes,
+    url: state.email.url,
   };
 }
 
@@ -163,6 +172,7 @@ function mapDispatchToProps(dispatch) {
     sendNote: (emailId, note, noteId) => dispatch(asyncSendNote(emailId, note, noteId)),
     changeNoteStatus: status => dispatch(changeNoteStatus(status)),
     getAttachmentFromGapi: (emailId, attachments) => dispatch(asyncGetAttachmentFromGapi(emailId, attachments)),
+    downloadAttachment: (emailId, attachment) => dispatch(asyncGetAttachments(emailId, attachment)),
   };
 }
 

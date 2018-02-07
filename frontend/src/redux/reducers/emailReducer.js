@@ -18,6 +18,7 @@ const initialState = {
   loading: true,
   errors: [],
   loaded: false,
+  url: '',
 };
 
 /**
@@ -26,6 +27,7 @@ const initialState = {
 const GET_EMAIL_FROM_DB = 'Get email from database';
 const GET_EMAIL_FROM_GAPI = 'Get email from google api';
 const GET_ATTACHMENT_FROM_GAPI = 'Get attachment from google api';
+const GET_ATTACHMENT = 'Get attachments';
 const CHANGE_EMAIL_STATUS = 'Change email status';
 const GET_NOTES = 'Get notes';
 const SEND_NOTE = 'Send note. Add or update';
@@ -55,14 +57,22 @@ function getEmailFromGapi(result) {
   };
 }
 
-function getAttachmentFromGapi(result) {
+function getAttachmentFromGapi(objectURL) {
   return {
     type: GET_ATTACHMENT_FROM_GAPI,
     payload: {
-      attachment: result.attachment, isPlainText: result.isPlainText,
+      url: objectURL,
     },
   };
 }
+/*function getAttachments(objectURL) {
+  return {
+    type: GET_ATTACHMENT,
+    payload: {
+      url: objectURL,
+    },
+  };
+}*/
 
 function changeEmailStatus(result) {
   return {
@@ -148,25 +158,42 @@ export function asyncGetEmailFromGapi(id) {
   };
 }
 
-export function asyncGetAttachmentFromGapi(emailId, attachments) {
+export function asyncGetAttachmentFromGapi(emailId, attachment) {
+  console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+  const strAttachment = JSON.stringify(attachment);
   return function asyncGetAttachmentFromGapiInner(dispatch) {
     dispatch(loading());
-    fetch(`http://localhost:3000/api/emails/${emailId}/attachments/gapi`, {
+    fetch(`http://localhost:3000/api/emails/${emailId}/${strAttachment}/gapi`, {
+      credentials: 'include',
+    })
+      .then(res => res.blob())
+      .then((result) => {
+        const objectURL = URL.createObjectURL(result);
+        dispatch(getAttachmentFromGapi(objectURL));
+      })
+      .catch(() => {});
+  };
+}
+/*export function asyncGetAttachments(emailId, attachment) {
+  return function asyncGetAttachmentsInner(dispatch) {
+    dispatch(loading());
+    fetch(`http://localhost:3000/api/emails/${emailId}/attachments/`, {
       method: 'POST',
-      body: JSON.stringify({ attachments }),
+      body: JSON.stringify({ attachment }),
       headers: {
         Origin: '', 'Content-Type': 'application/json',
       },
       credentials: 'include',
     })
-      .then(res => res.json())
+      .then(res => res.blob())
       .then((result) => {
-      console.log(result);
-        //dispatch(getEmailFromGapi(result));
+        // const objectURL = URL.createObjectURL(result);
+        // console.log(objectURL, 'result');
+        // dispatch(getAttachments(objectURL));
       })
       .catch(() => {});
   };
-}
+}*/
 
 
 export function asyncChangeEmailStatus(emailId, statusId) {
@@ -263,6 +290,16 @@ export default function emailsReducer(state = initialState, action) {
           ),
         loaded: true,
       };
+    case GET_ATTACHMENT_FROM_GAPI:
+      return {
+        ...state,
+        url: payload.url,
+      };
+    // case GET_ATTACHMENT:
+    //   return {
+    //     ...state,
+    //     url: payload.url,
+    //   };
     case CHANGE_EMAIL_STATUS:
     {
       const emailNewStatus = payload.emailNewStatus ? payload.emailNewStatus : state.email.status;
