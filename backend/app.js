@@ -5,6 +5,7 @@ const expressValidator = require('express-validator');
 const cors = require('cors');
 const passport = require('passport');
 const session = require('express-session');
+const path = require('path');
 const MongoStore = require('connect-mongo')(session);
 const mongoose = require('mongoose');
 const { connectMongo } = require('./db.js');
@@ -14,6 +15,7 @@ connectMongo();
 require('./config/passport');
 
 const app = express();
+app.use(express.static(path.join(__dirname, 'attachments')));
 app.use(cors({
   origin: process.env.HOMEPAGE,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
