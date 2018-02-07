@@ -201,24 +201,34 @@ emailHandlers.changeEmailStatus = (req, res) => {
 
 // Search query to google API
 emailHandlers.search = (req, res) => {
-  req.checkBody('text').notEmpty().withMessage('Search field is required');
-  const errors = req.validationErrors();
-  if(errors) {
-    return emailHandlers.emails(req, res);
-    // return;
-    // return res.json({ errors });
-  }
-  const text = req.body.text;
+  const { text, folderId } = req.body;
   const userId = req.session.userID;
   const { accessToken } = req.session;
   const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
-  const emailsToSend = [];
+  const promises = [];
+  let emailsToSend = [];
+  req.checkBody('text').notEmpty().withMessage('Search field is required');
+  const errors = req.validationErrors();
+  // If search field is empty
+  if(errors) {
+    if (folderId === 'allEmails') {
+      return emailHandlers.emails(req, res);
+    }
+    return EmailsModel.find({ userId, folder: folderId })
+      .then((messages) => {
+        if (!messages) return res.json({emailsToSend});
+        for (let i = 0; i < messages.length; i += 1) {
+          emailsToSend[i] = helper.groupExtract(messages[i]);
+        }
+        res.json({emailsToSend});
+      })
+  }
+  // If search field is NOT empty
   return fetch(`${fetchUrl}${userId}/messages?access_token=${accessToken}&q=${text}`)
   .then(result => result.json())
   .then((result) => {
     const { messages } = result;
-    const promises = [];
-    if (!messages) res.json({emailsToSend});
+    if (!messages) return res.json({emailsToSend});
     for (let i = 0; i < messages.length; i += 1) {
       const { id } = messages[i];
       promises.push(EmailsModel.findOne({ emailId: id })
@@ -234,10 +244,13 @@ emailHandlers.search = (req, res) => {
 
     return Promise.all(promises)
       .then(() => {
+        if (folderId !== 'allEmails') {
+          emailsToSend = emailsToSend.filter(email => String(email.folderId) === folderId)
+        }
         const packed = {
           emailsToSend,
         };
-        console.log(packed);
+        // console.log(packed);
         res.json(packed);
       });
   })

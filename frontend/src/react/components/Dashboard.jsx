@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { Link, Route, Switch } from 'react-router-dom';
 import Header from './Header.jsx';
@@ -8,22 +8,28 @@ import Emails from './Emails.jsx';
 import Refresh from './Refresh.jsx';
 import Email from './Email.jsx';
 
-export default function Dashboard() {
-  return (
-    <BrowserRouter>
-      <div>
-        <Header />
-        <div className="container-fluid mt-4">
-          <div className="row">
-            <Refresh />
-            <Toolbar />
-          </div>
-          <div className="row">
-            <Sidebar />
-            <Route exact path="/" component={Emails} />
-            <Route exact path="/email/:id" component={Email} />
+export default class Dashboard extends Component {
+  componentDidMount() {
+    // Clear search field when changing folder
+  }
+
+  render() {
+    return (
+      <BrowserRouter>
+        <div>
+          <Header />
+          <div className="container-fluid mt-4">
+            <div className="row">
+              <Refresh />
+              <Toolbar ref="toolbar"/>
+            </div>
+            <div className="row">
+              <Sidebar />
+              <Route exact path="/" component={Emails} />
+              <Route exact path="/email/:id" component={Email} />
+            </div>
           </div>
         </div>
-      </div>
-    </BrowserRouter>);
+      </BrowserRouter>);
+  }
 }

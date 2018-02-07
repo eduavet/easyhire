@@ -264,12 +264,12 @@ export function asyncMark(emailIds, isRead) {
   };
 }
 
-export function asyncSearch(text) {
+export function asyncSearch(text, folderId) {
   return function asyncSearchInner(dispatch) {
     dispatch(loading());
     fetch('http://localhost:3000/api/emails/search', {
       method: 'POST',
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ text, folderId }),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -277,7 +277,6 @@ export function asyncSearch(text) {
     })
       .then(res => res.json())
       .then((result) => {
-        console.log({result});
         dispatch(search(result));
       }).catch(() => {});
   };

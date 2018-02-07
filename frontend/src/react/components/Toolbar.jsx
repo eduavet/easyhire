@@ -85,6 +85,7 @@ class Toolbar extends Component {
   };
 
   search = (e) => {
+    const folderId = this.props.folders.filter(item => item.isActive === true)[0]._id;
     e.persist();
     if (this.state.typingTimeout) {
        clearTimeout(this.state.typingTimeout);
@@ -92,7 +93,7 @@ class Toolbar extends Component {
     const storeFunc = this.props.asyncSearch;
     this.setState({
        typingTimeout: setTimeout(function () {
-           storeFunc(e.target.value);
+           storeFunc(e.target.value, folderId);
          }, 1000)
     });
   }
@@ -223,7 +224,7 @@ function mapDispatchToProps(dispatch) {
     deleteEmails: emailIds => dispatch(asyncDeleteEmails(emailIds)),
     getStatusEmails: (statusId, folderId) => dispatch(asyncGetStatusEmails(statusId, folderId)),
     isStatusActive: item => dispatch(isStatusActive(item)),
-    asyncSearch: text => dispatch(asyncSearch(text)),
+    asyncSearch: (text, folderId) => dispatch(asyncSearch(text, folderId)),
   };
 }
 
