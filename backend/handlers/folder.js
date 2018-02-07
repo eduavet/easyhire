@@ -1,18 +1,16 @@
-const fetch = require('node-fetch');
 const EmailsModel = require('../models/EmailsModel.js');
 const FoldersModel = require('../models/FoldersModel.js');
-const emailHelpers = require('../helpers/email.helper.js');
 
 const folderHandlers = {};
 module.exports = folderHandlers;
 
-// Geting folders
+// Getting folders
 folderHandlers.getFolders = (req, response) => {
   const userId = req.session.userID;
   if (!userId) {
     return response.json({ folders: [] });
   }
-  return EmailsModel.count({ userId })
+  return EmailsModel.count({ userId, deleted: false })
     .then(inboxCount => FoldersModel
       .aggregate([
         { $match: { $or: [{ userId: null }, { userId }] } },
@@ -25,29 +23,21 @@ folderHandlers.getFolders = (req, response) => {
           },
         },
         {
-          $unwind: {
-            path: '$emails',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        { $match: { $or: [{ 'emails.userId': userId }, { emails: { $exists: false } }] } },
-        {
-          $group: {
-            _id: '$_id',
-            name: { $first: '$name' },
-            icon: { $first: '$icon' },
-            userId: { $first: '$userId' },
-            emails: { $push: '$emails' },
-            // count: {  $sum: 1}
-          },
-        },
-        {
-          $project: {
-            _id: 1,
-            name: 1,
-            icon: 1,
-            userId: 1,
-            count: { $size: '$emails' },
+          $addFields: {
+            count: {
+              $size: {
+                $filter: {
+                  input: '$emails',
+                  as: 'email',
+                  cond: {
+                    $and: [
+                      { $eq: ['$$email.deleted', false] },
+                      { $eq: ['$$email.userId', userId] },
+                    ],
+                  },
+                },
+              },
+            },
           },
         },
         { $sort: { userId: 1, name: 1 } },
@@ -140,7 +130,7 @@ folderHandlers.getEmails = (req, res) => {
   const folderId = req.params.ID;
   const promises = [];
   if (folderId === 'allEmails') {
-    return EmailsModel.find({ userId })
+    return EmailsModel.find({ userId, deleted: false })
       .populate('folder status')
       .then(result =>
         Promise.all(promises)
@@ -149,9 +139,9 @@ folderHandlers.getEmails = (req, res) => {
           }))
       .catch(err => res.json({ emailsToSend: [], errors: err }));
   }
-  return EmailsModel.find({ folder: folderId, userId })
+  return EmailsModel.find({ folder: folderId, userId, deleted: false })
     .populate('folder status')
-    .then((result) => {
+    .then(result =>
       // for (let i = 0; i < result.length; i += 1) {
       //   const id = result[i].emailId;
       //   promises.push(fetch(`https://www.googleapis.com/gmail/v1/users/${userId}/messages/${id}?access_token=${accessToken}`)
@@ -165,11 +155,9 @@ folderHandlers.getEmails = (req, res) => {
       //       );
       //     }));
       // }
-      return Promise.all(promises)
+      Promise.all(promises)
         .then(() => {
           res.json({ emailsToSend: result, errors: [] });
-        });
-    })
+        }))
     .catch(err => res.json({ emailsToSend: [], errors: err }));
-
 };

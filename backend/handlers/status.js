@@ -138,8 +138,7 @@ statusHandlers.getEmails = (req, res) => {
     return res.json({ errors });
   }
   const userId = req.session.userID;
-  const statusId = req.params.statusId;
-  const folderId = req.params.folderId;
+  const { statusId, folderId } = req.params;
   // const { accessToken } = req.session;
   // const emailsToSend = [];
   const promises = [];

@@ -13,7 +13,7 @@ const MOVE_EMAILS = 'Update Email Folders';
 const GET_FOLDER_EMAILS = 'Get folder emails';
 const GET_STATUS_EMAILS = 'Get status emails';
 
-const REFRESH = 'Refresh';
+const EMAIL_REFRESH = 'Email refresh';
 const LOADING = 'Loading';
 
 const IS_CHECKED = 'Is checked';
@@ -84,9 +84,9 @@ function deleteEmails(response) {
   };
 }
 
-function refresh(result) {
+function emailRefresh(result) {
   return {
-    type: REFRESH,
+    type: EMAIL_REFRESH,
     payload: {
       emails: result.emailsToSend,
     },
@@ -242,8 +242,8 @@ export function asyncRefresh() {
     })
       .then(res => res.json())
       .then((result) => {
-        dispatch(refresh(result));
-      }).catch(() => {});
+        dispatch(emailRefresh(result));
+      }).catch();
   };
 }
 
@@ -382,21 +382,11 @@ export default function emailsReducer(state = initialState, action) {
         ...state, emails: emailsAfterDelete, errors: payload.errors,
       };
     }
-    case REFRESH:
+    case EMAIL_REFRESH:
       return {
         ...state,
         emails: payload.emails
           .map(email => Object.assign({}, email, { isChecked: !!email.isChecked })),
-        folders: [
-          {
-            _id: 'allEmails',
-            name: 'Inbox',
-            icon: 'fa-inbox',
-            isActive: true,
-            count: payload.inboxCount,
-          },
-          ...payload.folders
-            .map(folder => Object.assign({}, folder, { isActive: !!folder.isActive }))],
         loaded: true,
       };
     case MARK:

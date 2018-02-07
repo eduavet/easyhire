@@ -7,7 +7,6 @@ import { selectAll, selectNone, asyncMoveEmails, asyncDeleteEmails, asyncMark, a
 import ModalDeleteEmails from './ModalDeleteEmails.jsx';
 import { isStatusActive } from '../../redux/reducers/statusReducer';
 
-
 class Toolbar extends Component {
   constructor(props) {
     super(props);
