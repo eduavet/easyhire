@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { Link, Route, Switch } from 'react-router-dom';
+import history from './history';
 import Header from './Header.jsx';
 import Toolbar from './Toolbar.jsx';
 import Sidebar from './Sidebar.jsx';
@@ -15,13 +16,13 @@ export default class Dashboard extends Component {
 
   render() {
     return (
-      <BrowserRouter>
+      <BrowserRouter history={history}>
         <div>
           <Header />
           <div className="container-fluid mt-4">
             <div className="row">
               <Refresh />
-              <Toolbar ref="toolbar"/>
+              <Toolbar ref="toolbar" />
             </div>
             <div className="row">
               <Sidebar />
