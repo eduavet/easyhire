@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Nav, NavItem, Dropdown, DropdownItem, DropdownToggle, DropdownMenu, NavLink, Input } from 'reactstrap';
 import { notify } from 'react-notify-toast';
-import { selectAll, selectNone, asyncMoveEmails, asyncDeleteEmails, asyncMark, asyncGetStatusEmails } from '../../redux/reducers/emailsReducer';
+import { selectAll, selectNone, asyncMoveEmails, asyncDeleteEmails, asyncMark, asyncGetStatusEmails, asyncSearch } from '../../redux/reducers/emailsReducer';
 import ModalDeleteEmails from './ModalDeleteEmails.jsx';
 import { isActive } from '../../redux/reducers/statusReducer';
 
@@ -18,6 +18,7 @@ class Toolbar extends Component {
       filterOpen: false,
       deleteModal: false,
       deleteCount: 0,
+      typingTimeOut: 0
     };
   }
 
@@ -82,6 +83,19 @@ class Toolbar extends Component {
   statusToggler = (status) => {
     this.props.isActive(status);
   };
+
+  search = (e) => {
+    e.persist();
+    if (this.state.typingTimeout) {
+       clearTimeout(this.state.typingTimeout);
+    }
+    const storeFunc = this.props.asyncSearch;
+    this.setState({
+       typingTimeout: setTimeout(function () {
+           storeFunc(e.target.value);
+         }, 1000)
+    });
+  }
 
   render() {
     return (
@@ -159,7 +173,8 @@ class Toolbar extends Component {
                 <i className="fa fa-search search-icon" />
                 <Input
                   className="form-control mr-lg-2" type="search"
-                  placeholder="Search" aria-label="Search"
+                  placeholder="Search" aria-label="Search" ref="searchField"
+                  onKeyUp={this.search}
                 />
               </div>
             </form>
@@ -184,6 +199,7 @@ Toolbar.propTypes = {
   statuses: PropTypes.array,
   isActive: PropTypes.func.isRequired,
   getStatusEmails: PropTypes.func.isRequired,
+  asyncSearch: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -204,6 +220,7 @@ function mapDispatchToProps(dispatch) {
     deleteEmails: emailIds => dispatch(asyncDeleteEmails(emailIds)),
     getStatusEmails: statusId => dispatch(asyncGetStatusEmails(statusId)),
     isActive: item => dispatch(isActive(item)),
+    asyncSearch: text => dispatch(asyncSearch(text)),
   };
 }
 
