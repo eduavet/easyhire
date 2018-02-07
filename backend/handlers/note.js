@@ -14,8 +14,8 @@ noteHandlers.getNotes = (req, res) => {
     return res.json({ errors, notes: [] });
   }
   const userId = req.session.userID;
-  const sender = req.params.sender;
-  NotesModel.find({ userId, sender })
+  const { sender } = req.params;
+  return NotesModel.find({ userId, sender })
     .then(notes => res.json({ notes, errors: [] }))
     .catch(() => res.json({ notes: [], errors: [{ msg: 'Something went wrong' }] }));
 };
@@ -29,9 +29,8 @@ noteHandlers.addNote = (req, res) => {
     return res.json({ errors, note: {} });
   }
   const userId = req.session.userID;
-  const content = req.body.content;
-  const sender = req.params.sender;
-  const emailId = req.body.emailId;
+  const { content, emailId } = req.body;
+  const { sender } = req.params;
   const dateCreated = Date.now();
   const newNote = new NotesModel({
     content,
@@ -56,7 +55,7 @@ noteHandlers.updateNote = (req, res) => {
   }
   const noteId = req.params.id;
   const userId = req.session.userID;
-  NotesModel.findOne({ _id: mongoose.Types.ObjectId(noteId), userId })
+  return NotesModel.findOne({ _id: mongoose.Types.ObjectId(noteId), userId })
     .then((note) => {
       note.content = req.body.content;
       note.dateUpdated = Date.now();
@@ -74,9 +73,8 @@ noteHandlers.deleteNote = (req, res) => {
   }
   const noteId = req.params.id;
   const userId = req.session.userID;
-  NotesModel.findOne({ _id: mongoose.Types.ObjectId(noteId), userId })
+  return NotesModel.findOne({ _id: mongoose.Types.ObjectId(noteId), userId })
     .then(note => note.remove())
     .then(() => res.json({ _id: noteId, errors: [] }))
     .catch(() => res.json({ _id: '', errors: [{ msg: 'Something went wrong, try again' }] }));
 };
-

@@ -14,6 +14,7 @@ const emailsSchema = new Schema({
   date: String,
   threadId: String,
   attachments: Array,
+  deleted: Boolean,
 }, {
   versionKey: false,
 });

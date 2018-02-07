@@ -26,8 +26,8 @@ export default class ModalUpdateFolder extends Component {
                 type="text"
                 className="form-control"
                 id="folderName"
-                placeholder="Enter folder name" r
-                ef="inputField"
+                placeholder="Enter folder name"
+                ref="inputField"
                 defaultValue={this.props.updateFolderName}
                 onChange={this.handleChange}
               />
