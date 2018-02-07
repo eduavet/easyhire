@@ -6,8 +6,8 @@ const NotesModel = require('../models/NotesModel.js');
 const noteHandlers = {};
 module.exports = noteHandlers;
 
-// Get all notes
-noteHandlers.getNotes = (req, res) => {
+// Get one notes
+noteHandlers.getNote = (req, res) => {
   req.checkParams('sender').notEmpty().withMessage('Sender is required');
   const errors = req.validationErrors();
   if (errors) {
@@ -15,9 +15,9 @@ noteHandlers.getNotes = (req, res) => {
   }
   const userId = req.session.userID;
   const sender = req.params.sender;
-  NotesModel.find({ userId, sender })
-    .then(notes => res.json({ notes, errors: [] }))
-    .catch(() => res.json({ notes: [], errors: [{ msg: 'Something went wrong' }] }));
+  NotesModel.findOne({ userId, sender })
+    .then(note => res.json({ note, errors: [] }))
+    .catch(() => res.json({ note: {}, errors: [{ msg: 'Something went wrong' }] }));
 };
 // Add new note
 noteHandlers.addNote = (req, res) => {
@@ -42,8 +42,8 @@ noteHandlers.addNote = (req, res) => {
     dateUpdated: dateCreated,
   });
   return newNote.save()
-    .then(note => res.json({ note, errors: [], noteUpdated: 0 }))
-    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], note: {}, noteUpdated: 0 }));
+    .then(note => res.json({ note, errors: [] }))
+    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], note: {} }));
 };
 
 // Update existing note
@@ -61,22 +61,8 @@ noteHandlers.updateNote = (req, res) => {
       note.content = req.body.content;
       note.dateUpdated = Date.now();
       return note.save()
-        .then(updatedNote => res.json({ note: updatedNote, errors: [], noteUpdated: 1 }));
+        .then(updatedNote => res.json({ note: updatedNote, errors: [] }));
     })
-    .catch(() => res.json({ note: {}, errors: [{ msg: 'Something went wrong' }], noteUpdated: 0 }));
-};
-// Delete note
-noteHandlers.deleteNote = (req, res) => {
-  req.checkParams('id').notEmpty().withMessage('Note id is required');
-  const errors = req.validationErrors();
-  if (errors) {
-    return res.json({ errors, _id: '' });
-  }
-  const noteId = req.params.id;
-  const userId = req.session.userID;
-  NotesModel.findOne({ _id: mongoose.Types.ObjectId(noteId), userId })
-    .then(note => note.remove())
-    .then(() => res.json({ _id: noteId, errors: [] }))
-    .catch(() => res.json({ _id: '', errors: [{ msg: 'Something went wrong, try again' }] }));
+    .catch(() => res.json({ note: {}, errors: [{ msg: 'Something went wrong' }] }));
 };
 
