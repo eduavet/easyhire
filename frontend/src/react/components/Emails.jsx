@@ -4,7 +4,7 @@ import { Table } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { Link, Route, Switch } from 'react-router-dom';
 import { isChecked } from '../../redux/reducers/emailsReducer';
-import { asyncgetEmailFromDb } from '../../redux/reducers/emailReducer';
+import { asyncGetEmailFromDb } from '../../redux/reducers/emailReducer';
 
 const Loader = require('react-loader');
 
@@ -55,7 +55,10 @@ class Emails extends Component {
     this.props.isChecked(item);
   };
   openEmail = (evt) => {
-    this.props.getEmailFromDb(evt.target.dataset.id);
+    const id = evt.target.dataset.id ?
+      evt.target.dataset.id :
+      evt.target.parentElement.dataset.id;
+    this.props.getEmailFromDb(id);
   };
   sortBySender = () => {
     if (!this.state.sortedSender) {
@@ -216,7 +219,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     isChecked: item => dispatch(isChecked(item)),
-    getEmailFromDb: item => dispatch(asyncgetEmailFromDb(item)),
+    getEmailFromDb: item => dispatch(asyncGetEmailFromDb(item)),
   };
 }
 

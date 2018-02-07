@@ -23,20 +23,32 @@ const initialState = {
 /**
  * Action
  */
+const SET_EMAIL_ID = 'Set email id';
+
 const GET_EMAIL_FROM_DB = 'Get email from database';
 const GET_EMAIL_FROM_GAPI = 'Get email from google api';
 const GET_ATTACHMENT_FROM_GAPI = 'Get attachment from google api';
+
 const CHANGE_EMAIL_STATUS = 'Change email status';
+
 const GET_NOTES = 'Get notes';
 const SEND_NOTE = 'Send note. Add or update';
+const DELETE_NOTE = 'Delete note';
 const CHANGE_NOTE_STATUS = 'Change note status';
-// const REFRESH = 'Refresh';
+const CHANGE_LAST_UPDATED_NOTE_ID = 'Change last updated note id';
+
 const LOADING = 'Loading';
-const SET_EMAIL_ID = 'Set email id';
 
 /**
  * Action creator
  */
+function setEmailId(emailId) {
+  return {
+    type: SET_EMAIL_ID,
+    payload: { emailId },
+  };
+}
+
 function getEmailFromDb(result) {
   return {
     type: GET_EMAIL_FROM_DB,
@@ -91,26 +103,13 @@ function sendNote(result) {
     },
   };
 }
-
-// function refresh(result) {
-//   return {
-//     type: REFRESH,
-//     payload: {
-//       emails: result.emailsToSend,
-//     },
-//   };
-// }
-
-
-function loading() {
+function deleteNote(result) {
   return {
-    type: LOADING,
-  };
-}
-function setEmailId(emailId) {
-  return {
-    type: SET_EMAIL_ID,
-    payload: { emailId },
+    type: DELETE_NOTE,
+    payload: {
+      _id: result._id,
+      errors: result.errors,
+    },
   };
 }
 export function changeNoteStatus(status) {
@@ -119,9 +118,20 @@ export function changeNoteStatus(status) {
     payload: { status },
   };
 }
+export function changeLastUpdatedNoteId(noteId) {
+  return {
+    type: CHANGE_LAST_UPDATED_NOTE_ID,
+    payload: { noteId },
+  };
+}
+function loading() {
+  return {
+    type: LOADING,
+  };
+}
 
-export function asyncgetEmailFromDb(id) {
-  return function asyncgetEmailFromDbInner(dispatch) {
+export function asyncGetEmailFromDb(id) {
+  return function asyncGetEmailFromDbInner(dispatch) {
     dispatch(loading());
     dispatch(setEmailId(id));
     fetch(`http://localhost:3000/api/emails/${id}`, {
@@ -161,13 +171,11 @@ export function asyncGetAttachmentFromGapi(emailId, attachments) {
     })
       .then(res => res.json())
       .then((result) => {
-      console.log(result);
         //dispatch(getEmailFromGapi(result));
       })
       .catch(() => {});
   };
 }
-
 
 export function asyncChangeEmailStatus(emailId, statusId) {
   return function asyncChangeEmailStatusInner(dispatch) {
@@ -182,17 +190,30 @@ export function asyncChangeEmailStatus(emailId, statusId) {
       .catch(() => {});
   };
 }
+export function asyncGetNotes(sender) {
+  return function asyncGetNotesInner(dispatch) {
+    dispatch(loading());
+    fetch(`http://localhost:3000/api/notes/sender/${sender}`, {
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+        dispatch(getNotes(result));
+      })
+      .catch(() => {});
+  };
+}
 
-export function asyncSendNote(emailId, note, noteId) {
+export function asyncSendNote(sender, emailId, note, noteId) {
   const method = noteId ? 'PUT' : 'POST';
   const url = noteId ?
     `http://localhost:3000/api/notes/${noteId}/`
-    : `http://localhost:3000/api/notes/email/${emailId}`;
+    : `http://localhost:3000/api/notes/sender/${sender}`;
   return function asyncSendNoteInner(dispatch) {
     dispatch(loading());
     fetch(url, {
       method,
-      body: JSON.stringify({ content: note }),
+      body: JSON.stringify({ content: note, emailId }),
       headers: {
         Origin: '', 'Content-Type': 'application/json',
       },
@@ -205,32 +226,23 @@ export function asyncSendNote(emailId, note, noteId) {
       .catch(() => {});
   };
 }
-export function asyncGetNotes(emailId) {
-  return function asyncGetNotesInner(dispatch) {
+
+export function asyncDeleteNote(noteId) {
+  const method = 'Delete';
+  const url = `http://localhost:3000/api/notes/${noteId}/`;
+  return function asyncDeleteNoteInner(dispatch) {
     dispatch(loading());
-    fetch(`http://localhost:3000/api/notes/email/${emailId}`, {
+    fetch(url, {
+      method,
       credentials: 'include',
     })
       .then(res => res.json())
       .then((result) => {
-        dispatch(getNotes(result));
+        dispatch(deleteNote(result));
       })
       .catch(() => {});
   };
 }
-// export function asyncRefresh() {
-//   return function asyncRefreshInner(dispatch) {
-//     dispatch(loading());
-//     fetch('http://localhost:3000/api/emails', {
-//       credentials: 'include',
-//     })
-//       .then(res => res.json())
-//       .then((result) => {
-//         dispatch(refresh(result));
-//       }).catch(() => {});
-//   };
-// }
-
 
 /**
  * Reducer
@@ -240,6 +252,11 @@ export default function emailsReducer(state = initialState, action) {
   const { type, payload } = action;
 
   switch (type) {
+    case SET_EMAIL_ID:
+      return {
+        ...state,
+        email: Object.assign({}, state.email, { emailId: payload.emailId }),
+      };
     case GET_EMAIL_FROM_DB:
     {
       const checkHtmlBody = state.htmlBody ? state.htmlBody : '<div dir="auto"></div>';
@@ -301,19 +318,31 @@ export default function emailsReducer(state = initialState, action) {
         notes: notesAfterUpdate,
       };
     }
+    case DELETE_NOTE:
+    {
+      const notesAfterDelete = state.notes.filter(note => note._id !== payload._id);
+      const checkLastUpdatedNoteId = state.lastUpdatedNoteId === payload._id ? '' : state.lastUpdatedNoteId;
+      return {
+        ...state,
+        lastUpdatedNoteId: checkLastUpdatedNoteId,
+        errors: [],
+        noteStatus: 'noteSaveStatus',
+        notes: notesAfterDelete,
+      };
+    }
     case LOADING:
       return {
         ...state, loaded: false,
-      };
-    case SET_EMAIL_ID:
-      return {
-        ...state,
-        email: Object.assign({}, state.email, { emailId: payload.emailId }),
       };
     case CHANGE_NOTE_STATUS:
       return {
         ...state,
         noteStatus: payload.status,
+      };
+    case CHANGE_LAST_UPDATED_NOTE_ID:
+      return {
+        ...state,
+        lastUpdatedNoteId: payload.noteId,
       };
     default:
       return state;
