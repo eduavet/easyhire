@@ -10,7 +10,7 @@ export default class ModalCannotDeleteFolder extends Component {
           <ModalHeader toggle={this.props.toggleCannotDeleteModal}>Cannot delete folder
           </ModalHeader>
           <ModalBody>
-            Folder <b>{this.props.cannotDeleteFolderName}</b>
+            Folder <b>{this.props.cannotDeleteFolderName}</b>&nbsp;
             contains emails so it cannot be deleted.
           </ModalBody>
           <ModalFooter>
