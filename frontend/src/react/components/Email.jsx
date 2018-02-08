@@ -188,7 +188,7 @@ Email.propTypes = {
   url: PropTypes.array,
   changeNoteStatus: PropTypes.func.isRequired,
   sendNewEmail: PropTypes.func,
-  messageSent: PropTypes.bool,
+  messageSent: PropTypes.number,
 
 };
 

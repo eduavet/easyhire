@@ -17,10 +17,6 @@ module.exports = emailHandlers;
 emailHandlers.emails = (req, response) => {
   const userId = req.session.userID;
   const { name, accessToken } = req.session;
-  console.log('userId', userId);
-  console.log('accessToken start');
-  console.log(accessToken);
-  console.log('accessToken end');
   const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
   const emailsToSend = [];
   if (!userId) {
@@ -83,7 +79,6 @@ emailHandlers.emails = (req, response) => {
         });
     })
     .catch((err) => {
-      console.log(err);
       response.json({
         name: '', emailsToSend: [], errors: [{ msg: 'Something went wrong' }],
       });
@@ -170,11 +165,9 @@ emailHandlers.getEmailFromGapi = (req, res) => {
   if (errors) {
     return res.json({ errors });
   }
-  console.log('getEmailFromGapi is working');
   return fetch(`${fetchUrl}${userId}/messages/${emailId}?access_token=${accessToken}`)
     .then(response => response.json())
     .then((response) => {
-      console.log('response', util.inspect(response, { depth: 8 }));
       const emailParts = {};
       const htmlBody = { value: '' };
       const isPlainText = { value: false };
@@ -305,7 +298,6 @@ emailHandlers.getAttachmentFromGapi = (req, res) => {
       if (!fs.existsSync(`attachments/${userId}/${emailId}/${filename}`)) {
         fs.writeFileSync(`attachments/${userId}/${emailId}/${filename}`, attach.body);
       }
-      console.log(accessToken);
       request(fullpath).pipe(res);
     })
     .catch((err) => {
@@ -410,7 +402,7 @@ emailHandlers.sendNewEmail = (req, res) => {
           'Content-Type': 'application/json',
         },
       }))
-      .then(resp => res.json({ resp })))
-    .catch(err => console.log(err));
+      .then(resp => res.json({ status: resp.status, errors: [] })))
+    .catch(err => res.json({ status: null, errors: ['Message is not sent', err] }));
 };
 // console.log(util.inspect(res, { depth: 8 }));

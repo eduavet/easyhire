@@ -78,7 +78,7 @@ function getAttachmentFromGapi(objectURL) {
 function sendNewEmail(result) {
   return {
     type: SEND_NEW_EMAIL,
-    payload: { ok: result.ok }
+    payload: { status: result.status },
   };
 }
 
@@ -304,8 +304,8 @@ export default function emailsReducer(state = initialState, action) {
     case SEND_NEW_EMAIL: {
       return {
         ...state,
-        messageSent: payload.ok,
-      }
+        messageSent: payload.status,
+      };
     }
     case CHANGE_EMAIL_STATUS:
     {
