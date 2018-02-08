@@ -23,6 +23,7 @@ passport.use(new GoogleStrategy(
     request.session.userID = profile.id;
     request.session.accessToken = accessToken;
     request.session.name = profile.displayName;
+    req.session.email = profile.email;
     request.session.save();
 
     UsersModel.findOne({ googleID: profile.id }, (err, exists) => {

@@ -114,7 +114,7 @@ class Email extends Component {
         <div className="col-8 email-border-top">
           <label htmlFor="addNoteTextarea">Notes about applicant</label>
           <div className="notes">
-            <textarea data-id={this.props.note ? this.props.note._id : ''} className="form-control" id="addNoteTextarea" rows="7" placeholder="Type.Note will be saved Automaticly" onChange={this.typeNote} ref={el => this.noteTextareaRef = el} value={this.state.noteContent} />
+            <textarea data-id={this.props.note ? this.props.note._id : ''} className="form-control" id="addNoteTextarea" rows="7" placeholder="Start typing, note will auto save." onChange={this.typeNote} ref={el => this.noteTextareaRef = el} value={this.state.noteContent} />
             <span className={this.props.noteStatus}>Saved!</span>
           </div>
         </div>
