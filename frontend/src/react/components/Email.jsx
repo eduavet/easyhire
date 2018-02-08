@@ -76,9 +76,9 @@ class Email extends Component {
         <div>
           {
             this.props.email.attachments ?
-            this.props.email.attachments.map(attachment => (
+            this.props.email.attachments.map((attachment, index) => (
               <a
-                key={attachment.attachmentId} href={this.props.url}
+                key={attachment.attachmentId} href={this.props.url[index]}
                 download={attachment.attachmentName}
               >{attachment.attachmentName}
               </a>)) : ''
@@ -114,7 +114,7 @@ Email.propTypes = {
   getNote: PropTypes.func.isRequired,
   sendNote: PropTypes.func.isRequired,
   noteStatus: PropTypes.string,
-  url: PropTypes.string,
+  url: PropTypes.array,
   changeNoteStatus: PropTypes.func.isRequired,
 
 };
