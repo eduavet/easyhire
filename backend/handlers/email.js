@@ -345,7 +345,7 @@ emailHandlers.sendNewEmail = (req, res) => {
           'Content-Type': 'application/json',
         },
       }))
-      .then(resp => res.json({ resp })))
+      .then(resp => res.json({ status: resp.status })))
     .catch(err => console.log(err));
 };
 // console.log(util.inspect(res, { depth: 8 }));
