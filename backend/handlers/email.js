@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const fetch = require('node-fetch');
 const fs = require('fs');
-const path = require('path');
 const request = require('request');
 const util = require('util');
 const Base64 = require('js-base64').Base64;
@@ -20,10 +19,10 @@ module.exports = emailHandlers;
 emailHandlers.emails = (req, response) => {
   const userId = req.session.userID;
   const { name, accessToken } = req.session;
-  console.log('userId', userId)
-  console.log('accessToken start')
-  console.log(accessToken)
-  console.log('accessToken end')
+  console.log('userId', userId);
+  console.log('accessToken start');
+  console.log(accessToken);
+  console.log('accessToken end');
   const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
   const emailsToSend = [];
   if (!userId) {
@@ -58,6 +57,9 @@ emailHandlers.emails = (req, response) => {
                 return StatusesModel.findOne({ name: 'Not Reviewed' }, '_id');
               })
               .then((status) => {
+                if (upperEmail.payload.headers.find(item => item.name === 'To').value !== req.session.email) {
+                  return null;
+                }
                 const newEmail = helper.buildNewEmailModel(
                   userId,
                   upperEmail,
@@ -68,7 +70,7 @@ emailHandlers.emails = (req, response) => {
               })
               .then(() => EmailsModel.findOne({ emailId: upperEmail.id })
                 .populate('folder status').then((group1) => {
-                  emailsToSend[i] = helper.groupExtract(group1);
+                  emailsToSend[i] = group1 ? helper.groupExtract(group1) : null;
                 }));
           }));
       }
@@ -82,7 +84,8 @@ emailHandlers.emails = (req, response) => {
           response.json(packed);
         });
     })
-    .catch(() => {
+    .catch((err) => {
+      console.log(err);
       response.json({
         name: '', emailsToSend: [], errors: [{ msg: 'Something went wrong' }],
       });
@@ -304,12 +307,14 @@ emailHandlers.getAttachmentFromGapi = (req, res) => {
       if (!fs.existsSync(`attachments/${userId}/${emailId}/${filename}`)) {
         fs.writeFileSync(`attachments/${userId}/${emailId}/${filename}`, attach.body);
       }
+      console.log(accessToken);
       request(fullpath).pipe(res);
     })
     .catch((err) => {
       res.json({ errors: [{ msg: 'Something went wrong', err }] });
     });
 };
+
 // Reply
 emailHandlers.reply = (req, res) => {
   req.checkParams('emailId').notEmpty().withMessage('Email id id is required');
@@ -324,53 +329,90 @@ emailHandlers.reply = (req, res) => {
   const content = req.body.content;
   const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
   const uri = `${fetchUrl}${userId}/messages/send`;
-  const sender = { name: '', email: ''};
+  const sender = { name: '', email: '' };
   UsersModel.findOne({ googleID: userId }, { email: true, name: true, _id: false })
     .then((user) => {
       sender.name = user.name;
       sender.email = user.email;
       EmailsModel.findOne({ emailId })
-        .then((email) => {
-          return fetch(`${fetchUrl}${userId}/messages/${emailId}?access_token=${accessToken}&format=metadata&metadataHeaders=In-Reply-To&metadataHeaders=References&metadataHeaders=Message-ID&metadataHeaders=Subject&fields=payload%2Fheaders`)
-            .then(metadataResponse => metadataResponse.json())
-            .then((metadataResponse) => {
-              const messageId = metadataResponse.payload.headers.find(header => header.name === 'Message-ID').value;
-              const inReplyTo = metadataResponse.payload.headers.find(header => header.name === 'In-Reply-To') ? metadataResponse.payload.headers.find(header => header.name === 'In-Reply-To').value : messageId;
-              const subject = metadataResponse.payload.headers.find(header => header.name === 'Subject').value;
-              const id = email.emailId;
-              const from = process.env.GOOGLE_EMAIL_ADDRESS;
-              const to = email.sender;
-              const threadId = email.threadId;
-              const emailLines = [];
-              const contentType = 'text/html';
-              emailLines.push(`From: ${from}`);
-              emailLines.push(`To: ${to}`);
-              emailLines.push(`In-Reply-To: ${inReplyTo}`);
-              emailLines.push(`Content-type: ${contentType};charset=iso-8859-1`);
-              emailLines.push(`Subject: ${subject}`);
-              emailLines.push('');
-              emailLines.push(content);
-              emailLines.push('wwwwwwwwwwwwwwwAnd this would be the content.<br/>');
-              emailLines.push('The body is in HTML so <b>we could even use bold</b>');
-              const emailLinesJoined = emailLines.join('\r\n').trim();
-              const base64EncodedEmail = Buffer.from(emailLinesJoined).toString('base64').replace(/\+/g, '-').replace(/\//g, '_');
-              return fetch(`${uri}?access_token=${accessToken}`, {
-                method: 'POST',
-                body: JSON.stringify({
-                  raw: base64EncodedEmail,
-                  id,
-                  threadId,
-                }),
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-              })
-                .then((response) => {
-                  res.json({ ok: response.ok, status: response.status, errors: [] });
-                });
-            });
-        });
+        .then(email => fetch(`${fetchUrl}${userId}/messages/${emailId}?access_token=${accessToken}&format=metadata&metadataHeaders=In-Reply-To&metadataHeaders=References&metadataHeaders=Message-ID&metadataHeaders=Subject&fields=payload%2Fheaders`)
+          .then(metadataResponse => metadataResponse.json())
+          .then((metadataResponse) => {
+            const messageId = metadataResponse.payload.headers.find(header => header.name === 'Message-ID').value;
+            const inReplyTo = metadataResponse.payload.headers.find(header => header.name === 'In-Reply-To') ? metadataResponse.payload.headers.find(header => header.name === 'In-Reply-To').value : messageId;
+            const subject = metadataResponse.payload.headers.find(header => header.name === 'Subject').value;
+            const id = email.emailId;
+            const from = process.env.GOOGLE_EMAIL_ADDRESS;
+            const to = email.sender;
+            const threadId = email.threadId;
+            const emailLines = [];
+            const contentType = 'text/html';
+            emailLines.push(`From: ${from}`);
+            emailLines.push(`To: ${to}`);
+            emailLines.push(`In-Reply-To: ${inReplyTo}`);
+            emailLines.push(`Content-type: ${contentType};charset=iso-8859-1`);
+            emailLines.push(`Subject: ${subject}`);
+            emailLines.push('');
+            emailLines.push(content);
+            emailLines.push('wwwwwwwwwwwwwwwAnd this would be the content.<br/>');
+            emailLines.push('The body is in HTML so <b>we could even use bold</b>');
+            const emailLinesJoined = emailLines.join('\r\n').trim();
+            const base64EncodedEmail = Buffer.from(emailLinesJoined).toString('base64').replace(/\+/g, '-').replace(/\//g, '_');
+            return fetch(`${uri}?access_token=${accessToken}`, {
+              method: 'POST',
+              body: JSON.stringify({
+                raw: base64EncodedEmail, id, threadId,
+              }),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            })
+              .then((response) => {
+                res.json({ ok: response.ok, status: response.status, errors: [] });
+              });
+          }));
     })
     .catch(() => res.json({ ok: false, errors: [{ msg: "Couldn't send email.Please try again" }] }));
+};
+emailHandlers.sendNewEmail = (req, res) => {
+  req.checkParams('emailId').notEmpty().withMessage('Email id is required');
+  const userId = req.session.userID;
+  const { accessToken } = req.session;
+  const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
+  const { emailId } = req.params;
+  const sender = {};
+  const { subject, messageBody } = req.body;
+  const errors = req.validationErrors();
+  const recipient = {};
+  const emailLines = [];
+  const encodedEmail = {};
+  if (errors) {
+    return res.json({ errors });
+  }
+  return UsersModel.findOne({ googleID: userId }, { email: true, name: true, _id: false })
+    .then((user) => { sender.address = user.email; sender.name = user.name; })
+    .then(() => EmailsModel.findOne({ emailId }, { sender: true, _id: false })
+      .then((result) => { recipient.address = result.sender; })
+      .then(() => {
+        emailLines.push(`From: ${sender.name} ${sender.address}`);
+        emailLines.push(`To: ${recipient.address}`);
+        emailLines.push('Content-type: text/html;charset=iso-8859-1');
+        emailLines.push('MIME-Version: 1.0');
+        emailLines.push(`Subject: ${subject}`);
+        emailLines.push('');
+        emailLines.push(`${messageBody}`);
+        emailLines.push('The body is in HTML so <b>we could even use bold</b>');
+        const email = emailLines.join('\r\n').trim();
+        encodedEmail.body = Buffer.from(email).toString('base64').replace(/\+/g, '-').replace(/\//g, '_');
+      })
+      .then(() => fetch(`${fetchUrl}${userId}/messages/send?access_token=${accessToken}`, {
+        method: 'POST',
+        body: JSON.stringify({ raw: encodedEmail.body, id: '1616f8cdd817db87', threadId: '1616f8cdd817db87' }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }))
+      .then(resp => res.json({ resp })))
+    .catch(err => console.log(err));
 };
 // console.log(util.inspect(res, { depth: 8 }));

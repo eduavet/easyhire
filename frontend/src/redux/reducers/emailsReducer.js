@@ -119,7 +119,6 @@ function search(result) {
   };
 }
 
-
 export function asyncGetEmails() {
   return function asyncGetEmailsInner(dispatch) {
     dispatch(loading());
@@ -128,9 +127,10 @@ export function asyncGetEmails() {
     })
       .then(res => res.json())
       .then((result) => {
+        console.log({result});
         dispatch(getEmails(result));
       })
-      .catch(() => {});
+      .catch(console.error);
   };
 }
 
