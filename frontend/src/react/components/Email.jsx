@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncGetNote, asyncSendNote, changeNoteStatus } from '../../redux/reducers/emailReducer';
+import { notify } from 'react-notify-toast';
+import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncSendNewEmail, asyncGetNote, asyncSendNote, changeNoteStatus } from '../../redux/reducers/emailReducer';
 import { Editor } from '@tinymce/tinymce-react';
 
 class Email extends Component {
@@ -41,7 +42,10 @@ class Email extends Component {
         .map(attachment => this.props.getAttachmentFromGapi(nextProps.email.emailId, attachment));
     }
   }
-
+  newEmail = () => {
+    this.props.sendNewEmail(this.props.email.emailId, 'pdf-test.pdf', 'hello naira!');
+    notify.show('Message Sent', 'success', 1500);
+  };
   sendNoteInfo = { time: 0 };
   changeStatus = (evt) => {
     const statusId = evt.target.value;
@@ -62,13 +66,13 @@ class Email extends Component {
     return (
       <div className="col-10 mt-4">
         <div>
-          <div style={{float: 'right'}}>
+          <div style={{ float: 'right' }}>
             <label htmlFor="selectStatus"><b>Change Status</b></label>
             <select className="form-control" id="selectStatus" onChange={this.changeStatus} value={this.props.email.status}>
               {this.props.statuses
                 .map(status => <option key={status._id} value={status._id}>{status.name}</option>)}
-              </select>
-            </div>
+            </select>
+          </div>
           <p><b>Sender:</b> {this.props.email.sender}</p>
           <p><b>Subject:</b> {this.props.email.subject}</p>
           <p><b>Date:</b> {this.props.email.date}</p>
@@ -96,9 +100,9 @@ class Email extends Component {
         <hr />
         <div className="btn-group" role="group">
           <button type="button" className="btn bg-light-blue rounded tooltip-toggle" data-tooltip="Email will be sent in this thread">Reply</button>
-          <button type="button" className="btn btn-success rounded ml-2 tooltip-toggle" data-tooltip="This will send new email">Send New Email</button>
+          <button type="button" className="btn btn-success rounded ml-2 tooltip-toggle" onClick={this.newEmail} data-tooltip="This will send new email">Send New Email</button>
         </div>
-        <br/><br/>
+        <br /><br />
         <Editor
           initialValue="<b>This is the initial content of the editor</b>"
           init={{
@@ -131,6 +135,8 @@ Email.propTypes = {
   noteStatus: PropTypes.string,
   url: PropTypes.array,
   changeNoteStatus: PropTypes.func.isRequired,
+  sendNewEmail: PropTypes.func,
+  messageSent: PropTypes.bool,
 
 };
 Email.defaultProps = {
@@ -144,6 +150,7 @@ function mapStateToProps(state) {
     note: state.email.note,
     noteStatus: state.email.noteStatus,
     url: state.email.url,
+    messageSent: state.email.messageSent,
 
   };
 }
@@ -164,6 +171,8 @@ function mapDispatchToProps(dispatch) {
       noteId,
     ) => dispatch(asyncSendNote(sender, emailId, note, noteId)),
     changeNoteStatus: status => dispatch(changeNoteStatus(status)),
+    sendNewEmail: (emailId, subject, messageBody) =>
+      dispatch(asyncSendNewEmail(emailId, subject, messageBody)),
   };
 }
 
