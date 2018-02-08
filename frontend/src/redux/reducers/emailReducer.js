@@ -17,7 +17,7 @@ const initialState = {
   loading: true,
   errors: [],
   loaded: false,
-  url: '',
+  url: [],
 };
 
 /**
@@ -231,6 +231,7 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         email: Object.assign({}, payload.email, { htmlBody: checkHtmlBody }),
         loaded: true,
+        url: [],
       };
     }
     case GET_EMAIL_FROM_GAPI:
@@ -248,10 +249,10 @@ export default function emailsReducer(state = initialState, action) {
         loaded: true,
       };
     case GET_ATTACHMENT_FROM_GAPI:
-      return {
-        ...state,
-        url: payload.url,
-      };
+        return {
+          ...state,
+          url: [...state.url, payload.url],
+        };
     // case GET_ATTACHMENT:
     //   return {
     //     ...state,
