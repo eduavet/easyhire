@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncGetNote, asyncSendNote, changeNoteStatus } from '../../redux/reducers/emailReducer';
+import { Editor } from '@tinymce/tinymce-react';
 
 class Email extends Component {
   constructor(...args) {
@@ -88,10 +89,20 @@ class Email extends Component {
           <button type="button" className="btn bg-light-blue rounded tooltip-toggle" data-tooltip="Email will be sent in this thread">Reply</button>
           <button type="button" className="btn btn-success rounded ml-2 tooltip-toggle" data-tooltip="This will send new email">Send Email</button>
         </div>
+
         {this.props.email.isPlainText ?
           <pre dangerouslySetInnerHTML={{ __html: this.props.email.htmlBody }} />
           :
           <div dangerouslySetInnerHTML={{ __html: this.props.email.htmlBody }} />}
+
+        <Editor
+          initialValue="<b>This is the initial content of the editor</b>"
+          init={{
+            plugins: 'link image code',
+            toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code'
+          }}
+          onChange={this.handleEditorChange}
+        />
         <div className="col-8 email-border-top">
           <label htmlFor="addNoteTextarea">Note </label>
           <div className="notes">
