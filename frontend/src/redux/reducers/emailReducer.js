@@ -35,6 +35,7 @@ const GET_NOTE = 'Get note';
 const SEND_NOTE = 'Send note. Add or update';
 const CHANGE_NOTE_STATUS = 'Change note status';
 
+const SEND_NEW_EMAIL = 'Send new email';
 const LOADING = 'Loading';
 
 /**
@@ -71,6 +72,13 @@ function getAttachmentFromGapi(objectURL) {
     payload: {
       url: objectURL,
     },
+  };
+}
+
+function sendNewEmail(result) {
+  return {
+    type: SEND_NEW_EMAIL,
+    payload: { ok: result.ok }
   };
 }
 
@@ -157,6 +165,25 @@ export function asyncGetAttachmentFromGapi(emailId, attachment) {
       .then((result) => {
         const objectURL = URL.createObjectURL(result);
         dispatch(getAttachmentFromGapi(objectURL));
+      })
+      .catch(() => {});
+  };
+}
+
+export function asyncSendNewEmail(emailId, subject, messageBody) {
+  return function asyncSendNewEmailInner(dispatch) {
+    dispatch(loading());
+    fetch(`http://localhost:3000/api/emails/${emailId}/sendNew/`, {
+      method: 'POST',
+      body: JSON.stringify({ subject, messageBody }),
+      headers: {
+        Origin: '', 'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+        dispatch(sendNewEmail(result));
       })
       .catch(() => {});
   };
@@ -249,15 +276,16 @@ export default function emailsReducer(state = initialState, action) {
         loaded: true,
       };
     case GET_ATTACHMENT_FROM_GAPI:
-        return {
-          ...state,
-          url: [...state.url, payload.url],
-        };
-    // case GET_ATTACHMENT:
-    //   return {
-    //     ...state,
-    //     url: payload.url,
-    //   };
+      return {
+        ...state,
+        url: [...state.url, payload.url],
+      };
+    case SEND_NEW_EMAIL: {
+      return {
+        ...state,
+        messageSent: payload.ok,
+      }
+    }
     case CHANGE_EMAIL_STATUS:
     {
       const emailNewStatus = payload.emailNewStatus ? payload.emailNewStatus : state.email.status;
