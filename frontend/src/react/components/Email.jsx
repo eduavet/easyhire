@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncGetNote, asyncSendNote, changeNoteStatus } from '../../redux/reducers/emailReducer';
+import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncGetNote, asyncSendNote, changeNoteStatus, asyncReply } from '../../redux/reducers/emailReducer';
 
 class Email extends Component {
   constructor(...args) {
@@ -57,6 +57,10 @@ class Email extends Component {
     this.setState({ noteContent: note });
     this.sendNoteInfo.time = setTimeout(this.props.sendNote, 3000, sender, emailId, note, noteId);
   };
+  reply = () => {
+    const emailId = this.props.email.emailId;
+    this.props.reply(emailId);
+  }
   render() {
     return (
       <div className="col-10 mt-4">
@@ -85,7 +89,7 @@ class Email extends Component {
           }
         </div>
         <div className="btn-group" role="group">
-          <button type="button" className="btn bg-light-blue rounded tooltip-toggle" data-tooltip="Email will be sent in this thread">Reply</button>
+          <button type="button" className="btn bg-light-blue rounded tooltip-toggle" data-tooltip="Email will be sent in this thread" onClick={this.reply}>Reply</button>
           <button type="button" className="btn btn-success rounded ml-2 tooltip-toggle" data-tooltip="This will send new email">Send Email</button>
         </div>
         {this.props.email.isPlainText ?
@@ -110,6 +114,7 @@ Email.propTypes = {
   getAttachmentFromGapi: PropTypes.func,
   statuses: PropTypes.array.isRequired,
   changeEmaulStatus: PropTypes.func.isRequired,
+  reply: PropTypes.func.isRequired,
   note: PropTypes.object,
   getNote: PropTypes.func.isRequired,
   sendNote: PropTypes.func.isRequired,
@@ -149,6 +154,7 @@ function mapDispatchToProps(dispatch) {
       noteId,
     ) => dispatch(asyncSendNote(sender, emailId, note, noteId)),
     changeNoteStatus: status => dispatch(changeNoteStatus(status)),
+    reply: emailId => dispatch(asyncReply(emailId)),
   };
 }
 
