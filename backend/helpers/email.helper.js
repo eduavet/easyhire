@@ -47,7 +47,8 @@ emailHelpers.buildNewEmailModel = (userId, email, folder, status) => {
   const emailId = email.id;
   const { threadId } = email;
   const sender = email.payload.headers.find(item => item.name === 'From').value;
-  const subject = email.payload.headers.find(item => item.name === 'Subject').value;
+  const subject = email.payload.headers.find(item => item.name === 'Subject') ?
+    email.payload.headers.find(item => item.name === 'Subject').value : '';
   const snippet = entities.decode(email.snippet);
   const date = moment.unix(email.internalDate / 1000).format('MM/DD/YYYY, HH:mm:ss');
   return new EmailsModel({

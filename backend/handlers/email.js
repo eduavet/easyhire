@@ -50,6 +50,9 @@ emailHandlers.emails = (req, response) => {
                 return StatusesModel.findOne({ name: 'Not Reviewed' }, '_id');
               })
               .then((status) => {
+                if (upperEmail.payload.headers.find(item => item.name === 'To').value !== req.session.email){
+                  return null;
+                }
                 const newEmail = helper.buildNewEmailModel(
                   userId,
                   upperEmail,
@@ -60,7 +63,7 @@ emailHandlers.emails = (req, response) => {
               })
               .then(() => EmailsModel.findOne({ emailId: upperEmail.id })
                 .populate('folder status').then((group1) => {
-                  emailsToSend[i] = helper.groupExtract(group1);
+                  emailsToSend[i] = group1 ? helper.groupExtract(group1) : null;
                 }));
           }));
       }
@@ -74,7 +77,8 @@ emailHandlers.emails = (req, response) => {
           response.json(packed);
         });
     })
-    .catch(() => {
+    .catch((err) => {
+      console.log(err);
       response.json({
         name: '', emailsToSend: [], errors: [{ msg: 'Something went wrong' }],
       });
