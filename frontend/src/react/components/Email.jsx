@@ -3,12 +3,15 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncGetNote, asyncSendNote, changeNoteStatus } from '../../redux/reducers/emailReducer';
 import { Editor } from '@tinymce/tinymce-react';
+import { Button, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
 
 class Email extends Component {
   constructor(...args) {
     super(...args);
     this.state = {
       noteContent: '',
+      replyPopoverOpen: false,
+      newPopoverOpen: false,
     };
   }
   componentDidMount() {
@@ -58,6 +61,18 @@ class Email extends Component {
     this.setState({ noteContent: note });
     this.sendNoteInfo.time = setTimeout(this.props.sendNote, 3000, sender, emailId, note, noteId);
   };
+  handleReplyPopover = () => {
+    this.setState({replyPopoverOpen: !this.state.replyPopoverOpen});
+  }
+  handleNewPopover = () => {
+    this.setState({newPopoverOpen: !this.state.newPopoverOpen});
+  }
+  selectedReplyTemplate = (e) => {
+    alert(`Selected template "${e.target.value}"`);
+  }
+  selectedNewTemplate = (e) => {
+    alert(`Selected template "${e.target.value}"`);
+  }
   render() {
     return (
       <div className="col-10 mt-4">
@@ -95,8 +110,40 @@ class Email extends Component {
 
         <hr />
         <div className="btn-group" role="group">
-          <button type="button" className="btn bg-light-blue rounded tooltip-toggle" data-tooltip="Email will be sent in this thread">Reply</button>
-          <button type="button" className="btn btn-success rounded ml-2 tooltip-toggle" data-tooltip="This will send new email">Send New Email</button>
+          <Button id="replyButton" onClick={this.handleReplyPopover} className="btn bg-light-blue rounded">
+            Reply
+          </Button>
+          <Popover placement="bottom" isOpen={this.state.replyPopoverOpen} target="replyButton" toggle={this.handleReplyPopover}>
+            <PopoverHeader>Select Template</PopoverHeader>
+            <PopoverBody>
+              <select className="form-control" onChange={this.selectedReplyTemplate} defaultValue="_default">
+                <option disabled value="_default"> -- select an option -- </option>
+                <option value="">No template</option>
+                <option value="Received your email">Received your email</option>
+                <option value="Interview appointment">Interview appointment</option>
+                <option value="Accepted">Accepted</option>
+                <option value="Denied">Denied</option>
+              </select>
+            </PopoverBody>
+          </Popover>
+
+          <Button id="newEmailButton" onClick={this.handleNewPopover} className="btn btn-success rounded">
+            Send New Email
+          </Button>
+          <Popover placement="bottom" isOpen={this.state.newPopoverOpen} target="newEmailButton" toggle={this.handleNewPopover}>
+            <PopoverHeader>Select Template</PopoverHeader>
+            <PopoverBody>
+              <select className="form-control" onChange={this.selectedNewTemplate} defaultValue="_default">
+                <option disabled value="_default"> -- select an option -- </option>
+                <option value="">No template</option>
+                <option value="Received your email">Received your email</option>
+                <option value="Interview appointment">Interview appointment</option>
+                <option value="Accepted">Accepted</option>
+                <option value="Denied">Denied</option>
+              </select>
+            </PopoverBody>
+          </Popover>
+
         </div>
         <br/><br/>
         <Editor

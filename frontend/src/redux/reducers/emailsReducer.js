@@ -119,7 +119,6 @@ function search(result) {
   };
 }
 
-
 export function asyncGetEmails() {
   return function asyncGetEmailsInner(dispatch) {
     dispatch(loading());
