@@ -238,6 +238,27 @@ export function asyncSendNote(sender, emailId, note, noteId) {
       .catch(() => {});
   };
 }
+
+export function asyncReply(emailId) {
+  return function asyncReplyInner(dispatch) {
+    dispatch(loading());
+    fetch(`http://localhost:3000/api/emails/reply/${emailId}`, {
+      method: 'POST',
+      body: JSON.stringify({ content: 'Hi, test mail from Easy Hire, react' }),
+      headers: {
+        Origin: '', 'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+        console.log('result', result)
+        // dispatch(reply(result));
+      })
+      .catch((err) => {console.log('catch err', err)});
+  };
+}
+
 /**
  * Reducer
  */

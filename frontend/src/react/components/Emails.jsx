@@ -137,7 +137,7 @@ class Emails extends Component {
     return (
       <div className="col-10 mt-4">
         <Loader loaded={this.props.loaded}>
-          <table size="" className="table-sm emailsTable" data-toggle="table">
+          <table size="" className="table-sm emailsTable w-100" data-toggle="table">
             <thead>
               <tr>
                 <th />
