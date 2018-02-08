@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncGetNote, asyncSendNote, changeNoteStatus } from '../../redux/reducers/emailReducer';
+import { Editor } from '@tinymce/tinymce-react';
 
 class Email extends Component {
   constructor(...args) {
@@ -60,17 +61,17 @@ class Email extends Component {
   render() {
     return (
       <div className="col-10 mt-4">
-        <div className="d-flex justify-content-between text-center wrap-words">
-          <h4 className="w-20"><small>Sender: </small><br />{this.props.email.sender}</h4>
-          <h3 className="w-20"><small>Subject: </small><br />{this.props.email.subject}</h3>
-          <div className="w-20">
-            <label htmlFor="selectStatus">Change Status</label>
+        <div>
+          <div style={{float: 'right'}}>
+            <label htmlFor="selectStatus"><b>Change Status</b></label>
             <select className="form-control" id="selectStatus" onChange={this.changeStatus} value={this.props.email.status}>
               {this.props.statuses
                 .map(status => <option key={status._id} value={status._id}>{status.name}</option>)}
-            </select>
-          </div>
-          <p className="w-20"><small>Date: </small><br />{this.props.email.date}</p>
+              </select>
+            </div>
+          <p><b>Sender:</b> {this.props.email.sender}</p>
+          <p><b>Subject:</b> {this.props.email.subject}</p>
+          <p><b>Date:</b> {this.props.email.date}</p>
         </div>
         <hr />
         <div>
@@ -84,16 +85,30 @@ class Email extends Component {
               </a>)) : ''
           }
         </div>
-        <div className="btn-group" role="group">
-          <button type="button" className="btn bg-light-blue rounded tooltip-toggle" data-tooltip="Email will be sent in this thread">Reply</button>
-          <button type="button" className="btn btn-success rounded ml-2 tooltip-toggle" data-tooltip="This will send new email">Send Email</button>
-        </div>
-        {this.props.email.isPlainText ?
+
+        {
+          this.props.email.isPlainText ?
           <pre dangerouslySetInnerHTML={{ __html: this.props.email.htmlBody }} />
           :
-          <div dangerouslySetInnerHTML={{ __html: this.props.email.htmlBody }} />}
+          <div dangerouslySetInnerHTML={{ __html: this.props.email.htmlBody }} />
+        }
+
+        <hr />
+        <div className="btn-group" role="group">
+          <button type="button" className="btn bg-light-blue rounded tooltip-toggle" data-tooltip="Email will be sent in this thread">Reply</button>
+          <button type="button" className="btn btn-success rounded ml-2 tooltip-toggle" data-tooltip="This will send new email">Send New Email</button>
+        </div>
+        <br/><br/>
+        <Editor
+          initialValue="<b>This is the initial content of the editor</b>"
+          init={{
+            plugins: 'link image code',
+            toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code'
+          }}
+          onChange={this.handleEditorChange}
+        />
         <div className="col-8 email-border-top">
-          <label htmlFor="addNoteTextarea">Note </label>
+          <label htmlFor="addNoteTextarea">Notes about applicant</label>
           <div className="notes">
             <textarea data-id={this.props.note ? this.props.note._id : ''} className="form-control" id="addNoteTextarea" rows="7" placeholder="Type.Note will be saved Automaticly" onChange={this.typeNote} ref={el => this.noteTextareaRef = el} value={this.state.noteContent} />
             <span className={this.props.noteStatus}>Saved!</span>
