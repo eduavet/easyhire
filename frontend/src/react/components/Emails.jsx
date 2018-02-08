@@ -3,8 +3,7 @@ import { connect } from 'react-redux';
 import { Table } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { Link, Route, Switch } from 'react-router-dom';
-import history from './history';
-import { isChecked } from '../../redux/reducers/emailsReducer';
+import { isChecked, asyncGetEmails } from '../../redux/reducers/emailsReducer';
 import { asyncGetEmailFromDb } from '../../redux/reducers/emailReducer';
 
 const Loader = require('react-loader');
@@ -22,7 +21,9 @@ class Emails extends Component {
       sortedDate: false,
     };
   }
-
+  componentWillMount = () => {
+    this.props.getEmails();
+  }
   componentDidMount = () => {
     this.setState({ pageCount: (this.props.emails.length / 2 + 1) });
   };
@@ -208,6 +209,7 @@ Emails.propTypes = {
   loaded: PropTypes.bool.isRequired,
   emails: PropTypes.array.isRequired,
   getEmailFromDb: PropTypes.func.isRequired,
+  getEmails: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -221,6 +223,7 @@ function mapDispatchToProps(dispatch) {
   return {
     isChecked: item => dispatch(isChecked(item)),
     getEmailFromDb: item => dispatch(asyncGetEmailFromDb(item)),
+    getEmails: () => dispatch(asyncGetEmails()),
   };
 }
 

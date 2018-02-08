@@ -27,13 +27,17 @@ class Email extends Component {
       const sender = nextProps.email.sender;
       this.props.getNote(sender);
     }
-    if (nextProps.note !== null &&
-      nextProps.note !== this.props.note &&
-      nextProps.note.content !== this.props.note.content) {
-      this.setState({ noteContent: nextProps.note.content });
+    if (nextProps.note !== null && nextProps.note !== this.props.note) {
+      const oldContent = this.props.note ? this.props.note.content : '';
+      const newContent = nextProps.note ? nextProps.note.content : '';
+      if (newContent !== oldContent) {
+        this.setState({ noteContent: nextProps.note.content });
+      }
     }
-    if (nextProps.email.attachments !== this.props.email.attachments) {
-      nextProps.email.attachments.map(attachment => this.props.getAttachmentFromGapi(nextProps.email.emailId, attachment));
+    if (nextProps.email.attachments !== null &&
+      nextProps.email.attachments !== this.props.email.attachments) {
+      nextProps.email.attachments
+        .map(attachment => this.props.getAttachmentFromGapi(nextProps.email.emailId, attachment));
     }
   }
 
@@ -110,7 +114,6 @@ Email.propTypes = {
   getNote: PropTypes.func.isRequired,
   sendNote: PropTypes.func.isRequired,
   noteStatus: PropTypes.string,
-  notes: PropTypes.array,
   url: PropTypes.string,
   changeNoteStatus: PropTypes.func.isRequired,
 

@@ -294,7 +294,6 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         emails: [
-          ...state.emails,
           ...payload.emails
             .map(email => Object.assign({}, email, { isChecked: !!email.isChecked }))],
         errors: payload.errors,
