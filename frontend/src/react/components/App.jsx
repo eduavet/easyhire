@@ -16,11 +16,11 @@ export class App extends Component {
     this.props.getFolders();
     this.props.getStatuses();
   }
-  // componentWillReceiveProps(nextProps) {
-  //   if (this.props.emails !== nextProps.emails) {
-  //     this.props.updateCount();
-  //   }
-  // }
+  componentWillReceiveProps(nextProps) {
+    if (this.props.emails !== nextProps.emails) {
+      this.props.updateCount(nextProps.emails);
+    }
+  }
   render() {
     return (
       <BrowserRouter>
@@ -42,6 +42,7 @@ App.propTypes = {
   getFolders: PropTypes.func.isRequired,
   getStatuses: PropTypes.func.isRequired,
   updateCount: PropTypes.func,
+  emails: PropTypes.object,
 };
 
 function mapStateToProps(state) {

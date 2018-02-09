@@ -38,7 +38,7 @@ class ModalNewFolder extends Component {
         <Modal isOpen={this.state.modal} toggle={this.toggle}>
           <ModalHeader toggle={this.toggle}>Create New Folder</ModalHeader>
           <ModalBody>
-            <form action="http://localhost:3000/api/folders" method="post">
+            <form onSubmit={this.createFolder}>
               <div className="form-group">
                 <label htmlFor="folderName">Folder Name</label>
                 <input type="text" ref="createFolder" className="form-control" id="folderName" placeholder="Enter folder name" onChange={this.handleChange} />
