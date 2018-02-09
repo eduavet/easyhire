@@ -22,7 +22,7 @@ emailHandlers.emails = (req, response) => {
   if (!userId) {
     return response.json({ emailsToSend });
   }
-  return fetch(`${fetchUrl}${userId}/messages?access_token=${accessToken}`)
+  return fetch(`${fetchUrl}${userId}/messages?access_token=${accessToken}&maxResults=10000`)
     .then(account => account.json())
     .then((account) => {
       const { messages } = account;
@@ -44,14 +44,14 @@ emailHandlers.emails = (req, response) => {
               .then(email => email.json())
               .then((email) => {
                 upperEmail = email;
-                return FoldersModel.findOne({ name: 'Not Reviewed' }, '_id');
+                return FoldersModel.findOne({ name: 'Uncategorized' }, '_id');
               })
               .then((folder) => {
                 upperFolder = folder;
                 return StatusesModel.findOne({ name: 'Not Reviewed' }, '_id');
               })
               .then((status) => {
-                if (upperEmail.payload.headers.find(item => item.name === 'To').value !== req.session.email) {
+                if (!upperEmail.payload.headers.find(item => item.name === 'To').value.includes(req.session.email)) {
                   return null;
                 }
                 const newEmail = helper.buildNewEmailModel(
