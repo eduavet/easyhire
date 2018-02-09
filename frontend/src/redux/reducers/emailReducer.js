@@ -186,7 +186,6 @@ export function asyncGetEmailFromDb(id) {
 }
 export function asyncGetEmailFromGapi(id) {
   return function asyncGetEmailFromGapiInner(dispatch) {
-    dispatch(loading());
     fetch(`http://localhost:3000/api/emails/${id}/gapi`, {
       credentials: 'include',
     })
@@ -200,7 +199,6 @@ export function asyncGetEmailFromGapi(id) {
 
 export function asyncGetAttachmentFromGapi(emailId, attachment) {
   return function asyncGetAttachmentFromGapiInner(dispatch) {
-    dispatch(loading());
     fetch(`http://localhost:3000/api/emails/${emailId}/attachment/gapi`, {
       method: 'POST',
       body: JSON.stringify({ attachment }),
@@ -220,7 +218,6 @@ export function asyncGetAttachmentFromGapi(emailId, attachment) {
 
 export function asyncChangeEmailStatus(emailId, statusId) {
   return function asyncChangeEmailStatusInner(dispatch) {
-    dispatch(loading());
     fetch(`http://localhost:3000/api/emails/${emailId}/status/${statusId}`, {
       credentials: 'include',
     })
@@ -339,7 +336,6 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         email: Object.assign({}, payload.email, { htmlBody: checkHtmlBody }),
-        loaded: true,
         url: [],
       };
     }
@@ -355,7 +351,6 @@ export default function emailsReducer(state = initialState, action) {
               isPlainText: payload.isPlainText.value,
             },
           ),
-        loaded: true,
       };
     case GET_ATTACHMENT_FROM_GAPI:
       return {

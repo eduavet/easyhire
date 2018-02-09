@@ -336,24 +336,23 @@ emailHandlers.reply = (req, res) => {
         .then(email => fetch(`${fetchUrl}${userId}/messages/${emailId}?access_token=${accessToken}&format=metadata&metadataHeaders=In-Reply-To&metadataHeaders=References&metadataHeaders=Message-ID&metadataHeaders=Subject&fields=payload%2Fheaders`)
           .then(metadataResponse => metadataResponse.json())
           .then((metadataResponse) => {
-            const messageId = metadataResponse.payload.headers.find(header => header.name === 'Message-ID').value;
+            const findMessageIdContainer = metadataResponse.payload.headers.find(header => header.name === 'Message-Id');
+            const messageIdContainer = findMessageIdContainer || metadataResponse.payload.headers.find(header => header.name === 'Message-ID');
+            const messageId = messageIdContainer.value;
             const inReplyTo = metadataResponse.payload.headers.find(header => header.name === 'In-Reply-To') ? metadataResponse.payload.headers.find(header => header.name === 'In-Reply-To').value : messageId;
             const subject = metadataResponse.payload.headers.find(header => header.name === 'Subject').value;
             const id = email.emailId;
-            const from = process.env.GOOGLE_EMAIL_ADDRESS;
             const to = email.sender;
             const threadId = email.threadId;
             const emailLines = [];
             const contentType = 'text/html';
-            emailLines.push(`From: ${from}`);
+            emailLines.push(`From: ${sender.name} ${sender.email}`);
             emailLines.push(`To: ${to}`);
             emailLines.push(`In-Reply-To: ${inReplyTo}`);
             emailLines.push(`Content-type: ${contentType};charset=iso-8859-1`);
             emailLines.push(`Subject: ${subject}`);
             emailLines.push('');
             emailLines.push(content);
-            emailLines.push('wwwwwwwwwwwwwwwAnd this would be the content.<br/>');
-            emailLines.push('The body is in HTML so <b>we could even use bold</b>');
             const emailLinesJoined = emailLines.join('\r\n').trim();
             const base64EncodedEmail = Buffer.from(emailLinesJoined).toString('base64').replace(/\+/g, '-').replace(/\//g, '_');
             return fetch(`${uri}?access_token=${accessToken}`, {
