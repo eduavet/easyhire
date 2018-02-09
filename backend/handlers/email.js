@@ -297,6 +297,9 @@ emailHandlers.getAttachmentFromGapi = (req, res) => {
     .then((response) => {
       body.value = response.data ? response.data : '';
       attach.body = Buffer.from(body.value, 'base64');
+      if (!fs.existsSync('attachments')) {
+        fs.mkdirSync('attachments');
+      }
       if (!fs.existsSync(`attachments/${userId}`)) {
         fs.mkdirSync(`attachments/${userId}`);
       }
