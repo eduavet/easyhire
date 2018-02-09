@@ -28,6 +28,7 @@ class Compose extends Component {
       this.props.reply(emailId, messageBody);
     }
     this.props.toggleComposeWindow('compose');
+    notify.show('Mesasge sent!', 'success', 1500);
   };
 
   closeCompose = () => {
