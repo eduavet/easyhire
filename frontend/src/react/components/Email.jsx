@@ -6,6 +6,8 @@ import { Button, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
 import { Editor } from '@tinymce/tinymce-react';
 import { asyncChangeEmailStatus, asyncGetEmailFromGapi, toggleButtonName, asyncGetAttachmentFromGapi, asyncSendNewEmail, asyncGetNote, asyncSendNote, changeNoteStatus, asyncReply, asyncGetTemplate } from '../../redux/reducers/emailReducer';
 
+const Loader = require('react-loader');
+
 class Email extends Component {
   constructor(...args) {
     super(...args);
@@ -102,8 +104,8 @@ class Email extends Component {
   handleEditorChange = () => {}
   render() {
     return (
+      <Loader loaded={this.props.loaded}>
       <div className="col-10 mt-4">
-        <div>
           <div style={{ float: 'right' }}>
             <label htmlFor="selectStatus"><b>Change Status</b></label>
             <select className="form-control" id="selectStatus" onChange={this.changeStatus} value={this.props.email.status}>
@@ -178,9 +180,9 @@ class Email extends Component {
             <textarea data-id={this.props.note ? this.props.note._id : ''} className="form-control" id="addNoteTextarea" rows="7" placeholder="Start typing, note will auto save." onChange={this.typeNote} ref={el => this.noteTextareaRef = el} value={this.state.noteContent} />
             <span className={this.props.noteStatus}>Saved!</span>
           </div>
-        </div>
         {/* <iframe dangerouslySetInnerHTML={{ __html: props.email.htmlBody }} title="Email Content"></iframe> */}
       </div>
+    </Loader>
     );
   }
 }
@@ -202,7 +204,7 @@ Email.propTypes = {
   sendNewEmail: PropTypes.func,
   template: PropTypes.string,
   toggleButtonName: PropTypes.func,
-
+  loaded: PropTypes.bool,
 };
 
 Email.defaultProps = {
@@ -218,7 +220,7 @@ function mapStateToProps(state) {
     noteStatus: state.email.noteStatus,
     url: state.email.url,
     template: state.email.template,
-
+    loaded: state.email.loaded
   };
 }
 
