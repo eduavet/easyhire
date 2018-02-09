@@ -20,7 +20,7 @@ class Compose extends Component {
     }
     if (nextProps.btnName === 'reply') {
       this._subject.value = this.props.subject;
-    }
+    } else { this._subject.value = ''; }
   }
   onClickSend = (evt) => {
     evt.preventDefault();
