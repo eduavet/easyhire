@@ -82,8 +82,8 @@ class Email extends Component {
   selectedReplyTemplate = (e) => {
     const selection = e.target.value;
     let templateId = '';
-    if (selection === 'Accepted'){
-     templateId = '5a7d58fd0029d71b30301261';
+    if (selection === 'Accepted') {
+      templateId = '5a7d58fd0029d71b30301261';
     } else {
       templateId = '5a7d58fd0029d71b30301265';
     }
@@ -93,7 +93,7 @@ class Email extends Component {
   selectedNewTemplate = (e) => {
     const selection = e.target.value;
     let templateId = '';
-    if (selection === 'Accepted'){
+    if (selection === 'Accepted') {
       templateId = '5a7d58fd0029d71b30301261';
     } else {
       templateId = '5a7d58fd0029d71b30301265';
@@ -105,7 +105,7 @@ class Email extends Component {
   render() {
     return (
       <Loader loaded={this.props.loaded}>
-      <div className="col-10 mt-4">
+        <div className="col-10 mt-4">
           <div style={{ float: 'right' }}>
             <label htmlFor="selectStatus"><b>Change Status</b></label>
             <select className="form-control" id="selectStatus" onChange={this.changeStatus} value={this.props.email.status}>
@@ -180,9 +180,9 @@ class Email extends Component {
             <textarea data-id={this.props.note ? this.props.note._id : ''} className="form-control" id="addNoteTextarea" rows="7" placeholder="Start typing, note will auto save." onChange={this.typeNote} ref={el => this.noteTextareaRef = el} value={this.state.noteContent} />
             <span className={this.props.noteStatus}>Saved!</span>
           </div>
-        {/* <iframe dangerouslySetInnerHTML={{ __html: props.email.htmlBody }} title="Email Content"></iframe> */}
-      </div>
-    </Loader>
+          {/* <iframe dangerouslySetInnerHTML={{ __html: props.email.htmlBody }} title="Email Content"></iframe> */}
+        </div>
+      </Loader>
     );
   }
 }
@@ -221,7 +221,7 @@ function mapStateToProps(state) {
     noteStatus: state.email.noteStatus,
     url: state.email.url,
     template: state.email.template,
-    loaded: state.email.loaded
+    loaded: state.email.loaded,
   };
 }
 

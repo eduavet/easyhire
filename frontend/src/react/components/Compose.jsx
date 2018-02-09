@@ -22,7 +22,10 @@ class Compose extends Component {
     if (nextProps.btnName === 'reply') {
       this._subject.value = this.props.subject;
       this.setState({ disabled: true });
-    } else { this._subject.value = ''; }
+    } else {
+      this.setState({ disabled: false });
+      this._subject.value = '';
+    }
   }
   onClickSend = (evt) => {
     evt.preventDefault();
