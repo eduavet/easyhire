@@ -281,11 +281,11 @@ export function asyncSendNewEmail(emailId, subject, messageBody) {
   };
 }
 
-export function asyncReply(emailId) {
+export function asyncReply(emailId, content) {
   return function asyncReplyInner(dispatch) {
     fetch(`http://localhost:3000/api/emails/reply/${emailId}`, {
       method: 'POST',
-      body: JSON.stringify({ content: 'Hi, test mail from Easy Hire, react' }),
+      body: JSON.stringify({ content }),
       headers: {
         Origin: '', 'Content-Type': 'application/json',
       },
