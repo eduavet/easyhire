@@ -96,7 +96,7 @@ folderHandlers.updateFolder = (req, res) => {
 };
 // Delete folder
 // Cannot delete default folders and folders which contain emails.
-// Default folders - Approved, Rejected, Interview Scheduled, Not Reviewed
+// Default folder - Uncategorized
 folderHandlers.deleteFolder = (req, res) => {
   FoldersModel.findOne({ userId: req.session.userID, _id: req.params.ID })
     .then((folder) => {
@@ -115,7 +115,7 @@ folderHandlers.deleteFolder = (req, res) => {
             }
           });
       }
-      return res.json({ errors: [{ msg: 'Main folders "Approved", "Rejected", "Interview Scheduled" and "Not Reviewed" cannot be deleted' }], deletedFolderID: '' });
+      return res.json({ errors: [{ msg: 'Main folders "Inbox" and "Uncategorized" cannot be deleted' }], deletedFolderID: '' });
     })
     .catch(err => res.json({ errors: err, deletedFolderID: '' }));
 };
