@@ -18,7 +18,7 @@ const initialState = {
   errors: [],
   loaded: false,
   url: [],
-  template: {},
+  template: '',
   composeWindowClassName: 'compose',
 };
 
@@ -42,6 +42,7 @@ const TOGGLE_COMPOSE_WINDOW = 'Toggle compose window';
 
 const SEND_NEW_EMAIL = 'Send new email';
 const REPLY = 'Reply';
+const GET_TEMPLATE = 'Get template';
 const LOADING = 'Loading';
 
 /**
@@ -81,10 +82,10 @@ function getAttachmentFromGapi(objectURL) {
   };
 }
 
-function composeReply(result) {
+function getTemplate(result) {
   return {
-    type: REPLY_SELECT_TEMPLATE,
-    payload: { template: result.template },
+    type: GET_TEMPLATE,
+    payload: { template: result.template.content },
   };
 }
 export function toggleComposeWindow(value) {
@@ -284,8 +285,9 @@ export function asyncReply(emailId) {
   };
 }
 
-export function asyncComposeReply(templateId) {
-  return function asyncComposeReplyInner(dispatch) {
+export function asyncGetTemplate(templateId) {
+  console.log('in async get template');
+  return function asyncGetTemplateInner(dispatch) {
     dispatch(loading());
     dispatch(toggleComposeWindow('compose show'));
     fetch(`http://localhost:3000/api/templates/${templateId}`, {
@@ -293,7 +295,8 @@ export function asyncComposeReply(templateId) {
     })
       .then(res => res.json())
       .then((result) => {
-        dispatch(composeReply(result));
+        console.log({result});
+        dispatch(getTemplate(result));
       })
       .catch(() => {});
   };
@@ -391,7 +394,7 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         composeWindowClassName: payload.composeWindowClassName,
       };
-    case REPLY_SELECT_TEMPLATE:
+    case GET_TEMPLATE:
       return {
         ...state,
         template: payload.template,

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { notify } from 'react-notify-toast';
 import { Button, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
 import { Editor } from '@tinymce/tinymce-react';
-import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncSendNewEmail, asyncGetNote, asyncSendNote, changeNoteStatus, asyncReply } from '../../redux/reducers/emailReducer';
+import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncSendNewEmail, asyncGetNote, asyncSendNote, changeNoteStatus, asyncReply, asyncGetTemplate } from '../../redux/reducers/emailReducer';
 
 class Email extends Component {
   constructor(...args) {
@@ -14,6 +14,7 @@ class Email extends Component {
       replyPopoverOpen: false,
       newPopoverOpen: false,
     };
+    console.log(Editor);
   }
   componentDidMount() {
     const emailId = this.props.email.emailId;
@@ -76,12 +77,13 @@ class Email extends Component {
     this.setState({ newPopoverOpen: !this.state.newPopoverOpen });
   };
   selectedReplyTemplate = (e) => {
-    alert(`Selected template "${e.target.value}"`);
-    this.showComposeReply
+    // alert(`Selected template "${e.target.value}"`);
+    this.props.getTemplate('5a7d58fd0029d71b3030126f');
   };
   selectedNewTemplate = (e) => {
     alert(`Selected template "${e.target.value}"`);
   };
+  handleEditorChange = () => {}
   render() {
     return (
       <div className="col-10 mt-4">
@@ -156,6 +158,7 @@ class Email extends Component {
         <br /><br />
         <Editor
           initialValue="<b>This is the initial content of the editor</b>"
+          value={this.props.template}
           init={{
             plugins: 'link image code',
             toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code'
@@ -207,6 +210,7 @@ function mapStateToProps(state) {
     noteStatus: state.email.noteStatus,
     url: state.email.url,
     messageSent: state.email.messageSent,
+    template: state.template,
 
   };
 }
@@ -230,7 +234,7 @@ function mapDispatchToProps(dispatch) {
     reply: emailId => dispatch(asyncReply(emailId)),
     sendNewEmail: (emailId, subject, messageBody) =>
       dispatch(asyncSendNewEmail(emailId, subject, messageBody)),
-    showComposeReply: templateId => dispatch(asyncshowComposeReply(templateId)),
+    getTemplate: templateId => dispatch(asyncGetTemplate(templateId)),
   };
 }
 
