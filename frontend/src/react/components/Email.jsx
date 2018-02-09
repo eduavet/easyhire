@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { notify } from 'react-notify-toast';
 import { Button, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
 import { Editor } from '@tinymce/tinymce-react';
-import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncSendNewEmail, asyncGetNote, asyncSendNote, changeNoteStatus, asyncReply, asyncGetTemplate } from '../../redux/reducers/emailReducer';
+import { asyncChangeEmailStatus, asyncGetEmailFromGapi, toggleButtonName, asyncGetAttachmentFromGapi, asyncSendNewEmail, asyncGetNote, asyncSendNote, changeNoteStatus, asyncReply, asyncGetTemplate } from '../../redux/reducers/emailReducer';
 
 class Email extends Component {
   constructor(...args) {
@@ -14,7 +14,6 @@ class Email extends Component {
       replyPopoverOpen: false,
       newPopoverOpen: false,
     };
-    console.log(Editor);
   }
   componentDidMount() {
     const emailId = this.props.email.emailId;
@@ -72,17 +71,20 @@ class Email extends Component {
   };
   handleReplyPopover = () => {
     this.setState({ replyPopoverOpen: !this.state.replyPopoverOpen });
+    this.props.toggleButtonName('reply');
   };
   handleNewPopover = () => {
     this.setState({ newPopoverOpen: !this.state.newPopoverOpen });
+    this.props.toggleButtonName('send new');
   };
   selectedReplyTemplate = (e) => {
     // const templateId = e.target.value;
     const templateId = '5a7d58fd0029d71b3030126f';
-    this.props.getTemplate(templateId)
+    this.props.getTemplate(templateId);
   };
   selectedNewTemplate = (e) => {
-    alert(`Selected template "${e.target.value}"`);
+    const templateId = '5a7d58fd0029d71b3030126f';
+    this.props.getTemplate(templateId);
   };
   handleEditorChange = () => {}
   render() {
@@ -194,7 +196,8 @@ Email.propTypes = {
   url: PropTypes.array,
   changeNoteStatus: PropTypes.func.isRequired,
   sendNewEmail: PropTypes.func,
-  messageSent: PropTypes.number,
+  template: PropTypes.string,
+  toggleButtonName: PropTypes.func,
 
 };
 
@@ -210,8 +213,7 @@ function mapStateToProps(state) {
     note: state.email.note,
     noteStatus: state.email.noteStatus,
     url: state.email.url,
-    messageSent: state.email.messageSent,
-    template: state.template,
+    template: state.email.template,
 
   };
 }
@@ -236,6 +238,7 @@ function mapDispatchToProps(dispatch) {
     sendNewEmail: (emailId, subject, messageBody) =>
       dispatch(asyncSendNewEmail(emailId, subject, messageBody)),
     getTemplate: templateId => dispatch(asyncGetTemplate(templateId)),
+    toggleButtonName: btnName => dispatch(toggleButtonName(btnName)),
   };
 }
 

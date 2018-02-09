@@ -20,6 +20,7 @@ const initialState = {
   url: [],
   template: '',
   composeWindowClassName: 'compose',
+  btnName: '',
 };
 
 /**
@@ -39,6 +40,7 @@ const CHANGE_NOTE_STATUS = 'Change note status';
 
 const REPLY_SELECT_TEMPLATE = 'Select template';
 const TOGGLE_COMPOSE_WINDOW = 'Toggle compose window';
+const CHANGE_BUTTON_NAME = 'Change button name';
 
 const SEND_NEW_EMAIL = 'Send new email';
 const REPLY = 'Reply';
@@ -141,6 +143,13 @@ export function changeNoteStatus(status) {
   return {
     type: CHANGE_NOTE_STATUS,
     payload: { status },
+  };
+}
+
+export function toggleButtonName(btnName) {
+  return {
+    type: CHANGE_BUTTON_NAME,
+    payload: { btnName },
   };
 }
 function loading() {
@@ -346,6 +355,12 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         messageSent: payload.status,
+      };
+    }
+    case CHANGE_BUTTON_NAME: {
+      return {
+        ...state,
+        btnName: payload.btnName,
       };
     }
     case REPLY: {
