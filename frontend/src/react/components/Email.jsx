@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { notify } from 'react-notify-toast';
 import { Button, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
 import { Editor } from '@tinymce/tinymce-react';
-import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncSendNewEmail, asyncGetNote, asyncSendNote, changeNoteStatus, asyncReply } from '../../redux/reducers/emailReducer';
+import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncSendNewEmail, asyncGetNote, asyncSendNote, changeNoteStatus, asyncReply, asyncGetTemplate } from '../../redux/reducers/emailReducer';
 
 class Email extends Component {
   constructor(...args) {
@@ -76,8 +76,9 @@ class Email extends Component {
     this.setState({ newPopoverOpen: !this.state.newPopoverOpen });
   };
   selectedReplyTemplate = (e) => {
-    alert(`Selected template "${e.target.value}"`);
-    this.showComposeReply
+    // const templateId = e.target.value;
+    const templateId = '5a7d58fd0029d71b3030126f';
+    this.props.getTemplate(templateId)
   };
   selectedNewTemplate = (e) => {
     alert(`Selected template "${e.target.value}"`);
@@ -184,7 +185,7 @@ Email.propTypes = {
   reply: PropTypes.func.isRequired,
   note: PropTypes.object,
   getNote: PropTypes.func.isRequired,
-  asyncshowComposeReply: PropTypes.func.isRequired,
+  getTemplate: PropTypes.func.isRequired,
   sendNote: PropTypes.func.isRequired,
   noteStatus: PropTypes.string,
   url: PropTypes.array,
@@ -230,7 +231,7 @@ function mapDispatchToProps(dispatch) {
     reply: emailId => dispatch(asyncReply(emailId)),
     sendNewEmail: (emailId, subject, messageBody) =>
       dispatch(asyncSendNewEmail(emailId, subject, messageBody)),
-    showComposeReply: templateId => dispatch(asyncshowComposeReply(templateId)),
+    getTemplate: templateId => dispatch(asyncGetTemplate(templateId)),
   };
 }
 

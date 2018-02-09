@@ -4,14 +4,18 @@ import PropTypes from 'prop-types';
 import { notify } from 'react-notify-toast';
 import { Button, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
 import { Editor } from '@tinymce/tinymce-react';
+import { toggleComposeWindow, asyncSendNewEmail, asyncReply } from '../../redux/reducers/emailReducer';
 
 class Compose extends Component {
+  closeCompose = () => {
+    this.props.toggleComposeWindow('compose');
+  };
   render() {
     return (
-      <div className="compose show">
+      <div className={this.props.composeWindowClassName}>
         <div className="modal-content">
           <div className="modal-header">
-            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+            <button type="button" className="close" onClick={this.closeCompose} aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
             <h4 className="modal-title">Compose</h4>
@@ -41,23 +45,18 @@ class Compose extends Component {
 }
 
 Compose.propTypes = {
-
-
-};
-
-Compose.defaultProps = {
-
+  toggleComposeWindow: PropTypes.func.isRequired,
+  composeWindowClassName: PropTypes.string.isRequired,
 };
 
 function mapStateToProps(state) {
   return {
-
-
+    composeWindowClassName: state.email.composeWindowClassName,
   };
 }
-
 function mapDispatchToProps(dispatch) {
   return {
+    toggleComposeWindow: param => dispatch(toggleComposeWindow(param)),
   };
 }
 

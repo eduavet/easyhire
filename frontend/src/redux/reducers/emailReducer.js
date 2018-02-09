@@ -284,8 +284,8 @@ export function asyncReply(emailId) {
   };
 }
 
-export function asyncComposeReply(templateId) {
-  return function asyncComposeReplyInner(dispatch) {
+export function asyncGetTemplate(templateId) {
+  return function asyncGetTemplateInner(dispatch) {
     dispatch(loading());
     dispatch(toggleComposeWindow('compose show'));
     fetch(`http://localhost:3000/api/templates/${templateId}`, {
