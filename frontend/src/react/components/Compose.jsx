@@ -11,18 +11,23 @@ class Compose extends Component {
     if (nextProps.template !== this.props.template) {
       this._editor.editor.setContent(nextProps.template);
     }
+    if (nextProps.btnName === 'reply') {
+      this._subject.value = this.props.subject;
+    }
   }
 
-  onClickSend = () => {
+  onClickSend = (evt) => {
+    evt.preventDefault();
     const emailId = this.props.emailId;
     const messageBody = this._editor.editor.getContent();
     if (this.props.btnName === 'send new') {
       const subject = this._subject.value;
       this.props.sendNewEmail(emailId, subject, messageBody);
-    }
-    if (this.props.btnName === 'reply') {
+    } else if (this.props.btnName === 'reply') {
+      this._subject.value = this.props.subject;
       this.props.reply(emailId, messageBody);
     }
+    this.props.toggleComposeWindow('compose');
   };
 
   closeCompose = () => {
@@ -75,11 +80,11 @@ Compose.propTypes = {
   composeWindowClassName: PropTypes.string.isRequired,
   template: PropTypes.string.isRequired,
   sendNewEmail: PropTypes.func,
-  messageSent: PropTypes.number,
   btnName: PropTypes.string,
   emailId: PropTypes.string,
   reply: PropTypes.func,
   receiver: PropTypes.string,
+  subject: PropTypes.string,
 };
 
 function mapStateToProps(state) {
@@ -90,6 +95,7 @@ function mapStateToProps(state) {
     btnName: state.email.btnName,
     emailId: state.email.email.emailId,
     receiver: state.email.email.sender,
+    subject: state.email.email.subject,
   };
 }
 function mapDispatchToProps(dispatch) {

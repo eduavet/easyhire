@@ -303,7 +303,6 @@ export function asyncGetTemplate(templateId) {
     })
       .then(res => res.json())
       .then((result) => {
-        console.log({result});
         dispatch(getTemplate(result));
       })
       .catch(() => {});
