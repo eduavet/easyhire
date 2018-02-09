@@ -7,20 +7,48 @@ import { Editor } from '@tinymce/tinymce-react';
 import { toggleComposeWindow, asyncSendNewEmail, asyncReply } from '../../redux/reducers/emailReducer';
 
 class Compose extends Component {
-  closeCompose = () => {
+  constructor(...args) {
+    super(...args);
+    this.state = {
+      minimize: false,
+      maximize: false,
+    };
+  }
+  closeCompose = (evt) => {
+    evt.stopPropagation();
     this.props.toggleComposeWindow('compose');
+  };
+  minimizeCompose = () => {
+    this.setState({ minimize: !this.state.minimize });
+    const composeWindowClass = this.state.minimize ? 'compose show' : 'compose minimized';
+    this.props.toggleComposeWindow(composeWindowClass);
+  };
+  maximizeCompose = (evt) => {
+    evt.stopPropagation();
+    this.setState({ minimize: false });
+    this.setState({ maximize: !this.state.maximize });
+    const composeWindowClass = this.state.maximize ? 'compose show' : 'compose maximized';
+    this.props.toggleComposeWindow(composeWindowClass);
   };
   render() {
     return (
       <div className={this.props.composeWindowClassName}>
         <div className="modal-content">
           <div className="modal-header">
-            <button type="button" className="close" onClick={this.closeCompose} aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-            <h4 className="modal-title">Compose</h4>
+            <div>
+              <button type="button" className="close" onClick={this.closeCompose} aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              <button type="button" className="close maximize" onClick={this.maximizeCompose} aria-label="Close">
+                <i className="fa fa-window-maximize" />
+              </button>
+              <button type="button" className="close minimize" onClick={this.minimizeCompose} aria-label="Close">
+                <i className="fa fa-window-minimize" />
+              </button>
+            </div>
+            <h4 className="modal-title">{this.props.composeWindowHeaderText}</h4>
           </div>
-          <form onSubmit="return sendEmail();">
+          <form>
             <div className="modal-body">
               <div className="form-group">
                 <input type="email" className="form-control" id="compose-to" placeholder="To" required />
@@ -39,6 +67,20 @@ class Compose extends Component {
             </div>
           </form>
         </div>
+        <div className="modal-header rounded minimized" onClick={this.minimizeCompose}>
+          <div>
+            <button type="button" className="close" onClick={this.closeCompose} aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <button type="button" className="close maximize" onClick={this.maximizeCompose} aria-label="Close">
+              <i className="fa fa-window-maximize" />
+            </button>
+            <button type="button" className="close minimize" onClick={this.minimizeCompose} aria-label="Close">
+              <i className="fa fa-window-minimize" />
+            </button>
+          </div>
+          <h4 className="modal-title">{this.props.composeWindowHeaderText}</h4>
+        </div>
       </div>
     );
   }
@@ -47,11 +89,13 @@ class Compose extends Component {
 Compose.propTypes = {
   toggleComposeWindow: PropTypes.func.isRequired,
   composeWindowClassName: PropTypes.string.isRequired,
+  composeWindowHeaderText: PropTypes.string.isRequired,
 };
 
 function mapStateToProps(state) {
   return {
     composeWindowClassName: state.email.composeWindowClassName,
+    composeWindowHeaderText: state.email.composeWindowHeaderText,
   };
 }
 function mapDispatchToProps(dispatch) {

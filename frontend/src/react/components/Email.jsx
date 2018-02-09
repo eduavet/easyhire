@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { notify } from 'react-notify-toast';
 import { Button, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
 import { Editor } from '@tinymce/tinymce-react';
-import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncSendNewEmail, asyncGetNote, asyncSendNote, changeNoteStatus, asyncReply, asyncGetTemplate } from '../../redux/reducers/emailReducer';
+import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncSendNewEmail, asyncGetNote, asyncSendNote, changeNoteStatus, asyncReply, asyncGetTemplate, changeComposeWindowHeaderText } from '../../redux/reducers/emailReducer';
 
 class Email extends Component {
   constructor(...args) {
@@ -14,7 +14,6 @@ class Email extends Component {
       replyPopoverOpen: false,
       newPopoverOpen: false,
     };
-    console.log(Editor);
   }
   componentDidMount() {
     const emailId = this.props.email.emailId;
@@ -79,10 +78,14 @@ class Email extends Component {
   selectedReplyTemplate = (e) => {
     // const templateId = e.target.value;
     const templateId = '5a7d58fd0029d71b3030126f';
-    this.props.getTemplate(templateId)
+    this.props.changeComposeWindowHeaderText('Reply');
+    this.props.getTemplate(templateId);
   };
   selectedNewTemplate = (e) => {
-    alert(`Selected template "${e.target.value}"`);
+    const templateId = '5a7d58fd0029d71b3030126f';
+    // const templateId = e.target.value;
+    this.props.changeComposeWindowHeaderText('New message');
+    this.props.getTemplate(templateId);
   };
   handleEditorChange = () => {}
   render() {
@@ -186,6 +189,7 @@ Email.propTypes = {
   statuses: PropTypes.array.isRequired,
   changeEmaulStatus: PropTypes.func.isRequired,
   reply: PropTypes.func.isRequired,
+  changeComposeWindowHeaderText: PropTypes.func.isRequired,
   note: PropTypes.object,
   getNote: PropTypes.func.isRequired,
   getTemplate: PropTypes.func.isRequired,
@@ -236,6 +240,7 @@ function mapDispatchToProps(dispatch) {
     sendNewEmail: (emailId, subject, messageBody) =>
       dispatch(asyncSendNewEmail(emailId, subject, messageBody)),
     getTemplate: templateId => dispatch(asyncGetTemplate(templateId)),
+    changeComposeWindowHeaderText: text => dispatch(changeComposeWindowHeaderText(text)),
   };
 }
 
