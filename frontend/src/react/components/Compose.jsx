@@ -6,6 +6,13 @@ import { Editor } from '@tinymce/tinymce-react';
 import { toggleComposeWindow, asyncSendNewEmail, asyncReply } from '../../redux/reducers/emailReducer';
 
 class Compose extends Component {
+  constructor(...args) {
+    super(...args);
+    this.state = {
+      minimize: false,
+      maximize: false,
+    };
+  }
   componentWillReceiveProps(nextProps) {
     this._receiver.value = this.props.receiver;
     if (nextProps.template !== this.props.template) {
@@ -13,9 +20,8 @@ class Compose extends Component {
     }
     if (nextProps.btnName === 'reply') {
       this._subject.value = this.props.subject;
-    }
+    } else { this._subject.value = ''; }
   }
-
   onClickSend = (evt) => {
     evt.preventDefault();
     const emailId = this.props.emailId;
@@ -31,18 +37,39 @@ class Compose extends Component {
     notify.show('Mesasge sent!', 'success', 1500);
   };
 
-  closeCompose = () => {
+  closeCompose = (evt) => {
+    evt.stopPropagation();
     this.props.toggleComposeWindow('compose');
+  };
+  minimizeCompose = () => {
+    this.setState({ minimize: !this.state.minimize });
+    const composeWindowClass = this.state.minimize ? 'compose show' : 'compose minimized';
+    this.props.toggleComposeWindow(composeWindowClass);
+  };
+  maximizeCompose = (evt) => {
+    evt.stopPropagation();
+    this.setState({ minimize: false });
+    this.setState({ maximize: !this.state.maximize });
+    const composeWindowClass = this.state.maximize ? 'compose show' : 'compose maximized';
+    this.props.toggleComposeWindow(composeWindowClass);
   };
   render() {
     return (
       <div className={this.props.composeWindowClassName}>
         <div className="modal-content">
           <div className="modal-header">
-            <button type="button" className="close" onClick={this.closeCompose} aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-            <h4 className="modal-title">Compose</h4>
+            <div>
+              <button type="button" className="close" onClick={this.closeCompose} aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              <button type="button" className="close maximize" onClick={this.maximizeCompose} aria-label="Close">
+                <i className="fa fa-window-maximize" />
+              </button>
+              <button type="button" className="close minimize" onClick={this.minimizeCompose} aria-label="Close">
+                <i className="fa fa-window-minimize" />
+              </button>
+            </div>
+            <h4 className="modal-title">{this.props.composeWindowHeaderText}</h4>
           </div>
           <form>
             <div className="modal-body">
@@ -71,6 +98,20 @@ class Compose extends Component {
             </div>
           </form>
         </div>
+        <div className="modal-header rounded minimized" onClick={this.minimizeCompose}>
+          <div>
+            <button type="button" className="close" onClick={this.closeCompose} aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <button type="button" className="close maximize" onClick={this.maximizeCompose} aria-label="Close">
+              <i className="fa fa-window-maximize" />
+            </button>
+            <button type="button" className="close minimize" onClick={this.minimizeCompose} aria-label="Close">
+              <i className="fa fa-window-minimize" />
+            </button>
+          </div>
+          <h4 className="modal-title">{this.props.composeWindowHeaderText}</h4>
+        </div>
       </div>
     );
   }
@@ -79,6 +120,7 @@ class Compose extends Component {
 Compose.propTypes = {
   toggleComposeWindow: PropTypes.func.isRequired,
   composeWindowClassName: PropTypes.string.isRequired,
+  composeWindowHeaderText: PropTypes.string.isRequired,
   template: PropTypes.string.isRequired,
   sendNewEmail: PropTypes.func,
   btnName: PropTypes.string,
@@ -91,6 +133,7 @@ Compose.propTypes = {
 function mapStateToProps(state) {
   return {
     composeWindowClassName: state.email.composeWindowClassName,
+    composeWindowHeaderText: state.email.composeWindowHeaderText,
     template: state.email.template,
     messageSent: state.email.messageSent,
     btnName: state.email.btnName,

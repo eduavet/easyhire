@@ -20,6 +20,7 @@ const initialState = {
   url: [],
   template: '',
   composeWindowClassName: 'compose',
+  composeWindowHeaderText: 'Compose',
   btnName: '',
 };
 
@@ -40,7 +41,11 @@ const CHANGE_NOTE_STATUS = 'Change note status';
 
 const REPLY_SELECT_TEMPLATE = 'Select template';
 const TOGGLE_COMPOSE_WINDOW = 'Toggle compose window';
+
+const CHANGE_COMPOSE_WINDOW_HEADER_TEXT = 'Change compose window header text';
+
 const CHANGE_BUTTON_NAME = 'Change button name';
+
 
 const SEND_NEW_EMAIL = 'Send new email';
 const REPLY = 'Reply';
@@ -94,6 +99,13 @@ export function toggleComposeWindow(value) {
   return {
     type: TOGGLE_COMPOSE_WINDOW,
     payload: { composeWindowClassName: value },
+  };
+}
+
+export function changeComposeWindowHeaderText(value) {
+  return {
+    type: CHANGE_COMPOSE_WINDOW_HEADER_TEXT,
+    payload: { composeWindowHeaderText: value },
   };
 }
 
@@ -401,6 +413,11 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         composeWindowClassName: payload.composeWindowClassName,
+      };
+    case CHANGE_COMPOSE_WINDOW_HEADER_TEXT:
+      return {
+        ...state,
+        composeWindowHeaderText: payload.composeWindowHeaderText,
       };
     case GET_TEMPLATE:
       return {

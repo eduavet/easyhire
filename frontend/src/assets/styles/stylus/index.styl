@@ -4,6 +4,7 @@ folder-color = #585353;
 font-white-color = #FFFFFF;
 font-unread-color = #212529;
 tooltip-background-color = #485248;
+minimized-background-color = #404040;
 
 //Header component /start
 .header {
@@ -265,9 +266,60 @@ tooltip-background-color = #485248;
   .modal-header{
     flex-direction row-reverse;
   }
+  .minimized{
+    display none;
+  }
+  .minimize, .maximize{
+    i{
+      font-size 16px;
+      font-weight 200;
+    }
+  }
 }
 .compose.show{
   display block;
+}
+.compose.minimized{
+  display block;
+  width: 24%;
+  height: 8.5%;
+  font-size 23px;
+  transition all 0.7s ease;
+  .modal-content{
+    display none;
+  }
+  .minimized{
+    display block;
+    height 100%;
+    background minimized-background-color;
+    line-height 2;
+    color font-white-color;
+    &:hover{
+      cursor pointer;
+    }
+    .close{
+      color: font-white-color;
+      &:hover{
+        color font-white-color;
+        opacity 1;
+      }
+    }
+  }
+}
+.compose.maximized {
+  display block;
+  top:0%;
+  left: 0%;
+  width 100%;
+  height 100%;
+  background rgba(7,7,7,0.7);
+  .modal-content{
+    position fixed;
+    top:10%;
+    left: 15%;
+    width 70%;
+    height 80%;
+  }
 }
 //Compose component /end
 

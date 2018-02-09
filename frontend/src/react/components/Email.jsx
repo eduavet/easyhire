@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { notify } from 'react-notify-toast';
 import { Button, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
 import { Editor } from '@tinymce/tinymce-react';
-import { asyncChangeEmailStatus, asyncGetEmailFromGapi, toggleButtonName, asyncGetAttachmentFromGapi, asyncSendNewEmail, asyncGetNote, asyncSendNote, changeNoteStatus, asyncReply, asyncGetTemplate } from '../../redux/reducers/emailReducer';
+import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncSendNewEmail, asyncGetNote, asyncSendNote, changeNoteStatus, asyncReply, asyncGetTemplate, changeComposeWindowHeaderText, toggleButtonName } from '../../redux/reducers/emailReducer';
 
 const Loader = require('react-loader');
 
@@ -194,6 +194,7 @@ Email.propTypes = {
   statuses: PropTypes.array.isRequired,
   changeEmaulStatus: PropTypes.func.isRequired,
   reply: PropTypes.func.isRequired,
+  changeComposeWindowHeaderText: PropTypes.func.isRequired,
   note: PropTypes.object,
   getNote: PropTypes.func.isRequired,
   getTemplate: PropTypes.func.isRequired,
@@ -244,6 +245,7 @@ function mapDispatchToProps(dispatch) {
     sendNewEmail: (emailId, subject, messageBody) =>
       dispatch(asyncSendNewEmail(emailId, subject, messageBody)),
     getTemplate: templateId => dispatch(asyncGetTemplate(templateId)),
+    changeComposeWindowHeaderText: text => dispatch(changeComposeWindowHeaderText(text)),
     toggleButtonName: btnName => dispatch(toggleButtonName(btnName)),
   };
 }
