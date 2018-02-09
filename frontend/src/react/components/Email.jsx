@@ -14,6 +14,7 @@ class Email extends Component {
       replyPopoverOpen: false,
       newPopoverOpen: false,
     };
+    console.log(Editor);
   }
   componentDidMount() {
     const emailId = this.props.email.emailId;
@@ -83,6 +84,7 @@ class Email extends Component {
   selectedNewTemplate = (e) => {
     alert(`Selected template "${e.target.value}"`);
   };
+  handleEditorChange = () => {}
   render() {
     return (
       <div className="col-10 mt-4">
@@ -157,6 +159,7 @@ class Email extends Component {
         <br /><br />
         <Editor
           initialValue="<b>This is the initial content of the editor</b>"
+          value={this.props.template}
           init={{
             plugins: 'link image code',
             toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code'
@@ -208,6 +211,7 @@ function mapStateToProps(state) {
     noteStatus: state.email.noteStatus,
     url: state.email.url,
     messageSent: state.email.messageSent,
+    template: state.template,
 
   };
 }
