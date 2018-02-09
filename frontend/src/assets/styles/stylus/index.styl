@@ -252,6 +252,25 @@ tooltip-background-color = #485248;
 }
 //Email component end
 
+//Compose component /start
+.compose{
+  display none;
+  position fixed;
+  bottom 1%;
+  right 0.5%;
+  width 36%;
+  height 70%;
+  //border 1px solid folder-color;
+  //background indianred;
+  .modal-header{
+    flex-direction row-reverse;
+  }
+}
+.compose.show{
+  display block;
+}
+//Compose component /end
+
 //global styles /start
 .w-15 {
   width: 15%!important;

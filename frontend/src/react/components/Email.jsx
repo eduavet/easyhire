@@ -77,6 +77,7 @@ class Email extends Component {
   };
   selectedReplyTemplate = (e) => {
     alert(`Selected template "${e.target.value}"`);
+    this.showComposeReply
   };
   selectedNewTemplate = (e) => {
     alert(`Selected template "${e.target.value}"`);
@@ -183,6 +184,7 @@ Email.propTypes = {
   reply: PropTypes.func.isRequired,
   note: PropTypes.object,
   getNote: PropTypes.func.isRequired,
+  asyncshowComposeReply: PropTypes.func.isRequired,
   sendNote: PropTypes.func.isRequired,
   noteStatus: PropTypes.string,
   url: PropTypes.array,
@@ -228,6 +230,7 @@ function mapDispatchToProps(dispatch) {
     reply: emailId => dispatch(asyncReply(emailId)),
     sendNewEmail: (emailId, subject, messageBody) =>
       dispatch(asyncSendNewEmail(emailId, subject, messageBody)),
+    showComposeReply: templateId => dispatch(asyncshowComposeReply(templateId)),
   };
 }
 

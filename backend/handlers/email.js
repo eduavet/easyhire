@@ -54,6 +54,14 @@ emailHandlers.emails = (req, response) => {
                 if (upperEmail.payload.headers.find(item => item.name === 'To').value !== req.session.email) {
                   return null;
                 }
+                // const isRecieved = upperEmail.payload.headers
+                //   .find((item) => {
+                //     const itemValue = item.name === 'To' ? item.value : '';
+                //     return itemValue !== req.session.email;
+                //   });
+                // if (!isRecieved) {
+                //   return null;
+                // }
                 const newEmail = helper.buildNewEmailModel(
                   userId,
                   upperEmail,

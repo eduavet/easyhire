@@ -7,6 +7,7 @@ import Sidebar from './Sidebar.jsx';
 import Emails from './Emails.jsx';
 import Refresh from './Refresh.jsx';
 import Email from './Email.jsx';
+import Compose from './Compose.jsx';
 
 export default class Dashboard extends Component {
   componentDidMount() {
@@ -28,6 +29,7 @@ export default class Dashboard extends Component {
               <Route exact path="/" component={Emails} />
               <Route exact path="/email/:id" component={Email} />
             </div>
+            <Compose />
           </div>
         </div>
       </BrowserRouter>);

@@ -18,6 +18,8 @@ const initialState = {
   errors: [],
   loaded: false,
   url: [],
+  template: {},
+  composeWindowClassName: 'compose',
 };
 
 /**
@@ -35,7 +37,11 @@ const GET_NOTE = 'Get note';
 const SEND_NOTE = 'Send note. Add or update';
 const CHANGE_NOTE_STATUS = 'Change note status';
 
+const REPLY_SELECT_TEMPLATE = 'Select template';
+const TOGGLE_COMPOSE_WINDOW = 'Toggle compose window';
+
 const SEND_NEW_EMAIL = 'Send new email';
+const REPLY = 'Reply';
 const LOADING = 'Loading';
 
 /**
@@ -75,10 +81,30 @@ function getAttachmentFromGapi(objectURL) {
   };
 }
 
+function composeReply(result) {
+  return {
+    type: REPLY_SELECT_TEMPLATE,
+    payload: { template: result.template },
+  };
+}
+export function toggleComposeWindow(value) {
+  return {
+    type: TOGGLE_COMPOSE_WINDOW,
+    payload: { composeWindowClassName: value },
+  };
+}
+
 function sendNewEmail(result) {
   return {
     type: SEND_NEW_EMAIL,
     payload: { status: result.status },
+  };
+}
+
+function reply(result) {
+  return {
+    type: REPLY,
+    payload: { ok: result.ok, status: result.status, errors: result.errors },
   };
 }
 
@@ -170,25 +196,6 @@ export function asyncGetAttachmentFromGapi(emailId, attachment) {
   };
 }
 
-export function asyncSendNewEmail(emailId, subject, messageBody) {
-  return function asyncSendNewEmailInner(dispatch) {
-    dispatch(loading());
-    fetch(`http://localhost:3000/api/emails/${emailId}/sendNew/`, {
-      method: 'POST',
-      body: JSON.stringify({ subject, messageBody }),
-      headers: {
-        Origin: '', 'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-    })
-      .then(res => res.json())
-      .then((result) => {
-        dispatch(sendNewEmail(result));
-      })
-      .catch(() => {});
-  };
-}
-
 export function asyncChangeEmailStatus(emailId, statusId) {
   return function asyncChangeEmailStatusInner(dispatch) {
     dispatch(loading());
@@ -239,6 +246,25 @@ export function asyncSendNote(sender, emailId, note, noteId) {
   };
 }
 
+export function asyncSendNewEmail(emailId, subject, messageBody) {
+  return function asyncSendNewEmailInner(dispatch) {
+    dispatch(loading());
+    fetch(`http://localhost:3000/api/emails/${emailId}/sendNew/`, {
+      method: 'POST',
+      body: JSON.stringify({ subject, messageBody }),
+      headers: {
+        Origin: '', 'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+        dispatch(sendNewEmail(result));
+      })
+      .catch(() => {});
+  };
+}
+
 export function asyncReply(emailId) {
   return function asyncReplyInner(dispatch) {
     dispatch(loading());
@@ -252,13 +278,26 @@ export function asyncReply(emailId) {
     })
       .then(res => res.json())
       .then((result) => {
-        console.log('result', result)
-        // dispatch(reply(result));
+        dispatch(reply(result));
       })
-      .catch((err) => {console.log('catch err', err)});
+      .catch(() => {});
   };
 }
 
+export function asyncComposeReply(templateId) {
+  return function asyncComposeReplyInner(dispatch) {
+    dispatch(loading());
+    dispatch(toggleComposeWindow('compose show'));
+    fetch(`http://localhost:3000/api/templates/${templateId}`, {
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+        dispatch(composeReply(result));
+      })
+      .catch(() => {});
+  };
+}
 /**
  * Reducer
  */
@@ -307,6 +346,12 @@ export default function emailsReducer(state = initialState, action) {
         messageSent: payload.status,
       };
     }
+    case REPLY: {
+      return {
+        ...state,
+        messageSent: payload.ok,
+      };
+    }
     case CHANGE_EMAIL_STATUS:
     {
       const emailNewStatus = payload.emailNewStatus ? payload.emailNewStatus : state.email.status;
@@ -340,6 +385,16 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         noteStatus: payload.status,
+      };
+    case TOGGLE_COMPOSE_WINDOW:
+      return {
+        ...state,
+        composeWindowClassName: payload.composeWindowClassName,
+      };
+    case REPLY_SELECT_TEMPLATE:
+      return {
+        ...state,
+        template: payload.template,
       };
     default:
       return state;
