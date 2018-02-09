@@ -86,6 +86,7 @@ class Email extends Component {
       templateId = '5a7d58fd0029d71b30301265';
     }
     this.props.getTemplate(templateId);
+    this.setState({ replyPopoverOpen: false, newPopoverOpen: false });
   };
   selectedNewTemplate = (e) => {
     const selection = e.target.value;
@@ -96,6 +97,7 @@ class Email extends Component {
       templateId = '5a7d58fd0029d71b30301265';
     }
     this.props.getTemplate(templateId);
+    this.setState({ replyPopoverOpen: false, newPopoverOpen: false });
   };
   handleEditorChange = () => {}
   render() {
@@ -170,15 +172,6 @@ class Email extends Component {
 
         </div>
         <br /><br />
-        <Editor
-          initialValue="<b>This is the initial content of the editor</b>"
-          value={this.props.template}
-          init={{
-            plugins: 'link image code',
-            toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code'
-          }}
-          onChange={this.handleEditorChange}
-        />
         <div className="col-8 email-border-top">
           <label htmlFor="addNoteTextarea">Notes about applicant</label>
           <div className="notes">
