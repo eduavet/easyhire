@@ -47,10 +47,7 @@ class Email extends Component {
         .map(attachment => this.props.getAttachmentFromGapi(nextProps.email.emailId, attachment));
     }
   }
-  newEmail = () => {
-    this.props.sendNewEmail(this.props.email.emailId, 'pdf-test.pdf', 'hello naira!');
-    notify.show('Message Sent', 'success', 1500);
-  };
+
   sendNoteInfo = { time: 0 };
   changeStatus = (evt) => {
     const statusId = evt.target.value;
@@ -67,10 +64,7 @@ class Email extends Component {
     this.setState({ noteContent: note });
     this.sendNoteInfo.time = setTimeout(this.props.sendNote, 3000, sender, emailId, note, noteId);
   };
-  reply = () => {
-    const emailId = this.props.email.emailId;
-    this.props.reply(emailId);
-  };
+
   handleReplyPopover = () => {
     this.setState({ replyPopoverOpen: !this.state.replyPopoverOpen });
     this.props.toggleButtonName('reply');
@@ -193,7 +187,6 @@ Email.propTypes = {
   getAttachmentFromGapi: PropTypes.func,
   statuses: PropTypes.array.isRequired,
   changeEmaulStatus: PropTypes.func.isRequired,
-  reply: PropTypes.func.isRequired,
   changeComposeWindowHeaderText: PropTypes.func.isRequired,
   note: PropTypes.object,
   getNote: PropTypes.func.isRequired,
@@ -202,8 +195,6 @@ Email.propTypes = {
   noteStatus: PropTypes.string,
   url: PropTypes.array,
   changeNoteStatus: PropTypes.func.isRequired,
-  sendNewEmail: PropTypes.func,
-  template: PropTypes.string,
   toggleButtonName: PropTypes.func,
   loaded: PropTypes.bool,
 };
@@ -241,9 +232,6 @@ function mapDispatchToProps(dispatch) {
       noteId,
     ) => dispatch(asyncSendNote(sender, emailId, note, noteId)),
     changeNoteStatus: status => dispatch(changeNoteStatus(status)),
-    reply: emailId => dispatch(asyncReply(emailId)),
-    sendNewEmail: (emailId, subject, messageBody) =>
-      dispatch(asyncSendNewEmail(emailId, subject, messageBody)),
     getTemplate: templateId => dispatch(asyncGetTemplate(templateId)),
     changeComposeWindowHeaderText: text => dispatch(changeComposeWindowHeaderText(text)),
     toggleButtonName: btnName => dispatch(toggleButtonName(btnName)),

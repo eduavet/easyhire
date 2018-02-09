@@ -398,7 +398,6 @@ emailHandlers.sendNewEmail = (req, res) => {
         emailLines.push(`Subject: ${subject}`);
         emailLines.push('');
         emailLines.push(`${messageBody}`);
-        emailLines.push('The body is in HTML so <b>we could even use bold</b>');
         const email = emailLines.join('\r\n').trim();
         encodedEmail.body = Buffer.from(email).toString('base64').replace(/\+/g, '-').replace(/\//g, '_');
       })
