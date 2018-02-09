@@ -230,7 +230,6 @@ export function asyncChangeEmailStatus(emailId, statusId) {
 }
 export function asyncGetNote(sender) {
   return function asyncGetNoteInner(dispatch) {
-    dispatch(loading());
     fetch(`http://localhost:3000/api/notes/sender/${sender}`, {
       credentials: 'include',
     })
@@ -248,7 +247,6 @@ export function asyncSendNote(sender, emailId, note, noteId) {
     `http://localhost:3000/api/notes/${noteId}/`
     : `http://localhost:3000/api/notes/sender/${sender}`;
   return function asyncSendNoteInner(dispatch) {
-    dispatch(loading());
     fetch(url, {
       method,
       body: JSON.stringify({ content: note, emailId }),
@@ -267,7 +265,6 @@ export function asyncSendNote(sender, emailId, note, noteId) {
 
 export function asyncSendNewEmail(emailId, subject, messageBody) {
   return function asyncSendNewEmailInner(dispatch) {
-    dispatch(loading());
     fetch(`http://localhost:3000/api/emails/${emailId}/sendNew/`, {
       method: 'POST',
       body: JSON.stringify({ subject, messageBody }),
@@ -286,7 +283,6 @@ export function asyncSendNewEmail(emailId, subject, messageBody) {
 
 export function asyncReply(emailId) {
   return function asyncReplyInner(dispatch) {
-    dispatch(loading());
     fetch(`http://localhost:3000/api/emails/reply/${emailId}`, {
       method: 'POST',
       body: JSON.stringify({ content: 'Hi, test mail from Easy Hire, react' }),
@@ -305,7 +301,6 @@ export function asyncReply(emailId) {
 
 export function asyncGetTemplate(templateId) {
   return function asyncGetTemplateInner(dispatch) {
-    dispatch(loading());
     dispatch(toggleComposeWindow('compose show'));
     fetch(`http://localhost:3000/api/templates/${templateId}`, {
       credentials: 'include',
