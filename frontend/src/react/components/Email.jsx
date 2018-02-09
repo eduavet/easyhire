@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { notify } from 'react-notify-toast';
 import { Button, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
 import { Editor } from '@tinymce/tinymce-react';
-import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncSendNewEmail, asyncGetNote, asyncSendNote, changeNoteStatus, asyncReply, asyncGetTemplate, changeComposeWindowHeaderText } from '../../redux/reducers/emailReducer';
+import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncSendNewEmail, asyncGetNote, asyncSendNote, changeNoteStatus, asyncReply, asyncGetTemplate, changeComposeWindowHeaderText, toggleButtonName } from '../../redux/reducers/emailReducer';
 
 class Email extends Component {
   constructor(...args) {
@@ -71,21 +71,33 @@ class Email extends Component {
   };
   handleReplyPopover = () => {
     this.setState({ replyPopoverOpen: !this.state.replyPopoverOpen });
+    this.props.toggleButtonName('reply');
   };
   handleNewPopover = () => {
     this.setState({ newPopoverOpen: !this.state.newPopoverOpen });
+    this.props.toggleButtonName('send new');
   };
   selectedReplyTemplate = (e) => {
-    // const templateId = e.target.value;
-    const templateId = '5a7d58fd0029d71b3030126f';
-    this.props.changeComposeWindowHeaderText('Reply');
+    const selection = e.target.value;
+    let templateId = '';
+    if (selection === 'Accepted'){
+     templateId = '5a7d58fd0029d71b30301261';
+    } else {
+      templateId = '5a7d58fd0029d71b30301265';
+    }
     this.props.getTemplate(templateId);
+    this.setState({ replyPopoverOpen: false, newPopoverOpen: false });
   };
   selectedNewTemplate = (e) => {
-    const templateId = '5a7d58fd0029d71b3030126f';
-    // const templateId = e.target.value;
-    this.props.changeComposeWindowHeaderText('New message');
+    const selection = e.target.value;
+    let templateId = '';
+    if (selection === 'Accepted'){
+      templateId = '5a7d58fd0029d71b30301261';
+    } else {
+      templateId = '5a7d58fd0029d71b30301265';
+    }
     this.props.getTemplate(templateId);
+    this.setState({ replyPopoverOpen: false, newPopoverOpen: false });
   };
   handleEditorChange = () => {}
   render() {
@@ -160,15 +172,6 @@ class Email extends Component {
 
         </div>
         <br /><br />
-        <Editor
-          initialValue="<b>This is the initial content of the editor</b>"
-          value={this.props.template}
-          init={{
-            plugins: 'link image code',
-            toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code'
-          }}
-          onChange={this.handleEditorChange}
-        />
         <div className="col-8 email-border-top">
           <label htmlFor="addNoteTextarea">Notes about applicant</label>
           <div className="notes">
@@ -198,7 +201,8 @@ Email.propTypes = {
   url: PropTypes.array,
   changeNoteStatus: PropTypes.func.isRequired,
   sendNewEmail: PropTypes.func,
-  messageSent: PropTypes.number,
+  template: PropTypes.string,
+  toggleButtonName: PropTypes.func,
 
 };
 
@@ -214,8 +218,7 @@ function mapStateToProps(state) {
     note: state.email.note,
     noteStatus: state.email.noteStatus,
     url: state.email.url,
-    messageSent: state.email.messageSent,
-    template: state.template,
+    template: state.email.template,
 
   };
 }
@@ -241,6 +244,7 @@ function mapDispatchToProps(dispatch) {
       dispatch(asyncSendNewEmail(emailId, subject, messageBody)),
     getTemplate: templateId => dispatch(asyncGetTemplate(templateId)),
     changeComposeWindowHeaderText: text => dispatch(changeComposeWindowHeaderText(text)),
+    toggleButtonName: btnName => dispatch(toggleButtonName(btnName)),
   };
 }
 
