@@ -11,6 +11,7 @@ class Compose extends Component {
     this.state = {
       minimize: false,
       maximize: false,
+      disabled: false,
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -20,6 +21,7 @@ class Compose extends Component {
     }
     if (nextProps.btnName === 'reply') {
       this._subject.value = this.props.subject;
+      this.setState({ disabled: true });
     }
   }
   onClickSend = (evt) => {
@@ -74,11 +76,11 @@ class Compose extends Component {
           <form>
             <div className="modal-body">
               <div className="form-group">
-                <input type="text" className="form-control" id="compose-to" ref={(to) => { this._receiver = to; }} placeholder="To" required />
+                <input type="text" className="form-control" disabled={this.state.disabled} id="compose-to" ref={(to) => { this._receiver = to; }} placeholder="To" required />
               </div>
 
               <div className="form-group">
-                <input type="text" className="form-control" id="compose-subject" ref={(sub) => { this._subject = sub; }} placeholder="Subject" required />
+                <input type="text" className="form-control" disabled={this.state.disabled} id="compose-subject" ref={(sub) => { this._subject = sub; }} placeholder="Subject" required />
               </div>
 
               <div className="form-group">
@@ -89,6 +91,7 @@ class Compose extends Component {
                   init={{
                     plugins: 'link image code',
                     toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code',
+                    height: '220',
                   }}
                 />
               </div>
