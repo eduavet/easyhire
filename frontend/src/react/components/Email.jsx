@@ -104,8 +104,8 @@ class Email extends Component {
   handleEditorChange = () => {}
   render() {
     return (
-      <Loader loaded={this.props.loaded}>
         <div className="col-10 mt-4">
+          <Loader loaded={this.props.loaded}>
           <div style={{ float: 'right' }}>
             <label htmlFor="selectStatus"><b>Change Status</b></label>
             <select className="form-control" id="selectStatus" onChange={this.changeStatus} value={this.props.email.status}>
@@ -116,7 +116,6 @@ class Email extends Component {
           <p><b>Sender:</b> {this.props.email.sender}</p>
           <p><b>Subject:</b> {this.props.email.subject}</p>
           <p><b>Date:</b> {this.props.email.date}</p>
-        </div>
         <hr />
         <div>
           {
@@ -183,6 +182,7 @@ class Email extends Component {
           {/* <iframe dangerouslySetInnerHTML={{ __html: props.email.htmlBody }} title="Email Content"></iframe> */}
         </div>
       </Loader>
+      </div>
     );
   }
 }
