@@ -9,7 +9,7 @@ class Compose extends Component {
   componentWillReceiveProps(nextProps) {
     this._receiver.value = this.props.receiver;
     if (nextProps.template !== this.props.template) {
-      this._editor.editor.setContent(nextProps.template);
+      this._editor.editor.setContent(decodeURIComponent(nextProps.template));
     }
   }
 

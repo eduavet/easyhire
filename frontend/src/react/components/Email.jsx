@@ -78,12 +78,23 @@ class Email extends Component {
     this.props.toggleButtonName('send new');
   };
   selectedReplyTemplate = (e) => {
-    // const templateId = e.target.value;
-    const templateId = '5a7d58fd0029d71b3030126f';
+    const selection = e.target.value;
+    let templateId = '';
+    if (selection === 'Accepted'){
+     templateId = '5a7d58fd0029d71b30301261';
+    } else {
+      templateId = '5a7d58fd0029d71b30301265';
+    }
     this.props.getTemplate(templateId);
   };
   selectedNewTemplate = (e) => {
-    const templateId = '5a7d58fd0029d71b3030126f';
+    const selection = e.target.value;
+    let templateId = '';
+    if (selection === 'Accepted'){
+      templateId = '5a7d58fd0029d71b30301261';
+    } else {
+      templateId = '5a7d58fd0029d71b30301265';
+    }
     this.props.getTemplate(templateId);
   };
   handleEditorChange = () => {}
