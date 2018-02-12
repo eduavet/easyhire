@@ -14,7 +14,7 @@ import Settings from './Settings.jsx';
 export class Dashboard extends Component {
   componentDidUpdate() {
     // Clear search field when changing folder
-    console.log(this.props.settingsPage);
+    console.log(this.props.page);
   }
 
   render() {
@@ -23,7 +23,7 @@ export class Dashboard extends Component {
         <div>
           <Header />
           {
-            this.props.settingsPage ?
+            this.props.page !== 'dashboard' ?
             <Settings/>
             :
             <div className="container-fluid mt-4">
@@ -47,7 +47,7 @@ export class Dashboard extends Component {
 
 function mapStateToProps(state) {
   return {
-    settingsPage: state.folders.settingsPage,
+    page: state.folders.page,
   };
 }
 

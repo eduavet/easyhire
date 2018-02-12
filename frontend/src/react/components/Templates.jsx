@@ -9,14 +9,15 @@ const Loader = require('react-loader');
 
 class Templates extends Component {
 
-  componentDidMount() {
-    this.props.getEmailFromGapi(emailId);
-  }
+  // componentDidMount() {
+  //   this.props.getEmailFromGapi(emailId);
+  // }
   render() {
     return (
       <div className="col-10 mt-4">
-        <Loader loaded={this.props.loaded}>
-        </Loader>
+          <div>
+            Templates
+          </div>
       </div>
     );
   }
@@ -53,4 +54,3 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps,
 )(Templates);
-
