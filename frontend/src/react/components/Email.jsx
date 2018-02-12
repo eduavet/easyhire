@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { notify } from 'react-notify-toast';
@@ -98,8 +99,8 @@ class Email extends Component {
   handleEditorChange = () => {}
   render() {
     return (
-        <div className="col-10 mt-4">
-          <Loader loaded={this.props.loaded}>
+      <div className="col-10 mt-4">
+        <Loader loaded={this.props.loaded}>
           <div style={{ float: 'right' }}>
             <label htmlFor="selectStatus"><b>Change Status</b></label>
             <select className="form-control" id="selectStatus" onChange={this.changeStatus} value={this.props.email.status}>
@@ -110,9 +111,9 @@ class Email extends Component {
           <p><b>Sender:</b> {this.props.email.sender}</p>
           <p><b>Subject:</b> {this.props.email.subject}</p>
           <p><b>Date:</b> {this.props.email.date}</p>
-        <hr />
-        <div>
-          {
+          <hr />
+          <div>
+            {
             this.props.email.attachments ?
             this.props.email.attachments.map((attachment, index) => (
               <a
@@ -121,61 +122,67 @@ class Email extends Component {
               >{attachment.attachmentName}
               </a>)) : ''
           }
-        </div>
-        {
-          this.props.email.isPlainText ?
-            <pre dangerouslySetInnerHTML={{ __html: this.props.email.htmlBody }} />
-          :
-            <div dangerouslySetInnerHTML={{ __html: this.props.email.htmlBody }} />
-        }
-
-        <hr />
-        <div className="btn-group" role="group">
-          <Button id="replyButton" onClick={this.handleReplyPopover} className="btn bg-light-blue rounded">
-            Reply
-          </Button>
-          <Popover placement="bottom" isOpen={this.state.replyPopoverOpen} target="replyButton" toggle={this.handleReplyPopover}>
-            <PopoverHeader>Select Template</PopoverHeader>
-            <PopoverBody>
-              <select className="form-control" onChange={this.selectedReplyTemplate} defaultValue="_default">
-                <option disabled value="_default"> -- select an option -- </option>
-                <option value="">No template</option>
-                <option value="Received your email">Received your email</option>
-                <option value="Interview appointment">Interview appointment</option>
-                <option value="Accepted">Accepted</option>
-                <option value="Denied">Denied</option>
-              </select>
-            </PopoverBody>
-          </Popover>
-
-          <Button id="newEmailButton" onClick={this.handleNewPopover} className="btn btn-success rounded">
-            Send New Email
-          </Button>
-          <Popover placement="bottom" isOpen={this.state.newPopoverOpen} target="newEmailButton" toggle={this.handleNewPopover}>
-            <PopoverHeader>Select Template</PopoverHeader>
-            <PopoverBody>
-              <select className="form-control" onChange={this.selectedNewTemplate} defaultValue="_default">
-                <option disabled value="_default"> -- select an option -- </option>
-                <option value="">No template</option>
-                <option value="Received your email">Received your email</option>
-                <option value="Interview appointment">Interview appointment</option>
-                <option value="Accepted">Accepted</option>
-                <option value="Denied">Denied</option>
-              </select>
-            </PopoverBody>
-          </Popover>
-
-        </div>
-        <br /><br />
-        <div className="col-8 email-border-top">
-          <label htmlFor="addNoteTextarea">Notes about applicant</label>
-          <div className="notes">
-            <textarea data-id={this.props.note ? this.props.note._id : ''} className="form-control" id="addNoteTextarea" rows="7" placeholder="Start typing, note will auto save." onChange={this.typeNote} ref={el => this.noteTextareaRef = el} value={this.state.noteContent} />
-            <span className={this.props.noteStatus}>Saved!</span>
           </div>
-          {/* <iframe dangerouslySetInnerHTML={{ __html: props.email.htmlBody }} title="Email Content"></iframe> */}
-        </div>
-      </Loader>
+          {
+               this.props.email.isPlainText ?
+                 <pre>{this.props.email.htmlBody}</pre>
+          :
+                 <iframe
+                   sandbox="allow-scripts"
+                   ref={el => this.iframeRef = el}
+                   srcDoc={this.props.email.htmlBody} title="Email Content"
+                   width="100%"
+                   frameBorder="0"
+                 />
+            }
+
+          <hr />
+          <div className="btn-group" role="group">
+            <Button id="replyButton" onClick={this.handleReplyPopover} className="btn bg-light-blue rounded">
+            Reply
+            </Button>
+            <Popover placement="bottom" isOpen={this.state.replyPopoverOpen} target="replyButton" toggle={this.handleReplyPopover}>
+              <PopoverHeader>Select Template</PopoverHeader>
+              <PopoverBody>
+                <select className="form-control" onChange={this.selectedReplyTemplate} defaultValue="_default">
+                  <option disabled value="_default"> -- select an option -- </option>
+                  <option value="">No template</option>
+                  <option value="Received your email">Received your email</option>
+                  <option value="Interview appointment">Interview appointment</option>
+                  <option value="Accepted">Accepted</option>
+                  <option value="Denied">Denied</option>
+                </select>
+              </PopoverBody>
+            </Popover>
+
+            <Button id="newEmailButton" onClick={this.handleNewPopover} className="btn btn-success rounded">
+            Send New Email
+            </Button>
+            <Popover placement="bottom" isOpen={this.state.newPopoverOpen} target="newEmailButton" toggle={this.handleNewPopover}>
+              <PopoverHeader>Select Template</PopoverHeader>
+              <PopoverBody>
+                <select className="form-control" onChange={this.selectedNewTemplate} defaultValue="_default">
+                  <option disabled value="_default"> -- select an option -- </option>
+                  <option value="">No template</option>
+                  <option value="Received your email">Received your email</option>
+                  <option value="Interview appointment">Interview appointment</option>
+                  <option value="Accepted">Accepted</option>
+                  <option value="Denied">Denied</option>
+                </select>
+              </PopoverBody>
+            </Popover>
+
+          </div>
+          <br /><br />
+          <div className="col-8 email-border-top">
+            <label htmlFor="addNoteTextarea">Notes about applicant</label>
+            <div className="notes">
+              <textarea data-id={this.props.note ? this.props.note._id : ''} className="form-control" id="addNoteTextarea" rows="7" placeholder="Start typing, note will auto save." onChange={this.typeNote} ref={el => this.noteTextareaRef = el} value={this.state.noteContent} />
+              <span className={this.props.noteStatus}>Saved!</span>
+            </div>
+            {/* <iframe dangerouslySetInnerHTML={{ __html: props.email.htmlBody }} title="Email Content"></iframe> */}
+          </div>
+        </Loader>
       </div>
     );
   }
