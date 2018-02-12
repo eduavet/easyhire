@@ -4,6 +4,7 @@ import emailsReducer from './reducers/emailsReducer';
 import folderReducer from './reducers/folderReducer';
 import statusReducer from './reducers/statusReducer';
 import emailReducer from './reducers/emailReducer';
+import settingsReducer from './reducers/settingsReducer';
 
 const store = createStore(
   combineReducers({
@@ -11,6 +12,7 @@ const store = createStore(
     folders: folderReducer,
     email: emailReducer,
     statuses: statusReducer,
+    settings: settingsReducer,
   }),
   applyMiddleware(thunk),
 );

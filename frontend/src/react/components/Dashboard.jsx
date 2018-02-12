@@ -9,6 +9,7 @@ import Refresh from './Refresh.jsx';
 import Email from './Email.jsx';
 import Compose from './Compose.jsx';
 import { connect } from 'react-redux';
+import Settings from './Settings.jsx';
 
 export class Dashboard extends Component {
   componentDidUpdate() {
@@ -22,7 +23,9 @@ export class Dashboard extends Component {
         <div>
           <Header />
           {
-            this.props.settingsPage ? "" :
+            this.props.settingsPage ?
+            <Settings/>
+            :
             <div className="container-fluid mt-4">
               <div className="row">
                 <Refresh />
