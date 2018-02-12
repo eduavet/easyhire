@@ -24,12 +24,9 @@ export default class Dashboard extends Component {
             <div className="row">
               <Refresh />
               <Toolbar ref="toolbar" />
-              <Settings/>
             </div>
             <div className="row">
-              <Sidebar />
-              <Route exact path="/" component={Emails} />
-              <Route exact path="/email/:id" component={Email} />
+              <Settings />
             </div>
             <Compose />
           </div>

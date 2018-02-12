@@ -149,12 +149,14 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         templates: payload.templates,
         errors: payload.errors,
+        loaded: true,
       };
     case GET_TEMPLATE:
       return {
         ...state,
         template: payload.template,
         errors: payload.errors,
+        loaded: true,
       };
     case ADD_TEMPLATE:
     {
@@ -165,6 +167,7 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         templates: templatesAfterAdd,
         errors: payload.errors,
+        loaded: true,
       };
     }
     case UPDATE_TEMPLATE:
@@ -181,6 +184,7 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         templates: templatesAfterUpdtate,
         errors: payload.errors,
+        loaded: true,
       };
     }
     case DELETE_TEMPLATE:
@@ -193,6 +197,7 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         templates: templatesAfterDelete,
         errors: payload.errors,
+        loaded: true,
       };
     }
     case LOADING:

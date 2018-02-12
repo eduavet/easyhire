@@ -7,7 +7,7 @@ import Signature from './Signature.jsx';
 export default function Settings() {
   return (
     <div>
-      <Route exact path="/settings/templates" component={Templates} />
+      <Route path="/" component={Templates} />
       <Route path="/settings/statuses" component={Statuses} />
       <Route path="/settings/signature" component={Signature} />
     </div>
