@@ -1,5 +1,5 @@
 const initialState = {
-  folders: [], folderErrors: [], loaded: false
+  folders: [], folderErrors: [], loaded: false, settingsPage: false
 };
 
 const GET_FOLDERS = 'Get folders';
@@ -11,6 +11,7 @@ const IS_ACTIVE = 'Is active';
 const REFRESH = 'Refresh';
 const DELETE_EMAILS = 'Delete emails';
 const MOVE_EMAILS = 'Update Email Folders';
+const SET_SETTINGS = 'Set Settings';
 
 function getFolders(result) {
   return {
@@ -83,6 +84,15 @@ function refresh(result) {
       folders: result.folders, inboxCount: result.inboxCount,
     },
   };
+}
+
+export function setSettings(dispatch, settingsValue) {
+  return dispatch({
+    type: SET_SETTINGS,
+    payload: {
+      settingsValue
+    },
+  })
 }
 
 export function asyncGetFolders() {
@@ -192,6 +202,12 @@ export function asyncRefreshFolders() {
       }).catch(() => {});
   };
 }
+
+// export function setSettings() {
+//   return function setSettingsInner(dispatch) {
+//     dispatch(refresh(result));
+//   };
+// }
 
 export function updateCount() {
   asyncGetFolders();
@@ -318,6 +334,11 @@ export default function folderReducer(state = initialState, action) {
         ],
         loaded: true,
       };
+    case SET_SETTINGS:
+      return {
+        ...state,
+        settingsPage: payload.settingsValue
+      }
     default:
       return state;
   }
