@@ -8,10 +8,13 @@ import Emails from './Emails.jsx';
 import Refresh from './Refresh.jsx';
 import Email from './Email.jsx';
 import Compose from './Compose.jsx';
+import { connect } from 'react-redux';
+import Settings from './Settings.jsx';
 
-export default class Dashboard extends Component {
-  componentDidMount() {
+export class Dashboard extends Component {
+  componentDidUpdate() {
     // Clear search field when changing folder
+    console.log(this.props.settingsPage);
   }
 
   render() {
@@ -19,19 +22,40 @@ export default class Dashboard extends Component {
       <BrowserRouter>
         <div>
           <Header />
-          <div className="container-fluid mt-4">
-            <div className="row">
-              <Refresh />
-              <Toolbar ref="toolbar" />
+          {
+            this.props.settingsPage ?
+            <Settings/>
+            :
+            <div className="container-fluid mt-4">
+              <div className="row">
+                <Refresh />
+                <Toolbar ref="toolbar" />
+              </div>
+              <div className="row">
+                <Sidebar />
+                <Route exact path="/" component={Emails} />
+                <Route exact path="/email/:id" component={Email} />
+              </div>
+              <Compose />
             </div>
-            <div className="row">
-              <Sidebar />
-              <Route exact path="/" component={Emails} />
-              <Route exact path="/email/:id" component={Email} />
-            </div>
-            <Compose />
-          </div>
+          }
         </div>
       </BrowserRouter>);
   }
 }
+
+
+function mapStateToProps(state) {
+  return {
+    settingsPage: state.folders.settingsPage,
+  };
+}
+
+function mapDispatchToProps() {
+  return {};
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Dashboard);

@@ -3,7 +3,11 @@ const templateHandlers = require('../handlers/template');
 
 const templateRoutes = Router();
 
+templateRoutes.get('/', templateHandlers.getTemplates);
 templateRoutes.get('/:templateId', templateHandlers.getTemplate);
+templateRoutes.post('/', templateHandlers.addTemplate);
+templateRoutes.put('/:templateId', templateHandlers.updateTemplate);
+templateRoutes.delete('/:templateId', templateHandlers.deleteTemplate);
 
 
 module.exports = templateRoutes;
