@@ -415,3 +415,15 @@ emailHandlers.sendNewEmail = (req, res) => {
     .catch(err => res.json({ status: null, errors: ['Message is not sent', err] }));
 };
 // console.log(util.inspect(res, { depth: 8 }));
+emailHandlers.getSignature = (req, res) => {
+  console.log('aaaa')
+  const userId = req.session.userID;
+  const { accessToken } = req.session;
+  const sender = {};
+  return UsersModel.findOne({ googleID: userId }, { email: true, name: true, _id: false })
+    .then((user) => { sender.address = user.email; sender.name = user.name; })
+    .then(() => fetch(`https://www.googleapis.com/gmail/v1/users/${userId}/settings/sendAs/${sender.address}?access_token=${accessToken}`))
+    .then(result => result.json())
+    .then(result => res.json({ result, errors: [] }))
+    .catch(err => res.json({ errors: [err] }));
+}

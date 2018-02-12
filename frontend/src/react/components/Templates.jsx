@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import { Link, Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { notify } from 'react-notify-toast';
@@ -9,15 +10,44 @@ const Loader = require('react-loader');
 
 class Templates extends Component {
 
-  // componentDidMount() {
-  //   this.props.getEmailFromGapi(emailId);
-  // }
+  componentDidMount() {
+    this.props.getTemplates();
+  }
   render() {
     return (
       <div className="col-10 mt-4">
-          <div>
-            Templates
+        <Loader loaded={this.props.loaded}>
+          <h1>Templates component</h1>
+          <div className="col-2 mt-4">
+            <ul className="list-group templates">
+              {this.props.templates.map((template) => {
+                const templateIsActive = template.isActive ? 'active-template' : '';
+                return (
+                  <li
+                    key={template._id}
+                    className={`list-group-item list-group-item-action ${templateIsActive}`}
+                  >
+                    <Link to={`/template/${template._id}`}>
+                      <i className={`fa ${template.icon}`} aria-hidden="true" />
+                      &nbsp;{template.name}
+                      <div className="d-inline float-right">
+                        <i
+                          className="fa fa-pencil-alt folder-actions" aria-hidden="true"
+                          data-id={template._id}
+                        />
+                        <i
+                          className="fa fa-trash folder-actions" aria-hidden="true"
+                          data-id={template._id} data-name={template.name}
+                        />
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
+          <div className="col-10 mt-4" />
+        </Loader>
       </div>
     );
   }
@@ -25,6 +55,9 @@ class Templates extends Component {
 
 Templates.propTypes = {
   templates: PropTypes.array.isRequired,
+  template: PropTypes.object.isRequired,
+  getTemplates: PropTypes.func.isRequired,
+  loaded: PropTypes.bool,
 };
 
 Templates.defaultProps = {
