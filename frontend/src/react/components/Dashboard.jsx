@@ -8,6 +8,7 @@ import Emails from './Emails.jsx';
 import Refresh from './Refresh.jsx';
 import Email from './Email.jsx';
 import Compose from './Compose.jsx';
+import Settings from './Settings.jsx';
 
 export default class Dashboard extends Component {
   componentDidMount() {
@@ -23,6 +24,7 @@ export default class Dashboard extends Component {
             <div className="row">
               <Refresh />
               <Toolbar ref="toolbar" />
+              <Settings/>
             </div>
             <div className="row">
               <Sidebar />
