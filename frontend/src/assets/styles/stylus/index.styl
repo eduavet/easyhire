@@ -1,6 +1,7 @@
 blue-1-color = #418fde;
 blue-2-color = #0855a6;
 folder-color = #585353;
+template-color = #585353;
 font-white-color = #FFFFFF;
 font-unread-color = #212529;
 tooltip-background-color = #485248;
@@ -343,6 +344,59 @@ minimized-background-color = #404040;
 }
 //Compose component /end
 
+//Settings component /start
+.templates {
+  .template-actions{
+    opacity  0;
+    pointer-events: none;
+    transition all 0.7s ease;
+  }
+  a {
+    display block;
+    width 100%;
+    color template-color;
+    &:hover {
+      text-decoration none;
+    }
+  }
+  li {
+    &:hover {
+      .template-actions{
+        pointer-events: auto;
+        opacity  1 ;
+        cursor: pointer;
+      }
+    }
+  }
+
+}
+
+.template-badge{
+  background folder-color;
+  color white
+}
+.active-template{
+  border-left 7px solid blue-1-color;
+  color:blue-1-color;
+  a {
+    color: blue-1-color;
+  }
+  .template-badge{
+    background blue-1-color;
+    color white
+  }
+  &:hover{
+    color:blue-1-color;
+  }
+}
+.template-actions{
+  padding 3px;
+  margin 3px;
+}
+.templates> .list-group-item {
+  cursor: pointer
+}
+//Settings component /end
 //global styles /start
 .w-15 {
   width: 15%!important;
@@ -417,7 +471,9 @@ minimized-background-color = #404040;
   pointer-events: none;
   text-align: center;
 }
-
+.loadedContent{
+  width 100%;
+}
 //global styles /end
 table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sorttable_nosort):after {
   content: " \25B4\25BE"

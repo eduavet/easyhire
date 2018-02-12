@@ -12,6 +12,8 @@ const GET_TEMPLATE = 'Get template';
 const ADD_TEMPLATE = 'Add template';
 const UPDATE_TEMPLATE = 'Update template';
 const DELETE_TEMPLATE = 'Delete template';
+const TEMPLATE_IS_ACTIVE = 'Template is active';
+const CREATE_TEMPLATE = 'Create template';
 
 const LOADING = 'Loading';
 
@@ -48,14 +50,24 @@ function deleteTemplate(result) {
     payload: { _id: result._id, errors: result.errors },
   };
 }
-
+export function createTemplate() {
+  return {
+    type: CREATE_TEMPLATE,
+    payload: {},
+  };
+}
 
 function loading() {
   return {
     type: LOADING,
   };
 }
-
+export function templateIsActive(_id) {
+  return {
+    type: TEMPLATE_IS_ACTIVE,
+    payload: { isActive: true, id: _id },
+  };
+}
 export function asyncGetTemplates() {
   return function asyncGetTemplatesInner(dispatch) {
     dispatch(loading());
@@ -71,7 +83,6 @@ export function asyncGetTemplates() {
 }
 export function asyncGetTemplate(templateId) {
   return function asyncGetTemplateInner(dispatch) {
-    dispatch(loading());
     fetch(`http://localhost:3000/api/templates/${templateId}`, {
       credentials: 'include',
     })
@@ -84,7 +95,6 @@ export function asyncGetTemplate(templateId) {
 }
 export function asyncAddTemplate(name, content) {
   return function asyncAddTemplateInner(dispatch) {
-    dispatch(loading());
     fetch('http://localhost:3000/api/templates/', {
       method: 'POST',
       body: JSON.stringify({ name, content }),
@@ -102,7 +112,6 @@ export function asyncAddTemplate(name, content) {
 }
 export function asyncUpdateTemplate(templateId, name, content) {
   return function asyncUpdateTemplateInner(dispatch) {
-    dispatch(loading());
     fetch(`http://localhost:3000/api/templates/${templateId}`, {
       method: 'PUT',
       body: JSON.stringify({ name, content }),
@@ -120,7 +129,6 @@ export function asyncUpdateTemplate(templateId, name, content) {
 }
 export function asyncDeleteTemplate(templateId) {
   return function asyncDeleteTemplateInner(dispatch) {
-    dispatch(loading());
     fetch(`http://localhost:3000/api/templates/${templateId}`, {
       method: 'DELETE',
       headers: {
@@ -147,7 +155,8 @@ export default function emailsReducer(state = initialState, action) {
     case GET_TEMPLATES:
       return {
         ...state,
-        templates: payload.templates,
+        templates: payload.templates
+          .map(template => Object.assign({}, template, { isActive: !!template.isActive })),
         errors: payload.errors,
         loaded: true,
       };
@@ -156,18 +165,20 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         template: payload.template,
         errors: payload.errors,
-        loaded: true,
       };
     case ADD_TEMPLATE:
     {
       const templatesAfterAdd = payload.errors.length ?
         state.templates :
-        [...state.templates, payload.template];
+        [...state.templates, Object.assign({}, payload.template, { isActive: true })];
+      const addedTemplate = payload.errors.length ?
+        state.template :
+        Object.assign({}, payload.template, { isActive: true });
       return {
         ...state,
         templates: templatesAfterAdd,
+        template: addedTemplate,
         errors: payload.errors,
-        loaded: true,
       };
     }
     case UPDATE_TEMPLATE:
@@ -177,14 +188,18 @@ export default function emailsReducer(state = initialState, action) {
         state.templates.map((template) => {
           if (template._id === payload.template._id.toString()) {
             template = payload.template;
+            template.isActive = true;
           }
           return template;
         });
+      const updatedTemple = payload.errors.length ?
+        state.template :
+        Object.assign({}, payload.template, { isActive: true });
       return {
         ...state,
         templates: templatesAfterUpdtate,
+        template: updatedTemple,
         errors: payload.errors,
-        loaded: true,
       };
     }
     case DELETE_TEMPLATE:
@@ -197,9 +212,30 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         templates: templatesAfterDelete,
         errors: payload.errors,
-        loaded: true,
       };
     }
+    case TEMPLATE_IS_ACTIVE:
+      return {
+        ...state,
+        templates: state.templates.map((template) => {
+          if (template._id === payload.id) {
+            Object.assign(template, { isActive: payload.isActive });
+          } else {
+            Object.assign(template, { isActive: false });
+          }
+          return template;
+        }),
+      };
+    case CREATE_TEMPLATE:
+      return {
+        ...state,
+        template: {
+          _id: '',
+          name: '',
+          content: '',
+          icon: '',
+        },
+      };
     case LOADING:
       return {
         ...state, loaded: false,
