@@ -46,7 +46,7 @@ function getSignature(result) {
   return {
     type: GET_SIGNATURE,
     payload: {
-      signature: result.signature,
+      signature: result.result.signature,
     },
   };
 }
@@ -162,7 +162,6 @@ export function asyncGetSignature() {
     })
       .then(res => res.json())
       .then((result) => {
-        console.log(result);
         dispatch(getSignature(result));
       })
       .catch();

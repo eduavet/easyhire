@@ -66,7 +66,7 @@ emailHandlers.emails = (req, response) => {
                   userId,
                   upperEmail,
                   upperFolder,
-                  status,
+                  status
                 );
                 return newEmail.save();
               })
@@ -104,7 +104,7 @@ emailHandlers.emailsMoveToFolder = (req, res) => {
     })
     .then(() => EmailsModel.updateMany(
       { emailId: { $in: emailsToMove } },
-      { $set: { folder: mongoose.Types.ObjectId(folderToMove) } },
+      { $set: { folder: mongoose.Types.ObjectId(folderToMove) } }
     ))
     .then(() => EmailsModel.find({ emailId: { $in: emailsToMove } })
       .populate('folder').then(result => res.json({
@@ -134,7 +134,7 @@ emailHandlers.deleteEmails = (req, res) => {
     })
     .then(() => EmailsModel.updateMany(
       { emailId: { $in: emailsToDelete } },
-      { $set: { deleted: true } },
+      { $set: { deleted: true } }
     ))
     .then(() => res.json({ emailsToDelete, originalFolder, errors: [] }))
     .catch(err => res.json({ errors: err, emailsToDelete: [], originalFolder: [] }));
@@ -416,7 +416,6 @@ emailHandlers.sendNewEmail = (req, res) => {
 };
 // console.log(util.inspect(res, { depth: 8 }));
 emailHandlers.getSignature = (req, res) => {
-  console.log('aaaa')
   const userId = req.session.userID;
   const { accessToken } = req.session;
   const sender = {};
