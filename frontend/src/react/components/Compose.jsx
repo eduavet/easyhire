@@ -17,7 +17,7 @@ class Compose extends Component {
   componentWillReceiveProps(nextProps) {
     this._receiver.value = this.props.receiver;
     if (nextProps.template !== this.props.template) {
-      this._editor.editor.setContent(decodeURIComponent(nextProps.template));
+      this._editor.editor.setContent(decodeURIComponent(`${nextProps.template} \r\n ${nextProps.signature}`));
     }
     if (nextProps.btnName === 'reply') {
       this._subject.value = this.props.subject;
@@ -134,6 +134,7 @@ Compose.propTypes = {
   reply: PropTypes.func,
   receiver: PropTypes.string,
   subject: PropTypes.string,
+  signature: PropTypes.string,
 };
 
 function mapStateToProps(state) {
@@ -141,6 +142,7 @@ function mapStateToProps(state) {
     composeWindowClassName: state.email.composeWindowClassName,
     composeWindowHeaderText: state.email.composeWindowHeaderText,
     template: state.email.template,
+    signature: state.emails.signature,
     messageSent: state.email.messageSent,
     btnName: state.email.btnName,
     emailId: state.email.email.emailId,
@@ -153,7 +155,7 @@ function mapDispatchToProps(dispatch) {
     toggleComposeWindow: param => dispatch(toggleComposeWindow(param)),
     sendNewEmail: (emailId, subject, messageBody) =>
       dispatch(asyncSendNewEmail(emailId, subject, messageBody)),
-    reply: emailId => dispatch(asyncReply(emailId)),
+    reply: (emailId, content) => dispatch(asyncReply(emailId, content)),
   };
 }
 

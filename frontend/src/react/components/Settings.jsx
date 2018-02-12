@@ -7,7 +7,7 @@ import Signature from './Signature.jsx';
 export default function Settings() {
   return (
     <div className="container-fluid mt-4">
-      <Route path="/" component={Templates} />
+      <Route exact path="/settings/templates" component={Templates} />
       <Route path="/settings/statuses" component={Statuses} />
       <Route path="/settings/signature" component={Signature} />
     </div>

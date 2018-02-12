@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { Nav, NavItem, Navbar, NavbarBrand, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import Logout from './Logout.jsx';
 import Settings from './Settings.jsx';
-import { setSettings } from '../../redux/reducers/folderReducer';
+import { setPage } from '../../redux/reducers/folderReducer';
 
 
 export class Header extends Component {
@@ -22,15 +22,15 @@ export class Header extends Component {
     });
   }
 
-  setSettings = (value) => {
-    this.props.setSettings(value);
+  setPage = (value) => {
+    this.props.setPage(value);
   }
 
   render() {
     return (
       <div>
         <Navbar color="faded" light expand="md" className="header navbar-dark">
-          <Link to="/" className="nav-link" onClick={() => this.setSettings(false)}>
+          <Link to="/" className="nav-link" onClick={() => this.setPage('dashboard')}>
             <img src="/src/assets/images/logo.png" height="40" className="d-inline-block align-top" />
           </Link>
           <Nav className="ml-auto navbar-nav" navbar>
@@ -44,13 +44,13 @@ export class Header extends Component {
                   <i className="fas fa-cogs"></i>
                 </DropdownToggle>
                 <DropdownMenu>
-                  <Link to="/settings/statuses" className="nav-link" onClick={() => this.setSettings(true)}>
+                  <Link to="/settings/statuses" className="nav-link" onClick={() => this.setPage('statuses')}>
                     <DropdownItem>Statuses</DropdownItem>
                   </Link>
-                  <Link to="/settings/templates" className="nav-link" onClick={() => this.setSettings(true)}>
+                  <Link to="/settings/templates" className="nav-link" onClick={() => this.setPage('templates')}>
                     <DropdownItem>Templates</DropdownItem>
                   </Link>
-                  <Link to="/settings/signature" className="nav-link" onClick={() => this.setSettings(true)}>
+                  <Link to="/settings/signature" className="nav-link" onClick={() => this.setPage('signature')}>
                     <DropdownItem>Signature</DropdownItem>
                   </Link>
                 </DropdownMenu>
@@ -78,7 +78,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    setSettings: value => dispatch(setSettings(dispatch, value)),
+    setPage: value => dispatch(setPage(dispatch, value)),
   };
 }
 

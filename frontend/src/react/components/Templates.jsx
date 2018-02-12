@@ -121,7 +121,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     getTemplates: () => dispatch(asyncGetTemplates()),
-    getTemplate: (templateId) => dispatch(asyncGetTemplate(templateId)),
+    getTemplate: templateId => dispatch(asyncGetTemplate(templateId)),
     deleteTemplate: templateId => dispatch(asyncDeleteTemplate(templateId)),
     templateIsActive: templateId => dispatch(templateIsActive(templateId)),
     createTemplate: () => dispatch(createTemplate()),
@@ -132,4 +132,3 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps,
 )(Templates);
-

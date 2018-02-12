@@ -1,5 +1,5 @@
 const initialState = {
-  folders: [], folderErrors: [], loaded: false, settingsPage: false
+  folders: [], folderErrors: [], loaded: false, page: 'dashboard'
 };
 
 const GET_FOLDERS = 'Get folders';
@@ -11,7 +11,7 @@ const IS_ACTIVE = 'Is active';
 const REFRESH = 'Refresh';
 const DELETE_EMAILS = 'Delete emails';
 const MOVE_EMAILS = 'Update Email Folders';
-const SET_SETTINGS = 'Set Settings';
+const SET_PAGE = 'Set Page';
 
 function getFolders(result) {
   return {
@@ -86,11 +86,11 @@ function refresh(result) {
   };
 }
 
-export function setSettings(dispatch, settingsValue) {
+export function setPage(dispatch, pageValue) {
   return dispatch({
-    type: SET_SETTINGS,
+    type: SET_PAGE,
     payload: {
-      settingsValue
+      pageValue
     },
   })
 }
@@ -301,6 +301,7 @@ export default function folderReducer(state = initialState, action) {
       };
     }
     case UPDATE_FOLDER:
+    console.log('here, wtf');
       return {
         ...state,
         folders: state.folders.map((folder) => {
@@ -334,10 +335,10 @@ export default function folderReducer(state = initialState, action) {
         ],
         loaded: true,
       };
-    case SET_SETTINGS:
+    case SET_PAGE:
       return {
         ...state,
-        settingsPage: payload.settingsValue
+        page: payload.pageValue
       }
     default:
       return state;
