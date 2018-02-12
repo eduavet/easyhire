@@ -122,7 +122,7 @@ class Email extends Component {
               <a
                 key={attachment.attachmentId} href={this.props.url[index]}
                 download={attachment.attachmentName}
-              >{attachment.attachmentName}
+              >{attachment.attachmentName}<i className="fa fa-download" />
               </a>)) : ''
           }
           </div>
