@@ -5,7 +5,8 @@ import PropTypes from 'prop-types';
 import { notify } from 'react-notify-toast';
 import { Button, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
 import { Editor } from '@tinymce/tinymce-react';
-import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncSendNewEmail, asyncGetNote, asyncSendNote, changeNoteStatus, asyncReply, asyncGetTemplate, changeComposeWindowHeaderText, toggleButtonName } from '../../redux/reducers/emailReducer';
+import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncGetNote, asyncSendNote, changeNoteStatus, asyncGetTemplate, changeComposeWindowHeaderText, toggleButtonName } from '../../redux/reducers/emailReducer';
+import { asyncGetSignature } from '../../redux/reducers/emailsReducer';
 
 const Loader = require('react-loader');
 
@@ -75,6 +76,7 @@ class Email extends Component {
     this.props.toggleButtonName('send new');
   };
   selectedReplyTemplate = (e) => {
+    this.props.getSignature();
     const selection = e.target.value;
     let templateId = '';
     if (selection === 'Accepted') {
@@ -204,6 +206,7 @@ Email.propTypes = {
   changeNoteStatus: PropTypes.func.isRequired,
   toggleButtonName: PropTypes.func,
   loaded: PropTypes.bool,
+  getSignature: PropTypes.func,
 };
 
 Email.defaultProps = {
@@ -242,6 +245,7 @@ function mapDispatchToProps(dispatch) {
     getTemplate: templateId => dispatch(asyncGetTemplate(templateId)),
     changeComposeWindowHeaderText: text => dispatch(changeComposeWindowHeaderText(text)),
     toggleButtonName: btnName => dispatch(toggleButtonName(btnName)),
+    getSignature: () => dispatch(asyncGetSignature()),
   };
 }
 

@@ -1,11 +1,12 @@
 const initialState = {
-  emails: [], name: '', loading: true, errors: [], loaded: false,
+  emails: [], name: '', signature: '',  loading: true, errors: [], loaded: false,
 };
 
 /**
  * Action
  */
 const GET_USERNAME = 'Get username';
+const GET_SIGNATURE = 'Get signature';
 const GET_EMAILS = 'Get emails';
 const DELETE_EMAILS = 'Delete emails';
 
@@ -38,6 +39,15 @@ function getEmails(result) {
 function getUsername(name) {
   return {
     type: GET_USERNAME, payload: { name },
+  };
+}
+
+function getSignature(result) {
+  return {
+    type: GET_SIGNATURE,
+    payload: {
+      signature: result.signature,
+    },
   };
 }
 
@@ -142,6 +152,20 @@ export function asyncGetUsername() {
       .then((result) => {
         dispatch(getUsername(result.name));
       }).catch(() => {});
+  };
+}
+
+export function asyncGetSignature() {
+  return function asyncGetSignatureInner(dispatch) {
+    fetch('http://localhost:3000/api/emails/signature', {
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+        console.log(result);
+        dispatch(getSignature(result));
+      })
+      .catch();
   };
 }
 
@@ -305,6 +329,11 @@ export default function emailsReducer(state = initialState, action) {
         loading: false,
         errors: payload.errors,
         successMsgs: payload.successMsgs,
+      };
+    case GET_SIGNATURE:
+      return {
+        ...state,
+        signature: payload.signature,
       };
     case GET_FOLDER_EMAILS:
       return {

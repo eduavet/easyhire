@@ -7,6 +7,7 @@ emailRoutes.get('/', emailHandlers.emails);
 emailRoutes.delete('/:ID', emailHandlers.deleteEmails);
 emailRoutes.post('/move', emailHandlers.emailsMoveToFolder);
 emailRoutes.post('/mark', emailHandlers.mark);
+emailRoutes.get('/signature', emailHandlers.getSignature);
 emailRoutes.get('/:id', emailHandlers.getEmailFromDb);
 emailRoutes.get('/:id/gapi/', emailHandlers.getEmailFromGapi);
 emailRoutes.get('/:emailId/status/:statusId', emailHandlers.changeEmailStatus);
