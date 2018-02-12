@@ -1,6 +1,7 @@
 const initialState = {
   templates: [],
   template: {},
+  loaded: false,
 };
 
 /**
@@ -81,10 +82,10 @@ export function asyncGetTemplate(templateId) {
       .catch(() => {});
   };
 }
-export function asyncAddTemplate(templateId, name, content) {
+export function asyncAddTemplate(name, content) {
   return function asyncAddTemplateInner(dispatch) {
     dispatch(loading());
-    fetch(`http://localhost:3000/api/templates/${templateId}`, {
+    fetch('http://localhost:3000/api/templates/', {
       method: 'POST',
       body: JSON.stringify({ name, content }),
       headers: {

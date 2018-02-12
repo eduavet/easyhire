@@ -24,7 +24,6 @@ templateHandlers.getTemplate = (req, res) => {
 };
 // Add new template
 templateHandlers.addTemplate = (req, res) => {
-  req.checkParams('templateId').notEmpty().withMessage('Template id is required');
   req.checkBody('name').notEmpty().withMessage('Name is required');
   req.checkBody('content').notEmpty().withMessage('Content is required');
   const errors = req.validationErrors();

@@ -3,9 +3,7 @@ import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { notify } from 'react-notify-toast';
-import { Button, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
-import { Editor } from '@tinymce/tinymce-react';
-import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncSendNewEmail, asyncGetNote, asyncSendNote, changeNoteStatus, asyncReply, asyncGetTemplate, changeComposeWindowHeaderText, toggleButtonName } from '../../redux/reducers/emailReducer';
+import { asyncGetTemplates, asyncGetTemplate, asyncAddTemplate, asyncUpdateTemplate, asyncDeleteTemplate } from '../../redux/reducers/settingsReducer';
 
 const Loader = require('react-loader');
 
@@ -25,7 +23,7 @@ class Templates extends Component {
 }
 
 Templates.propTypes = {
-  email: PropTypes.object.isRequired,
+  templates: PropTypes.array.isRequired,
 };
 
 Templates.defaultProps = {
@@ -34,14 +32,19 @@ Templates.defaultProps = {
 
 function mapStateToProps(state) {
   return {
-    email: state.email.email,
-
+    templates: state.settings.templates,
+    template: state.settings.template,
+    loaded: state.settings.loaded,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    getEmailFromGapi: emailId => dispatch(asyncGetEmailFromGapi(emailId)),
+    getTemplates: () => dispatch(asyncGetTemplates()),
+    getTemplate: templaiteId => dispatch(asyncGetTemplate(templaiteId)),
+    addTemplate: (name, content) => dispatch(asyncAddTemplate(name, content)),
+    updateTemplate: (templateId, name, content) => dispatch(asyncUpdateTemplate(templateId, name, content)),
+    deleteTemplate: templateId => dispatch(asyncDeleteTemplate(templateId)),
 
   };
 }
@@ -50,3 +53,4 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps,
 )(Templates);
+
