@@ -5,8 +5,8 @@ const statusRoutes = Router();
 
 statusRoutes.get('/', statusHandlers.getStatuses);
 statusRoutes.get('/:statusId/:folderId', statusHandlers.getEmails);
-// statusRoutes.post('/', statusHandlers.createFolder);
-// statusRoutes.put('/:ID', statusHandlers.updateFolder);
-// statusRoutes.delete('/:ID', statusHandlers.deleteFolder);
+statusRoutes.post('/', statusHandlers.createStatus);
+statusRoutes.put('/:ID', statusHandlers.updateStatus);
+statusRoutes.delete('/:ID', statusHandlers.deleteStatus);
 
 module.exports = statusRoutes;

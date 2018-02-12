@@ -67,10 +67,8 @@ statusHandlers.createStatus = (req, res) => {
   }
   const userId = req.session.userID;
   const name = req.body.statusName;
-  const icon = req.body.icon ? req.body.icon : 'fa-folder';
   const newStatus = new StatusesModel({
     name,
-    icon,
     userId,
   });
   return newStatus.save()
@@ -78,10 +76,8 @@ statusHandlers.createStatus = (req, res) => {
       const createdStatusToSend = {
         _id: createdStatus._id,
         name: createdStatus.name,
-        count: 0,
-        icon: createdStatus.icon,
         userId: createdStatus.userId,
-        isActive: false,
+        count: 0,
       };
       return res.json({ createdStatus: createdStatusToSend, errors: [] });
     })

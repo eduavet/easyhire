@@ -301,6 +301,7 @@ export default function folderReducer(state = initialState, action) {
       };
     }
     case UPDATE_FOLDER:
+    console.log('here, wtf');
       return {
         ...state,
         folders: state.folders.map((folder) => {

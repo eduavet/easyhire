@@ -3,9 +3,9 @@ const initialState = {
 };
 
 const GET_STATUSES = 'Get statuses';
-// const CREATE_FOLDER = 'Create folder';
-// const UPDATE_FOLDER = 'Update folder';
-// const DELETE_FOLDER = 'Delete folder';
+const CREATE_STATUS = 'Create status';
+const UPDATE_STATUS = 'Update status';
+const DELETE_STATUS = 'Delete status';
 const IS_ACTIVE = 'Is active';
 const REFRESH = 'Refresh';
 
@@ -17,32 +17,33 @@ function getStatuses(result) {
     },
   };
 }
-// function createFolder(response) {
-//   return {
-//     type: CREATE_FOLDER,
-//     payload: {
-//       createdFolder: response.createdFolder, folderErrors: response.errors,
-//     },
-//   };
-// }
+function createStatus(response) {
+  return {
+    type: CREATE_STATUS,
+    payload: {
+      createdStatus: response.createdStatus, statusErrors: response.errors,
+    },
+  };
+}
 
-// function updateFolder(response) {
-//   return {
-//     type: UPDATE_FOLDER,
-//     payload: {
-//       updatedFolder: response.updatedFolder, folderErrors: response.errors,
-//     },
-//   };
-// }
-//
-// function deleteFolder(response) {
-//   return {
-//     type: DELETE_FOLDER,
-//     payload: {
-//       deletedFolderID: response.deletedFolderID, folderErrors: response.errors,
-//     },
-//   };
-// }
+function updateStatus(response) {
+  console.log('in func', response);
+  return {
+    type: UPDATE_STATUS,
+    payload: {
+      updatedStatus: response.updatedStatus, statusErrors: response.errors,
+    },
+  };
+}
+
+function deleteStatus(response) {
+  return {
+    type: DELETE_STATUS,
+    payload: {
+      deletedStatusID: response.deletedStatusID, statusErrors: response.errors,
+    },
+  };
+}
 
 
 export function isStatusActive(item) {
@@ -73,56 +74,57 @@ export function asyncGetStatuses() {
   };
 }
 
-// export function asyncCreateFolder(body) {
-//   return function asyncCreateFolderInner(dispatch) {
-//     fetch('http://localhost:3000/api/folders', {
-//       method: 'POST',
-//       body: JSON.stringify(body),
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       credentials: 'include',
-//     })
-//       .then(res => res.json())
-//       .then((result) => {
-//         dispatch(createFolder(result));
-//       }).catch(() => {});
-//   };
-// }
+export function asyncCreateStatus(newStatus) {
+  return function asyncCreateStatusInner(dispatch) {
+    fetch('http://localhost:3000/api/statuses', {
+      method: 'POST',
+      body: JSON.stringify(newStatus),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+        dispatch(createStatus(result));
+      }).catch(() => {});
+  };
+}
 
-// export function asyncUpdateFolder(body) {
-//   const updatedFolder = { id: body.id, folderName: body.folderName };
-//   return function asyncUpdateFolderInner(dispatch) {
-//     fetch(`http://localhost:3000/api/folders/${updatedFolder.id}`, {
-//       method: 'PUT',
-//       body: JSON.stringify(updatedFolder),
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       credentials: 'include',
-//     })
-//       .then(res => res.json())
-//       .then((result) => {
-//         dispatch(updateFolder(result));
-//       }).catch(() => {});
-//   };
-// }
+export function asyncUpdateStatus(body) {
+  const updatedStatus = { id: body.id, statusName: body.statusName };
+  return function asyncUpdateStatusInner(dispatch) {
+    fetch(`http://localhost:3000/api/statuses/${updatedStatus.id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updatedStatus),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+        dispatch(updateStatus(result));
+      }).catch(console.error);
+  };
+}
 
-// export function asyncDeleteFolder(id) {
-//   return function asyncDeleteFolderInner(dispatch) {
-//     fetch(`http://localhost:3000/api/folders/${id}`, {
-//       method: 'DELETE',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       credentials: 'include',
-//     })
-//       .then(res => res.json())
-//       .then((result) => {
-//         dispatch(deleteFolder(result));
-//       }).catch(() => {});
-//   };
-// }
+export function asyncDeleteStatus(id) {
+  return function asyncDeleteStatusInner(dispatch) {
+    fetch(`http://localhost:3000/api/statuses/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+        console.log({result});
+        dispatch(deleteStatus(result));
+      }).catch(() => {});
+  };
+}
 
 export function asyncRefreshStatuses() {
   return function asyncRefreshInner(dispatch) {
@@ -164,33 +166,34 @@ export default function statusReducer(state = initialState, action) {
           return status;
         }),
       };
-    // case CREATE_FOLDER: {
-    //   const folders = payload.createdFolder._id ? [
-    //       ...state.folders,
-    //       Object.assign({}, payload.createdFolder, { isActive: false }),
-    //     ] : state.folders;
-    //   return {
-    //     ...state, folders, folderErrors: payload.folderErrors,
-    //   };
-    // }
-    // case UPDATE_FOLDER:
-    //   return {
-    //     ...state,
-    //     folders: state.folders.map((folder) => {
-    //       if (folder._id === payload.updatedFolder._id.toString()) {
-    //         folder.name = payload.updatedFolder.name;
-    //       }
-    //       return folder;
-    //     }),
-    //     folderErrors: payload.folderErrors,
-    //   };
-    // case DELETE_FOLDER: {
-    //   const foldersAfterDelete = state.folders
-    //     .filter(folder => folder._id !== payload.deletedFolderID);
-    //   return {
-    //     ...state, folders: foldersAfterDelete, folderErrors: payload.folderErrors,
-    //   };
-    // }
+    case CREATE_STATUS: {
+      const statuses = payload.createdStatus._id ? [
+          ...state.statuses,
+          Object.assign({}, payload.createdStatus, { isActive: false }),
+        ] : state.statuses;
+      return {
+        ...state, statuses, statusErrors: payload.statusErrors,
+      };
+    }
+    case UPDATE_STATUS:
+      console.log(payload.updatedStatus);
+      return {
+        ...state,
+        statuses: state.statuses.map((status) => {
+          if (status._id === payload.updatedStatus._id.toString()) {
+            status.name = payload.updatedStatus.name;
+          }
+          return status;
+        }),
+        statusErrors: payload.statusErrors,
+      };
+    case DELETE_STATUS: {
+      const statusesAfterDelete = state.statuses
+        .filter(status => status._id !== payload.deletedStatusID);
+      return {
+        ...state, statuses: statusesAfterDelete, statusErrors: payload.statusErrors,
+      };
+    }
     case REFRESH:
       return {
         ...state,
