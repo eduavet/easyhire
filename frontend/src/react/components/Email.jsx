@@ -68,15 +68,16 @@ class Email extends Component {
   };
 
   handleReplyPopover = () => {
+    this.props.getSignature();
     this.setState({ replyPopoverOpen: !this.state.replyPopoverOpen });
     this.props.toggleButtonName('reply');
   };
   handleNewPopover = () => {
+    this.props.getSignature();
     this.setState({ newPopoverOpen: !this.state.newPopoverOpen });
     this.props.toggleButtonName('send new');
   };
   selectedReplyTemplate = (e) => {
-    this.props.getSignature();
     const selection = e.target.value;
     let templateId = '';
     if (selection === 'Accepted') {

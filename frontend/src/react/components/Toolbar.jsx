@@ -17,33 +17,33 @@ class Toolbar extends Component {
       filterOpen: false,
       deleteModal: false,
       deleteCount: 0,
-      typingTimeOut: 0
+      typingTimeOut: 0,
     };
   }
 
-  toggleSelect=() => {
+  toggleSelect = () => {
     this.setState({
       selectOpen: !this.state.selectOpen,
     });
   };
 
-  toggleMove=() => {
+  toggleMove = () => {
     this.setState({
       moveOpen: !this.state.moveOpen,
     });
   };
 
-  toggleMark=() => {
+  toggleMark = () => {
     this.setState({
       markOpen: !this.state.markOpen,
     });
   };
-  toggleFilter=() => {
+  toggleFilter = () => {
     this.setState({
       filterOpen: !this.state.filterOpen,
     });
   };
-  moveToFolder=(id) => {
+  moveToFolder = (id) => {
     const inboxActive = this.props.folders[0].isActive;
     const emailsToMove = this.props.emails.filter(email =>
       email.isChecked).map(email => email.emailId);
@@ -58,7 +58,7 @@ class Toolbar extends Component {
     notify.show('Email(s) updated!', 'success', 1500);
   };
 
-  deleteEmail=() => {
+  deleteEmail = () => {
     const emailsToDelete = this.props.emails.filter(email =>
       email.isChecked).map(email => email.emailId);
     this.props.deleteEmails(emailsToDelete);
@@ -87,13 +87,13 @@ class Toolbar extends Component {
     const folderId = this.props.folders.filter(item => item.isActive === true)[0]._id;
     e.persist();
     if (this.state.typingTimeout) {
-       clearTimeout(this.state.typingTimeout);
+      clearTimeout(this.state.typingTimeout);
     }
     const storeFunc = this.props.asyncSearch;
     this.setState({
-       typingTimeout: setTimeout(function () {
-           storeFunc(e.target.value, folderId);
-         }, 1000)
+      typingTimeout: setTimeout(() => {
+        storeFunc(e.target.value, folderId);
+      }, 1000),
     });
   }
 
