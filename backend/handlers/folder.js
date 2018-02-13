@@ -46,7 +46,7 @@ folderHandlers.getFolders = (req, response) => {
       ])
       .then((folders) => {
         response.json({
-          folders, inboxCount, errors: [], responseMsgs: [{ msg: '', type: 'success' }],
+          folders, inboxCount, errors: [], responseMsgs: [],
         });
       })).catch({
       folders: [],
@@ -80,7 +80,7 @@ folderHandlers.createFolder = (req, res) => {
         userId: createdFolder.userId,
         isActive: false,
       };
-      return res.json({ createdFolder: createdFolderToSend, errors: [], responseMsgs: [{ msg: '', type: 'success' }] });
+      return res.json({ createdFolder: createdFolderToSend, errors: [], responseMsgs: [] });
     })
     .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], createdFolder: {}, responseMsgs: [] }));
 };
@@ -143,7 +143,7 @@ folderHandlers.getEmails = (req, res) => {
         .populate('folder status')
         .then(result => Promise.all(promises)
           .then(() => {
-            res.json({ emailsToSend: result, errors: [], responseMsgs: [{ msg: '', type: 'success' }] });
+            res.json({ emailsToSend: result, errors: [], responseMsgs: [] });
           }))
         .catch(err => res.json({
           emailsToSend: [],
@@ -157,7 +157,7 @@ folderHandlers.getEmails = (req, res) => {
         .then(result =>
           Promise.all(promises)
             .then(() => {
-              res.json({ emailsToSend: result, errors: [], responseMsgs: [{ msg: '', type: 'success' }] });
+              res.json({ emailsToSend: result, errors: [], responseMsgs: [] });
             }))
         .catch(err => res.json({
           emailsToSend: [],
@@ -170,7 +170,7 @@ folderHandlers.getEmails = (req, res) => {
       .then(result =>
         Promise.all(promises)
           .then(() => {
-            res.json({ emailsToSend: result, errors: [], responseMsgs: [{ msg: '', type: 'success' }] });
+            res.json({ emailsToSend: result, errors: [], responseMsgs: [] });
           }))
       .catch(err => res.json({
         emailsToSend: [],

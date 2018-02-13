@@ -22,7 +22,10 @@ export class Dashboard extends Component {
       <BrowserRouter>
         <div>
           {this.props.responseMsgs.map((responseMsg) => {
-            notify.show(responseMsg.msg, 'success', 1500);
+            notify.show(responseMsg.msg, responseMsg.type, 1500);
+          })}
+          {this.props.errors.map((error) => {
+            notify.show(error.msg, 'error', 1500);
           })}
           <Header />
           {
@@ -57,15 +60,11 @@ Dashboard.propTypes = {
 function mapStateToProps(state) {
   return {
     page: state.folders.page,
-    errors: [
-      ...state.email.errors,
+    errors: [...state.email.errors,
       ...state.emails.errors,
-    ],
-    // errors: [...state.email.errors,
-    //   ...state.emails.errors,
-    //   ...state.folders.errors,
-    //   ...state.settings.errors,
-    //   ...state.statuses.errors],
+      ...state.folders.errors,
+      ...state.settings.errors,
+      ...state.statuses.errors],
     responseMsgs: [
       ...state.email.responseMsgs,
       ...state.settings.responseMsgs,
@@ -73,7 +72,7 @@ function mapStateToProps(state) {
       ...state.folders.responseMsgs,
       ...state.statuses.responseMsgs,
     ],
-    folders: state.folders.folders
+    folders: state.folders.folders,
   };
 }
 

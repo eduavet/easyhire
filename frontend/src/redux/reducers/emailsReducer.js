@@ -56,6 +56,7 @@ function getSentEmails(result) {
 }
 
 function getUsername(result) {
+  console.log(result);
   return {
     type: GET_USERNAME,
     payload: {
@@ -199,7 +200,7 @@ export function asyncGetUsername() {
     })
       .then(res => res.json())
       .then((result) => {
-        dispatch(getUsername(result.name));
+        dispatch(getUsername(result));
       }).catch(() => {});
   };
 }
