@@ -7,6 +7,7 @@ import { Button, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
 import { Editor } from '@tinymce/tinymce-react';
 import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncGetNote, asyncSendNote, changeNoteStatus, asyncGetTemplate, changeComposeWindowHeaderText, toggleButtonName } from '../../redux/reducers/emailReducer';
 import { asyncGetSignature } from '../../redux/reducers/emailsReducer';
+import { asyncGetTemplates } from '../../redux/reducers/settingsReducer';
 
 const Loader = require('react-loader');
 
@@ -22,6 +23,7 @@ class Email extends Component {
   componentDidMount() {
     const emailId = this.props.email.emailId;
     this.props.getEmailFromGapi(emailId);
+    this.props.getTemplates();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -78,24 +80,12 @@ class Email extends Component {
     this.props.toggleButtonName('send new');
   };
   selectedReplyTemplate = (e) => {
-    const selection = e.target.value;
-    let templateId = '';
-    if (selection === 'Accepted') {
-      templateId = '5a7d58fd0029d71b30301261';
-    } else {
-      templateId = '5a7d58fd0029d71b30301265';
-    }
+    const templateId = e.target.value;
     this.props.getTemplate(templateId);
     this.setState({ replyPopoverOpen: false, newPopoverOpen: false });
   };
   selectedNewTemplate = (e) => {
-    const selection = e.target.value;
-    let templateId = '';
-    if (selection === 'Accepted') {
-      templateId = '5a7d58fd0029d71b30301261';
-    } else {
-      templateId = '5a7d58fd0029d71b30301265';
-    }
+    const templateId = e.target.value;
     this.props.getTemplate(templateId);
     this.setState({ replyPopoverOpen: false, newPopoverOpen: false });
   };
@@ -135,6 +125,7 @@ class Email extends Component {
                    ref={el => this.iframeRef = el}
                    srcDoc={this.props.email.htmlBody} title="Email Content"
                    width="100%"
+                   height="320px"
                    frameBorder="0"
                  />
             }
@@ -149,11 +140,9 @@ class Email extends Component {
               <PopoverBody>
                 <select className="form-control" onChange={this.selectedReplyTemplate} defaultValue="_default">
                   <option disabled value="_default"> -- select an option -- </option>
-                  <option value="">No template</option>
-                  <option value="Received your email">Received your email</option>
-                  <option value="Interview appointment">Interview appointment</option>
-                  <option value="Accepted">Accepted</option>
-                  <option value="Denied">Denied</option>
+                  <option value="noTemplate">No template</option>
+                  {this.props.templates.map(template =>
+                    <option key={template._id} value={template._id}>{template.name}</option>)}}
                 </select>
               </PopoverBody>
             </Popover>
@@ -183,7 +172,6 @@ class Email extends Component {
               <textarea data-id={this.props.note ? this.props.note._id : ''} className="form-control" id="addNoteTextarea" rows="7" placeholder="Start typing, note will auto save." onChange={this.typeNote} ref={el => this.noteTextareaRef = el} value={this.state.noteContent} />
               <span className={this.props.noteStatus}>Saved!</span>
             </div>
-            {/* <iframe dangerouslySetInnerHTML={{ __html: props.email.htmlBody }} title="Email Content"></iframe> */}
           </div>
         </Loader>
       </div>
@@ -196,8 +184,10 @@ Email.propTypes = {
   getEmailFromGapi: PropTypes.func.isRequired,
   getAttachmentFromGapi: PropTypes.func,
   statuses: PropTypes.array.isRequired,
+  templates: PropTypes.array.isRequired,
   changeEmailStatus: PropTypes.func.isRequired,
   changeComposeWindowHeaderText: PropTypes.func.isRequired,
+  asyncGetTemplates: PropTypes.func.isRequired,
   note: PropTypes.object,
   getNote: PropTypes.func.isRequired,
   getTemplate: PropTypes.func.isRequired,
@@ -224,6 +214,7 @@ function mapStateToProps(state) {
     url: state.email.url,
     template: state.email.template,
     loaded: state.email.loaded,
+    templates: state.settings.templates,
   };
 }
 
@@ -247,6 +238,7 @@ function mapDispatchToProps(dispatch) {
     changeComposeWindowHeaderText: text => dispatch(changeComposeWindowHeaderText(text)),
     toggleButtonName: btnName => dispatch(toggleButtonName(btnName)),
     getSignature: () => dispatch(asyncGetSignature()),
+    getTemplates: () => dispatch(asyncGetTemplates()),
   };
 }
 

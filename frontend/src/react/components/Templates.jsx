@@ -50,7 +50,7 @@ class Templates extends Component {
   render() {
     return (
       <Loader loaded={this.props.loaded}>
-        <h1>Templates component</h1>
+        <h1>Templates</h1>
         <div className="row mt-4">
           <div className="col-3 mt-4">
             <ul className="list-group templates">
@@ -67,7 +67,7 @@ class Templates extends Component {
                     <i
                       className="fa fa-trash template-actions float-right" aria-hidden="true"
                       data-id={template._id} data-name={template.name}
-                      onClick={ this.toggleDeleteModal}
+                      onClick={this.toggleDeleteModal}
                     />
                   </li>
                 );
@@ -77,7 +77,7 @@ class Templates extends Component {
                 className="list-group-item list-group-item-action"
                 onClick={this.createTemplate}
               >
-                <i className="fa fa-circle" aria-hidden="true" />
+                <i className="fa fa-plus-circle" aria-hidden="true" />
                 &nbsp; Create new Template
               </li>
               <ModalDeleteTemplate
