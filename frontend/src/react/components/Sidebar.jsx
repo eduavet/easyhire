@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { withRouter, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { notify } from 'react-notify-toast';
 import PropTypes from 'prop-types';
@@ -58,6 +59,7 @@ class Sidebar extends Component {
     };
     // Make folder active to highlight it
     folderToggler = (folder) => {
+      // this.props.history.push('/');
       this.props.isActive(folder);
     };
     // Handle folder click on non-inbox folders
@@ -67,7 +69,7 @@ class Sidebar extends Component {
     render() {
       return (
         <div className="col-2 mt-4">
-          <ul className="list-group folders">
+          <div className="list-group folders">
             { this.props.folders.map(folder =>
               (<Folder
                 key={folder._id} folder={folder} folderToggler={this.folderToggler}
@@ -77,7 +79,7 @@ class Sidebar extends Component {
                 toggleCannotDeleteModal={this.toggleCannotDeleteModal}
               />))}
             <ModalNewFolder />
-          </ul>
+          </div>
           <ModalUpdateFolder
             isOpenUpdate={this.state.updateModal}
             toggleUpdateModal={this.toggleUpdateModal} updateFolder={this.updateFolder}
@@ -102,8 +104,9 @@ function Folder(props) {
   const { icon } = props.folder;
   const isDeletable = props.folder.userId;
   return (
-    <li
-      className={`list-group-item list-group-item-action ${folderIsActive}`}
+    <Link
+      to={`/folder/${props.folder._id}`}
+      className={`list-group-item list-group-item-action folder ${folderIsActive}`}
       onClick={() => {
         props.folderToggler(props.folder);
         if (props.folder._id === 'allEmails') {
@@ -122,8 +125,8 @@ function Folder(props) {
               data-id={props.folder._id} data-name={props.folder.name}
               onClick={props.toggleUpdateModal}
             />
-                  :
-                  ''
+          :
+            ''
         }
         {
           isDeletable ?
@@ -132,11 +135,11 @@ function Folder(props) {
               data-id={props.folder._id} data-name={props.folder.name}
               onClick={props.folder.count ? props.toggleCannotDeleteModal : props.toggleDeleteModal}
             />
-                  :
-                  ''
+          :
+            ''
         }
       </div>
-    </li>
+    </Link>
   );
 }
 
@@ -174,7 +177,7 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(
+export default withRouter(connect(
   mapStateToProps,
   mapDispatchToProps,
-)(Sidebar);
+)(Sidebar));

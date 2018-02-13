@@ -38,6 +38,7 @@ export class Dashboard extends Component {
                   <Sidebar />
                   <Route exact path="/" component={Emails} />
                   <Route exact path="/email/:id" component={Email} />
+                  <Route exact path="/folder/:id" component={Emails} />
                 </div>
                 <Compose />
               </div>
@@ -72,6 +73,7 @@ function mapStateToProps(state) {
       ...state.folders.responseMsgs,
       ...state.statuses.responseMsgs,
     ],
+    folders: state.folders.folders
   };
 }
 

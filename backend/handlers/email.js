@@ -3,6 +3,7 @@ const fetch = require('node-fetch');
 const fs = require('fs');
 const request = require('request');
 const EmailsModel = require('../models/EmailsModel.js');
+const SentEmailsModel = require('../models/SentEmailsModel.js');
 const UsersModel = require('../models/UsersModel.js');
 const FoldersModel = require('../models/FoldersModel.js');
 const StatusesModel = require('../models/StatusesModel.js');
@@ -94,6 +95,72 @@ emailHandlers.emails = (req, response) => {
     });
 };
 
+// Get sent emails from gmail
+emailHandlers.emailsSent = (req, response) => {
+  const userId = req.session.userID;
+  const { name, accessToken } = req.session;
+  const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
+  const emailsToSend = [];
+  if (!userId) {
+    return response.json({ emailsToSend });
+  }
+  return fetch(`${fetchUrl}${userId}/messages?access_token=${accessToken}&maxResults=10000`)
+    .then(account => account.json())
+    .then((account) => {
+      const { messages } = account;
+      const promises = [];
+      for (let i = 0; i < messages.length; i += 1) {
+        if (!messages) break;
+        const { id } = messages[i];
+        let upperEmail = '';
+        let upperFolder = '';
+        promises.push(SentEmailsModel.findOne({ emailId: id })
+          .populate('folder')
+          .then((group) => {
+            if (group) {
+              if (!group.deleted) emailsToSend[i] = helper.groupExtract(group);
+              return '';
+            }
+            return fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`)
+              .then(email => email.json())
+              .then((email) => {
+                upperEmail = email;
+                return FoldersModel.findOne({ name: 'Sent' }, '_id');
+              })
+              .then((folder) => {
+                upperFolder = folder;
+                if (!upperEmail.payload.headers.find(item => item.name === 'From').value.includes(req.session.email)) {
+                  return null;
+                }
+                const newEmail = helper.buildSentEmailModel(
+                  userId,
+                  upperEmail,
+                  upperFolder,
+                );
+                return newEmail.save();
+              })
+              .then(() => SentEmailsModel.findOne({ emailId: upperEmail.id })
+                .populate('folder').then((group1) => {
+                  emailsToSend[i] = group1 ? helper.groupExtract(group1) : null;
+                }));
+          }));
+      }
+
+      return Promise.all(promises)
+        .then(() => {
+          const packed = {
+            name,
+            emailsToSend: emailsToSend.filter(email => email != null),
+          };
+          response.json(packed);
+        });
+    })
+    .catch(() => {
+      response.json({
+        name: '', emailsToSend: [], errors: [{ msg: 'Something went wrong' }],
+      });
+    });
+};
 // Moves email(s) to specified folder, one email can be only in one folder (and stays in Inbox)
 emailHandlers.emailsMoveToFolder = (req, res) => {
   const emailsToMove = req.body.emailIds;

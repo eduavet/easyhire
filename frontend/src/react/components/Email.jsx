@@ -43,7 +43,7 @@ class Email extends Component {
         this.setState({ noteContent: nextProps.note.content });
       }
     }
-    if (nextProps.email.attachments !== null &&
+    if (nextProps.email.attachments !== undefined &&
       nextProps.email.attachments !== this.props.email.attachments) {
       nextProps.email.attachments
         .map(attachment => this.props.getAttachmentFromGapi(nextProps.email.emailId, attachment));
@@ -71,23 +71,23 @@ class Email extends Component {
   handleReplyPopover = () => {
     this.props.getSignature();
     this.setState({ replyPopoverOpen: !this.state.replyPopoverOpen });
-    this.props.toggleButtonName('reply');
   };
 
   handleNewPopover = () => {
     this.props.getSignature();
     this.setState({ newPopoverOpen: !this.state.newPopoverOpen });
-    this.props.toggleButtonName('send new');
   };
 
   selectedReplyTemplate = (e) => {
     const templateId = e.target.value;
+    this.props.toggleButtonName('reply');
     this.props.getTemplate(templateId);
     this.setState({ replyPopoverOpen: false, newPopoverOpen: false });
   };
 
   selectedNewTemplate = (e) => {
     const templateId = e.target.value;
+    this.props.toggleButtonName('send new');
     this.props.getTemplate(templateId);
     this.setState({ replyPopoverOpen: false, newPopoverOpen: false });
   };
@@ -152,18 +152,16 @@ class Email extends Component {
             </Popover>
 
             <Button id="newEmailButton" onClick={this.handleNewPopover} className="btn btn-success rounded">
-            Send New Email
+            New Email
             </Button>
             <Popover placement="bottom" isOpen={this.state.newPopoverOpen} target="newEmailButton" toggle={this.handleNewPopover}>
               <PopoverHeader>Select Template</PopoverHeader>
               <PopoverBody>
                 <select className="form-control" onChange={this.selectedNewTemplate} defaultValue="_default">
                   <option disabled value="_default"> -- select an option -- </option>
-                  <option value="">No template</option>
-                  <option value="Received your email">Received your email</option>
-                  <option value="Interview appointment">Interview appointment</option>
-                  <option value="Accepted">Accepted</option>
-                  <option value="Denied">Denied</option>
+                  <option value="noTemplate">No template</option>
+                  {this.props.templates.map(template =>
+                    <option key={template._id} value={template._id}>{template.name}</option>)}}
                 </select>
               </PopoverBody>
             </Popover>

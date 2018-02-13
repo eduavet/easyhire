@@ -22,7 +22,7 @@ templateHandlers.getTemplate = (req, res) => {
   if (templateId === 'noTemplate') {
     return res.json({
       template: {
-        _id: 'noTemplate', userId, name: '', content: '', icon: '',
+        _id: 'noTemplate', userId, name: '', content: ' ', icon: '',
       },
       errors: [],
       responseMsgs: [],
