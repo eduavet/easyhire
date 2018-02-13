@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { notify } from 'react-notify-toast';
 import { Button, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
-import { Editor } from '@tinymce/tinymce-react';
 import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncGetNote, asyncSendNote, changeNoteStatus, asyncGetTemplate, changeComposeWindowHeaderText, toggleButtonName } from '../../redux/reducers/emailReducer';
 import { asyncGetSignature } from '../../redux/reducers/emailsReducer';
 import { asyncGetTemplates } from '../../redux/reducers/settingsReducer';
@@ -20,6 +17,7 @@ class Email extends Component {
       newPopoverOpen: false,
     };
   }
+
   componentDidMount() {
     const emailId = this.props.email.emailId;
     this.props.getEmailFromGapi(emailId);
@@ -58,6 +56,7 @@ class Email extends Component {
     const emailId = this.props.email.emailId;
     this.props.changeEmailStatus(emailId, statusId);
   };
+
   typeNote = (evt) => {
     clearTimeout(this.sendNoteInfo.time);
     const sender = this.props.email.sender;
@@ -74,22 +73,27 @@ class Email extends Component {
     this.setState({ replyPopoverOpen: !this.state.replyPopoverOpen });
     this.props.toggleButtonName('reply');
   };
+
   handleNewPopover = () => {
     this.props.getSignature();
     this.setState({ newPopoverOpen: !this.state.newPopoverOpen });
     this.props.toggleButtonName('send new');
   };
+
   selectedReplyTemplate = (e) => {
     const templateId = e.target.value;
     this.props.getTemplate(templateId);
     this.setState({ replyPopoverOpen: false, newPopoverOpen: false });
   };
+
   selectedNewTemplate = (e) => {
     const templateId = e.target.value;
     this.props.getTemplate(templateId);
     this.setState({ replyPopoverOpen: false, newPopoverOpen: false });
   };
+
   handleEditorChange = () => {}
+
   render() {
     return (
       <div className="col-10 mt-4">
@@ -122,7 +126,7 @@ class Email extends Component {
           :
                  <iframe
                    sandbox="allow-scripts"
-                   ref={el => this.iframeRef = el}
+                   ref={(el) => { this.iframeRef = el; }}
                    srcDoc={this.props.email.htmlBody} title="Email Content"
                    width="100%"
                    height="320px"
@@ -169,7 +173,16 @@ class Email extends Component {
           <div className="col-8 email-border-top">
             <label htmlFor="addNoteTextarea">Notes about applicant</label>
             <div className="notes">
-              <textarea data-id={this.props.note ? this.props.note._id : ''} className="form-control" id="addNoteTextarea" rows="7" placeholder="Start typing, note will auto save." onChange={this.typeNote} ref={el => this.noteTextareaRef = el} value={this.state.noteContent} />
+              <textarea
+                data-id={this.props.note ? this.props.note._id : ''}
+                className="form-control"
+                id="addNoteTextarea"
+                rows="7"
+                placeholder="Start typing, note will auto save."
+                onChange={this.typeNote}
+                ref={(el) => { this.noteTextareaRef = el; }}
+                value={this.state.noteContent}
+              />
               <span className={this.props.noteStatus}>Saved!</span>
             </div>
           </div>
@@ -187,7 +200,7 @@ Email.propTypes = {
   templates: PropTypes.array.isRequired,
   changeEmailStatus: PropTypes.func.isRequired,
   changeComposeWindowHeaderText: PropTypes.func.isRequired,
-  asyncGetTemplates: PropTypes.func.isRequired,
+  getTemplates: PropTypes.func.isRequired,
   note: PropTypes.object,
   getNote: PropTypes.func.isRequired,
   getTemplate: PropTypes.func.isRequired,

@@ -1,5 +1,5 @@
 module.exports = {
-  extends: 'airbnb',
+  extends: 'eslint-config-airbnb',
   parser: 'babel-eslint',
   env: {
     browser: true,
@@ -39,4 +39,3 @@ module.exports = {
     'consistent-return': [0],
   },
 };
-

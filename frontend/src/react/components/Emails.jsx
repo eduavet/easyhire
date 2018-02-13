@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Table } from 'reactstrap';
 import PropTypes from 'prop-types';
-import { Link, Route, Switch } from 'react-router-dom';
-import { isChecked, asyncGetEmails, asyncGetSignature } from '../../redux/reducers/emailsReducer';
+import { Link } from 'react-router-dom';
+import { isChecked, asyncGetEmails } from '../../redux/reducers/emailsReducer';
 import { asyncGetEmailFromDb } from '../../redux/reducers/emailReducer';
 
 const Loader = require('react-loader');
@@ -31,24 +30,32 @@ class Emails extends Component {
   openPage = (e) => {
     this.setState({
       pageActive: Object.assign([], new Array(10).fill(false), { [e.target.textContent]: true }),
-      currentPage: parseInt(e.target.textContent),
+      currentPage: parseInt(e.target.textContent, 10),
     });
   };
 
-  prevPage = (e) => {
+  prevPage = () => {
     if (this.state.currentPage > 1) {
       this.setState({
-        pageActive: Object.assign([], new Array(10).fill(false), { [this.state.currentPage - 1]: true }),
-        currentPage: parseInt(this.state.currentPage - 1),
+        pageActive: Object.assign(
+          [],
+          new Array(10).fill(false),
+          { [this.state.currentPage - 1]: true },
+        ),
+        currentPage: parseInt(this.state.currentPage - 1, 10),
       });
     }
   };
 
-  nextPage = (e) => {
+  nextPage = () => {
     if (this.state.currentPage < this.props.emails.length / this.state.emailsPerPage) {
       this.setState({
-        pageActive: Object.assign([], new Array(10).fill(false), { [this.state.currentPage + 1]: true }),
-        currentPage: parseInt(this.state.currentPage + 1),
+        pageActive: Object.assign(
+          [],
+          new Array(10).fill(false),
+          { [this.state.currentPage + 1]: true },
+        ),
+        currentPage: parseInt(this.state.currentPage + 1, 10),
       });
     }
   };
@@ -56,12 +63,14 @@ class Emails extends Component {
   toggleCheckbox = (item) => {
     this.props.isChecked(item);
   };
+
   openEmail = (evt) => {
     const id = evt.target.dataset.id ?
       evt.target.dataset.id :
       evt.target.parentElement.dataset.id;
     this.props.getEmailFromDb(id);
   };
+
   sortBySender = () => {
     if (!this.state.sortedSender) {
       this.props.emails.sort((a, b) => {
@@ -79,6 +88,7 @@ class Emails extends Component {
       this.setState({ sortedSender: !this.state.sortedSender });
     }
   };
+
   sortBySubject = () => {
     if (!this.state.sortedSubject) {
       this.props.emails.sort((a, b) => {
@@ -96,6 +106,7 @@ class Emails extends Component {
       this.setState({ sortedSubject: !this.state.sortedSubject });
     }
   };
+
   sortByStatus = () => {
     if (!this.state.sortedStatus) {
       this.props.emails.sort((a, b) => {
@@ -113,6 +124,7 @@ class Emails extends Component {
       this.setState({ sortedStatus: !this.state.sortedStatus });
     }
   };
+
   sortByDate = () => {
     if (!this.state.sortedDate) {
       this.props.emails.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -122,6 +134,7 @@ class Emails extends Component {
       this.setState({ sortedDate: !this.state.sortedDate });
     }
   };
+
   render() {
     const pages = [];
     for (let i = 1; i <= Math.ceil(this.props.emails.length / this.state.emailsPerPage); i += 1) {
@@ -131,8 +144,9 @@ class Emails extends Component {
           className={this.state.pageActive[i] ? 'page-item active' : 'page-item'}
           onClick={this.openPage}
         >
-          <a className="page-link paging" href="#">{i}</a>
-        </li>);
+          <a className="page-link paging" href="#top">{i}</a>
+        </li>
+      );
     }
     return (
       <div className="col-10 mt-4">
@@ -166,12 +180,21 @@ class Emails extends Component {
                       </div>
                     </td>
                     <td >
-                      <Link className={item.isRead ? 'text-center' : 'text-center bold'} to={`/email/${item.emailId}`} data-id={item.emailId} onClick={this.openEmail}>
+                      <Link
+                        className={item.isRead ? 'text-center' : 'text-center bold'}
+                        to={`/email/${item.emailId}`}
+                        data-id={item.emailId}
+                        onClick={this.openEmail}
+                      >
                         {item.sender}
                       </Link>
                     </td>
                     <td>
-                      <Link to={`/email/${item.emailId}`} data-id={item.emailId} onClick={this.openEmail}>
+                      <Link
+                        to={`/email/${item.emailId}`}
+                        data-id={item.emailId}
+                        onClick={this.openEmail}
+                      >
                         <span className={item.isRead ? '' : 'bold'}>
                           {item.subject}
                         </span>
@@ -191,9 +214,9 @@ class Emails extends Component {
           {this.props.emails.length > this.state.emailsPerPage ?
             <nav aria-label="Email pages" className="paging">
               <ul className="pagination justify-content-center">
-                <li className="page-item" onClick={this.prevPage}><a className="page-link paging" href="#">Previous</a></li>
+                <li className="page-item" onClick={this.prevPage}><a className="page-link paging" href="#top">Previous</a></li>
                 {pages}
-                <li className="page-item" onClick={this.nextPage}><a className="page-link paging" href="#">Next</a></li>
+                <li className="page-item" onClick={this.nextPage}><a className="page-link paging" href="#top">Next</a></li>
               </ul>
             </nav>
             : ''

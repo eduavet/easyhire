@@ -1,5 +1,5 @@
 const initialState = {
-  emails: [], name: '', signature: '',  loading: true, errors: [], loaded: false,
+  emails: [], name: '', signature: '', loading: true, errors: [], loaded: false,
 };
 
 /**
@@ -78,7 +78,7 @@ function moveEmails(response, inboxActive) {
       emailsToMove: response.emailsToMove,
       errors: response.errors,
       originalFolder: response.originalFolder,
-      inboxActive
+      inboxActive,
     },
   };
 }

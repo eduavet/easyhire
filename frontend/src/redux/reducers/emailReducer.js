@@ -227,7 +227,7 @@ export function asyncChangeEmailStatus(emailId, statusId) {
         dispatch(changeEmailStatus(result));
         dispatch(asyncGetStatuses());
       })
-      .catch(console.error);
+      .catch(() => {});
   };
 }
 export function asyncGetNote(sender) {

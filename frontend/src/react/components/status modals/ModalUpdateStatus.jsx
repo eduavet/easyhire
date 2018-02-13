@@ -36,13 +36,15 @@ export default class ModalUpdateStatus extends Component {
             <div className="form-group">
               <Button
                 color="secondary float-right"
-                onClick={this.props.toggleUpdateModal}>
+                onClick={this.props.toggleUpdateModal}
+              >
                 Cancel
               </Button>
               <Button
                 className="btn bg-light-blue float-right mr-2"
                 onClick={() => this.props.updateStatus(this.refs.inputField)}
-                disabled={!this.state.inputNotEmpty}>
+                disabled={!this.state.inputNotEmpty}
+              >
                 Update
               </Button>
             </div>

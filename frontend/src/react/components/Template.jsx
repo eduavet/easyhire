@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import { Link, Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { notify } from 'react-notify-toast';
 import { Editor } from '@tinymce/tinymce-react';
 import { asyncGetTemplate, asyncAddTemplate, asyncUpdateTemplate } from '../../redux/reducers/settingsReducer';
 
@@ -45,7 +42,7 @@ class Template extends Component {
     if (templateId) {
       this.props.updateTemplate(templateId, templateName, templateContent);
     } else {
-      this.props.addTemplate(templateName, templateContent)
+      this.props.addTemplate(templateName, templateContent);
     }
   };
   render() {
@@ -110,4 +107,3 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps,
 )(Template);
-

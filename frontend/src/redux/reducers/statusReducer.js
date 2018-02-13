@@ -104,7 +104,7 @@ export function asyncUpdateStatus(body) {
       .then(res => res.json())
       .then((result) => {
         dispatch(updateStatus(result));
-      }).catch(console.error);
+      }).catch(() => {});
   };
 }
 
@@ -119,7 +119,6 @@ export function asyncDeleteStatus(id) {
     })
       .then(res => res.json())
       .then((result) => {
-        console.log({result});
         dispatch(deleteStatus(result));
       }).catch(() => {});
   };
@@ -147,9 +146,8 @@ export default function statusReducer(state = initialState, action) {
     case GET_STATUSES:
       return {
         ...state,
-        statuses: payload.statuses.map(
-          status => Object.assign({}, status, { isActive: !!status.isActive })
-        ),
+        statuses: payload.statuses.map(status =>
+          Object.assign({}, status, { isActive: !!status.isActive })),
       };
     case IS_ACTIVE:
       return {
@@ -165,15 +163,14 @@ export default function statusReducer(state = initialState, action) {
       };
     case CREATE_STATUS: {
       const statuses = payload.createdStatus._id ? [
-          ...state.statuses,
-          Object.assign({}, payload.createdStatus, { isActive: false }),
-        ] : state.statuses;
+        ...state.statuses,
+        Object.assign({}, payload.createdStatus, { isActive: false }),
+      ] : state.statuses;
       return {
         ...state, statuses, statusErrors: payload.statusErrors,
       };
     }
     case UPDATE_STATUS:
-      console.log(payload.updatedStatus);
       return {
         ...state,
         statuses: state.statuses.map((status) => {

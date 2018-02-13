@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Route, Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Nav, NavItem, Navbar, NavbarBrand, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+import { Nav, NavItem, Navbar, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import Logout from './Logout.jsx';
 import Settings from './Settings.jsx';
 import { setPage } from '../../redux/reducers/folderReducer';
@@ -10,28 +10,29 @@ import { setPage } from '../../redux/reducers/folderReducer';
 
 export class Header extends Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
-      dropdownOpen: false
+      dropdownOpen: false,
     };
-  }
-
-  toggle = () => {
-    this.setState({
-      dropdownOpen: !this.state.dropdownOpen
-    });
   }
 
   setPage = (value) => {
     this.props.setPage(value);
   }
 
+  toggle = () => {
+    this.setState({
+      dropdownOpen: !this.state.dropdownOpen,
+    });
+  }
+
+
   render() {
     return (
       <div>
         <Navbar color="faded" light expand="md" className="header navbar-dark">
           <Link to="/" className="nav-link" onClick={() => this.setPage('dashboard')}>
-            <img src="/src/assets/images/logo.png" height="40" className="d-inline-block align-top" />
+            <img src="/src/assets/images/logo.png" height="40" className="d-inline-block align-top" alt="" />
           </Link>
           <Nav className="ml-auto navbar-nav" navbar>
             <NavItem className="navbar-text text-white">
@@ -41,7 +42,7 @@ export class Header extends Component {
               <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle} >
                 <DropdownToggle id="settingsbtn">
                   Settings&nbsp;
-                  <i className="fas fa-cogs"></i>
+                  <i className="fas fa-cogs" />
                 </DropdownToggle>
                 <DropdownMenu className="settings">
                   <Link to="/settings/statuses" className="nav-link" onClick={() => this.setPage('statuses')}>
@@ -66,7 +67,9 @@ export class Header extends Component {
 
 Header.propTypes = {
   username: PropTypes.string.isRequired,
+  setPage: PropTypes.func.isRequired,
 };
+
 function mapStateToProps(state) {
   return {
     username: state.emails.name,
