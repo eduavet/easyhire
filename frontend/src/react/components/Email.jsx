@@ -43,7 +43,7 @@ class Email extends Component {
         this.setState({ noteContent: nextProps.note.content });
       }
     }
-    if (nextProps.email.attachments !== null &&
+    if (nextProps.email.attachments !== undefined &&
       nextProps.email.attachments !== this.props.email.attachments) {
       nextProps.email.attachments
         .map(attachment => this.props.getAttachmentFromGapi(nextProps.email.emailId, attachment));

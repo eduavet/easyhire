@@ -1,5 +1,5 @@
 const initialState = {
-  emails: [], name: '', signature: '', loading: true, errors: [], loaded: false,
+  emails: [], sentEmails: [], name: '', signature: '', loading: true, errors: [], loaded: false,
 };
 
 /**
@@ -8,6 +8,7 @@ const initialState = {
 const GET_USERNAME = 'Get username';
 const GET_SIGNATURE = 'Get signature';
 const GET_EMAILS = 'Get emails';
+const GET_SENT = 'Get sent emails';
 const DELETE_EMAILS = 'Delete emails';
 
 const MOVE_EMAILS = 'Update Email Folders';
@@ -29,6 +30,15 @@ const SEARCH = 'Search';
 function getEmails(result) {
   return {
     type: GET_EMAILS,
+    payload: {
+      emails: result.emailsToSend,
+      errors: result.errors,
+    },
+  };
+}
+function getSentEmails(result) {
+  return {
+    type: GET_SENT,
     payload: {
       emails: result.emailsToSend,
       errors: result.errors,
@@ -143,6 +153,20 @@ export function asyncGetEmails() {
   };
 }
 
+export function asyncGetSentEmails() {
+  return function asyncGetSentEmailsInner(dispatch) {
+    dispatch(loading());
+    fetch('http://localhost:3000/api/emails/sent', {
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+        dispatch(getSentEmails(result));
+      })
+      .catch();
+  };
+}
+
 export function asyncGetUsername() {
   return function asyncGetUsernameInner(dispatch) {
     fetch('http://localhost:3000/api/username', {
@@ -177,7 +201,7 @@ export function asyncGetFolderEmails(folderId) {
       .then(res => res.json())
       .then((result) => {
         dispatch(getFolderEmails(result));
-      }).catch(() => {});
+      }).catch((err) => {console.log(err)});
   };
 }
 
@@ -321,6 +345,15 @@ export default function emailsReducer(state = initialState, action) {
         errors: payload.errors,
         loaded: true,
       };
+    case GET_SENT:
+      return {
+        ...state,
+        sentEmails: [
+          ...payload.emails
+            .map(email => Object.assign({}, email, { isChecked: !!email.isChecked }))],
+        errors: payload.errors,
+        loaded: true,
+      };
     case GET_USERNAME:
       return {
         ...state,
@@ -343,8 +376,8 @@ export default function emailsReducer(state = initialState, action) {
               isChecked: !!email.isChecked,
               folderName: email.folder.name,
               folderId: email.folder._id,
-              statusName: email.status.name,
-              statusId: email.status._id,
+              statusName: email.status ? email.status.name : '',
+              statusId: email.status ? email.status._id : null,
             })),
         loaded: true,
       };
