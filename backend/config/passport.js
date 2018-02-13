@@ -37,5 +37,5 @@ passport.use(new GoogleStrategy(
       newUser.save();
     });
     done(null, profile);
-  })
+  }),
 ));

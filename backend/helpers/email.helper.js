@@ -31,7 +31,17 @@ emailHelpers.groupExtract = (group) => {
   const statusName = group.status.name;
   const snippet = entities.decode(group.snippet);
   return {
-    emailId, sender, subject, snippet, date, folderId, folderName, statusId, statusName, isRead, attachments,
+    emailId,
+    sender,
+    subject,
+    snippet,
+    date,
+    folderId,
+    folderName,
+    statusId,
+    statusName,
+    isRead,
+    attachments,
   };
 };
 
