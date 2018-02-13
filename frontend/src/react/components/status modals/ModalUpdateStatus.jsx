@@ -55,7 +55,7 @@ export default class ModalUpdateStatus extends Component {
 
 ModalUpdateStatus.propTypes = {
   isOpenUpdate: PropTypes.bool.isRequired,
-  updateStatusName: PropTypes.string.isRequired,
+  updateStatusName: PropTypes.string,
   toggleUpdateModal: PropTypes.func.isRequired,
   updateStatus: PropTypes.func.isRequired,
 };

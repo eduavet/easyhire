@@ -27,7 +27,6 @@ function createStatus(response) {
 }
 
 function updateStatus(response) {
-  console.log('in func', response);
   return {
     type: UPDATE_STATUS,
     payload: {
@@ -148,11 +147,9 @@ export default function statusReducer(state = initialState, action) {
     case GET_STATUSES:
       return {
         ...state,
-        statuses: [
-          ...state.statuses,
-          ...payload.statuses
-            .map(status => Object.assign({}, status, { isActive: !!status.isActive })),
-        ],
+        statuses: payload.statuses.map(
+          status => Object.assign({}, status, { isActive: !!status.isActive })
+        ),
       };
     case IS_ACTIVE:
       return {
