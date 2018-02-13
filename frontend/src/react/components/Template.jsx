@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Link, Route, Switch } from 'react-router-dom';
+import DateTime from 'react-datetime';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { notify } from 'react-notify-toast';
@@ -48,7 +49,16 @@ class Template extends Component {
       this.props.addTemplate(templateName, templateContent)
     }
   };
+  renderDateTime = (evt) => {
+    console.log(evt.target.value);
+  }
+
+  handleEditorInit = () => {
+
+  }
+
   render() {
+    const renderDateTime = this.renderDateTime;
     return (
       <form>
         <div className="form-group">
@@ -62,10 +72,28 @@ class Template extends Component {
             initialValue=""
             content={this.props.template}
             init={{
-                plugins: 'link image code',
-                toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code',
-                height: '320',
-              }}
+              plugins: 'link image code',
+              toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code Datepicker',
+              height: '320',
+              setup: (editor) => {
+                editor.addButton('Datepicker', {
+                  text: 'Datepicker',
+                  icon: 'insertdatetimepicker',
+                  onclick: () => {
+                    console.log('yo');
+                    console.log(this._datepicker);
+                    this._datepicker.state.open = true;
+                    this._datepicker.handleClickOutside();
+                    // this._datePicker.click(); Get Reference, How to force click.
+                  },
+                });
+              },
+            }}
+          />
+        </div>
+        <div >
+          <DateTime
+            ref={(picker) => { this._datepicker = picker; }}
           />
         </div>
         <button onClick={this.saveTemplate} className="btn btn-success">Save!</button>

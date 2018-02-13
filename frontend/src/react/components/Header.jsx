@@ -50,9 +50,6 @@ export class Header extends Component {
                   <Link to="/settings/templates" className="nav-link" onClick={() => this.setPage('templates')}>
                     <DropdownItem>Templates</DropdownItem>
                   </Link>
-                  <Link to="/settings/signature" className="nav-link" onClick={() => this.setPage('signature')}>
-                    <DropdownItem>Signature</DropdownItem>
-                  </Link>
                 </DropdownMenu>
               </Dropdown>
             </NavItem>
