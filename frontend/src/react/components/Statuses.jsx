@@ -101,7 +101,7 @@ function Status(props) {
       data-name={status.name}
       onClick={isDeletable ? props.toggleUpdateModal : null}
     >
-      <i className="fa fa-address-card" aria-hidden="true" />
+      <i className={isDeletable ? 'fa fa-address-card' : 'fa fa-user'} aria-hidden="true" />
       &nbsp;{status.name}
       &nbsp;({status.count})
       <div className="d-inline float-right">

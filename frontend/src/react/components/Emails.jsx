@@ -21,7 +21,11 @@ class Emails extends Component {
     };
   }
   componentWillMount = () => {
-    this.props.getEmails();
+    if (window.location.href === 'http://localhost:8080/' ||
+        window.location.href === 'http://localhost:8080' ||
+        window.location.href === 'http://localhost:8080/#') {
+      this.props.getEmails();
+    }
     this.props.getSentEmails();
   }
   componentDidMount = () => {
