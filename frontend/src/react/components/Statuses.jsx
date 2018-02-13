@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { notify } from 'react-notify-toast';
 import PropTypes from 'prop-types';
-import ModalNewStatus from './ModalNewStatus.jsx';
-import ModalUpdateStatus from './ModalUpdateStatus.jsx';
-import ModalDeleteStatus from './ModalDeleteStatus.jsx';
-import ModalCannotDeleteStatus from './ModalCannotDeleteStatus.jsx';
+import ModalNewStatus from './status modals/ModalNewStatus.jsx';
+import ModalUpdateStatus from './status modals/ModalUpdateStatus.jsx';
+import ModalDeleteStatus from './status modals/ModalDeleteStatus.jsx';
+import ModalCannotDeleteStatus from './status modals/ModalCannotDeleteStatus.jsx';
 import { asyncGetFolderEmails, asyncRefresh } from '../../redux/reducers/emailsReducer';
 import { asyncDeleteFolder, asyncUpdateFolder, isActive } from '../../redux/reducers/folderReducer';
 import { asyncGetStatuses, asyncDeleteStatus, asyncUpdateStatus } from '../../redux/reducers/statusReducer';
@@ -68,7 +68,7 @@ class Statuses extends Component {
     };
     render() {
       return (
-        <div className="col-4 mt-4">
+        <div className="col-4 mt-4 statuses">
           <ul className="list-group folders">
             { this.props.statuses ? this.props.statuses.map(status =>
               (<Status
@@ -101,19 +101,23 @@ class Statuses extends Component {
 
 function Status(props) {
   const isDeletable = props.status.userId;
+  const status = props.status;
   return (
     <li
       className={`list-group-item list-group-item-action`}
+      data-id={status._id}
+      data-name={status.name}
+      onClick={isDeletable ? props.toggleUpdateModal : null}
     >
       <i className={'fa fa-address-card'} aria-hidden="true" />
-      &nbsp;{props.status.name}
-      &nbsp;({props.status.count})
+      &nbsp;{status.name}
+      &nbsp;({status.count})
       <div className="d-inline float-right">
         {
           isDeletable ?
             <i
               className="fa fa-pencil-alt folder-actions" aria-hidden="true"
-              data-id={props.status._id} data-name={props.status.name}
+              data-id={status._id} data-name={status.name}
               onClick={props.toggleUpdateModal}
             />
                   :
@@ -123,8 +127,8 @@ function Status(props) {
           isDeletable ?
             <i
               className="fa fa-trash folder-actions" aria-hidden="true"
-              data-id={props.status._id} data-name={props.status.name}
-              onClick={props.status.count ? props.toggleCannotDeleteModal : props.toggleDeleteModal}
+              data-id={status._id} data-name={status.name}
+              onClick={status.count ? props.toggleCannotDeleteModal : props.toggleDeleteModal}
             />
                   :
                   ''

@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { notify } from 'react-notify-toast';
 import PropTypes from 'prop-types';
-import ModalNewFolder from './ModalNewFolder.jsx';
-import ModalUpdateFolder from './ModalUpdateFolder.jsx';
-import ModalDeleteFolder from './ModalDeleteFolder.jsx';
-import ModalCannotDeleteFolder from './ModalCannotDeleteFolder.jsx';
+import ModalNewFolder from './folder modals/ModalNewFolder.jsx';
+import ModalUpdateFolder from './folder modals/ModalUpdateFolder.jsx';
+import ModalDeleteFolder from './folder modals/ModalDeleteFolder.jsx';
+import ModalCannotDeleteFolder from './folder modals/ModalCannotDeleteFolder.jsx';
 import { asyncGetFolderEmails, asyncRefresh } from '../../redux/reducers/emailsReducer';
 import { asyncDeleteFolder, asyncUpdateFolder, isActive } from '../../redux/reducers/folderReducer';
 

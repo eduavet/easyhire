@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import PropTypes from 'prop-types';
 
-
 export default class ModalDeleteStatus extends Component {
   render() {
     return (
@@ -21,6 +20,7 @@ export default class ModalDeleteStatus extends Component {
     );
   }
 }
+
 ModalDeleteStatus.propTypes = {
   isOpenDelete: PropTypes.bool.isRequired,
   deleteStatusName: PropTypes.string.isRequired,

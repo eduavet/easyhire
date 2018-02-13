@@ -54,7 +54,7 @@ class Email extends Component {
   changeStatus = (evt) => {
     const statusId = evt.target.value;
     const emailId = this.props.email.emailId;
-    this.props.changeEmaulStatus(emailId, statusId);
+    this.props.changeEmailStatus(emailId, statusId);
   };
   typeNote = (evt) => {
     clearTimeout(this.sendNoteInfo.time);
@@ -196,7 +196,7 @@ Email.propTypes = {
   getEmailFromGapi: PropTypes.func.isRequired,
   getAttachmentFromGapi: PropTypes.func,
   statuses: PropTypes.array.isRequired,
-  changeEmaulStatus: PropTypes.func.isRequired,
+  changeEmailStatus: PropTypes.func.isRequired,
   changeComposeWindowHeaderText: PropTypes.func.isRequired,
   note: PropTypes.object,
   getNote: PropTypes.func.isRequired,
@@ -230,7 +230,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     getEmailFromGapi: emailId => dispatch(asyncGetEmailFromGapi(emailId)),
-    changeEmaulStatus: (emailId, statusId) => dispatch(asyncChangeEmailStatus(emailId, statusId)),
+    changeEmailStatus: (emailId, statusId) => dispatch(asyncChangeEmailStatus(emailId, statusId)),
     getAttachmentFromGapi: (
       emailId,
       attachment,

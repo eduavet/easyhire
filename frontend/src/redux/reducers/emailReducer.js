@@ -1,3 +1,5 @@
+import { asyncGetStatuses } from './statusReducer';
+
 const initialState = {
   email: {
     date: 'MM/DD/YYYY, HH:mm:ss',
@@ -225,8 +227,9 @@ export function asyncChangeEmailStatus(emailId, statusId) {
       .then(res => res.json())
       .then((result) => {
         dispatch(changeEmailStatus(result));
+        dispatch(asyncGetStatuses());
       })
-      .catch(() => {});
+      .catch(console.error);
   };
 }
 export function asyncGetNote(sender) {
@@ -373,6 +376,7 @@ export default function emailsReducer(state = initialState, action) {
     }
     case CHANGE_EMAIL_STATUS:
     {
+      console.log('see', state);
       const emailNewStatus = payload.emailNewStatus ? payload.emailNewStatus : state.email.status;
       return {
         ...state,

@@ -31,8 +31,7 @@ templateHandlers.addTemplate = (req, res) => {
     return res.json({ errors });
   }
   const userId = req.session.userID;
-  const name = req.body.name;
-  const content = req.body.content;
+  const { name, content } = req.body;
   const icon = req.body.icon ? req.body.icon : 'fa-circle';
   const newTemplate = new TemplatesModel({
     userId,
@@ -56,8 +55,7 @@ templateHandlers.updateTemplate = (req, res) => {
   const userId = req.session.userID;
   return TemplatesModel.findOne({ _id: req.params.templateId, userId })
     .then((template) => {
-      const name = req.body.name;
-      const content = req.body.content;
+      const { name, content } = req.body;
       template.name = name;
       template.content = content;
       template.save()
@@ -73,10 +71,9 @@ templateHandlers.deleteTemplate = (req, res) => {
   if (errors) {
     return res.json({ errors });
   }
-  const templateId = req.params.templateId;
+  const { templateId } = req.params;
   const userId = req.session.userID;
   return TemplatesModel.remove({ _id: templateId, userId })
     .then(() => res.json({ _id: templateId, errors: [] }))
     .catch(err => res.json({ _id: '', errors: ['Something went wrong', err] }));
 };
-
