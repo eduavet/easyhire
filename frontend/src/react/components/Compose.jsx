@@ -14,11 +14,12 @@ class Compose extends Component {
       disabled: false,
     };
   }
+
   componentWillReceiveProps(nextProps) {
     this._receiver.value = this.props.receiver;
-    if (nextProps.template !== this.props.template) {
-      this._editor.editor.setContent(decodeURIComponent(`${nextProps.template} \r\n ${nextProps.signature}`));
-    }
+    const receiver = this.props.receiver.slice(0, this.props.receiver.indexOf(' ')).replace('"', '');
+    const finalTemplate = nextProps.template.replace('FIRST_NAME', receiver);
+    this._editor.editor.setContent(decodeURIComponent(`${finalTemplate} \r\n ${nextProps.signature}`));
     if (nextProps.btnName === 'reply') {
       this._subject.value = this.props.subject;
       this.setState({ disabled: true });
@@ -27,6 +28,7 @@ class Compose extends Component {
       this._subject.value = '';
     }
   }
+
   onClickSend = (evt) => {
     evt.preventDefault();
     const emailId = this.props.emailId;
