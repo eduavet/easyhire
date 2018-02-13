@@ -10,6 +10,9 @@ class Template extends Component {
     super(...args);
     this.state = {
       templateName: '',
+      datepickerStyle: 'hideDatetimepicker',
+      dateTime: '',
+      dateTimeContainerClass: 'dateTimePickerClosed',
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -46,16 +49,16 @@ class Template extends Component {
       this.props.addTemplate(templateName, templateContent);
     }
   };
-  renderDateTime = (evt) => {
-    console.log(evt.target.value);
-  }
-
-  handleEditorInit = () => {
-
-  }
-
+  changeDatepicker = (moment) => {
+    const dateTime = moment.format('DD/MM/YYYY, HH:mm');
+    this.setState({ dateTime });
+  };
+  closeDateTimepicker = () => {
+    const insertValue = this.state.dateTime ? `&nbsp;${this.state.dateTime}&nbsp;` : '';
+    this.setState({ datepickerStyle: 'hideDatetimepicker', dateTimeContainerClass: 'dateTimePickerClosed', dateTime: '' });
+    this._editor.editor.insertContent(insertValue);
+  };
   render() {
-    const renderDateTime = this.renderDateTime;
     return (
       <form>
         <div className="form-group">
@@ -64,41 +67,52 @@ class Template extends Component {
         </div>
         <div className="form-group">
           <label htmlFor="templateName">Template Content</label>
-          <Editor
-            ref={(editor) => { this._editor = editor; }}
-            initialValue=""
-            content={this.props.template}
-            init={{
+          <div className="editorDateTimePickerContainer">
+            <Editor
+              ref={(editor) => { this._editor = editor; }}
+              initialValue=""
+              content={this.props.template}
+              init={{
               plugins: 'link image code insertdatetime advlist autolink lists charmap print preview hr anchor pagebreak,'
               + 'searchreplace wordcount visualblocks visualchars fullscreen,'
               + 'media nonbreaking save table contextmenu directionality,'
               + 'emoticons template paste textcolor colorpicker textpattern',
               toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
-              toolbar2: 'print preview media | forecolor backcolor emoticons | insertdatetime Datepicker',
+              toolbar2: 'print preview media | forecolor backcolor emoticons | insertdatetime',
+              toolbar3: 'Datepicker',
               relative_urls: false,
               remove_script_host: false,
               image_advtab: true,
               height: '320',
               setup: (editor) => {
               editor.addButton('Datepicker', {
-                text: 'Datepicker',
-                icon: 'insertdatetimepicker',
+                text: 'DateTimepicker',
+                icon: 'insertdatetime',
                 onclick: () => {
-                  console.log('yo');
-                  console.log(this._datepicker);
-                  this._datepicker.state.open = true;
-                  this._datepicker.handleClickOutside();
-                  // this._datePicker.click(); Get Reference, How to force click.
+                  const toggleClass = this.state.datepickerStyle ? '' : 'hideDatetimepicker';
+                  const toggleContainerClass = this.state.datepickerStyle ? '' : 'dateTimePickerClosed';
+                  const insertValue = this.state.datepickerStyle ? '' : `&nbsp;${this.state.dateTime}&nbsp;`;
+                  this.setState({
+                    datepickerStyle: toggleClass,
+                    dateTimeContainerClass: toggleContainerClass,
+                    dateTime: '',
+                  });
+                  this._editor.editor.insertContent(insertValue);
                 },
               });
             },
             }}
-          />
-        </div>
-        <div >
-          <DateTime
-            ref={(picker) => { this._datepicker = picker; }}
-          />
+            />
+            <div className={`dateTimeContainer ${this.state.dateTimeContainerClass}`}>
+              <button type="button" className="btn btn-close-datepicker" onClick={this.closeDateTimepicker}>&times;</button>
+              <DateTime
+                className={this.state.datepickerStyle}
+                onChange={moment => this.changeDatepicker(moment)}
+                ref={(picker) => { this._datepicker = picker; }}
+                input={false}
+              />
+            </div>
+          </div>
         </div>
         <button onClick={this.saveTemplate} className="btn btn-success">Save!</button>
       </form>

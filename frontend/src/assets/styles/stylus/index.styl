@@ -402,6 +402,44 @@ minimized-background-color = #404040;
 .templates> .list-group-item {
   cursor: pointer
 }
+.hideDatetimepicker{
+  display none;
+}
+.editorDateTimePickerContainer{
+  position relative;
+  .dateTimeContainer{
+    position absolute;
+    top:12%;
+    left:10%;
+    width 270px;
+    height 280px;
+    .rdt.rdtStatic {
+      .rdtPicker{
+        border: 1px solid #404040;
+        box-shadow: 7px 10px #888888;
+      }
+    }
+    .btn-close-datepicker{
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding 0rem .75rem;
+      background-color: #989595;
+      border-color: #989595;
+      z-index: 2;
+      color: font-white-color;
+      &:hover{
+        color: font-white-color;
+        background-color: #404040;
+        border-color: #404040;
+      }
+    }
+  }
+  .dateTimePickerClosed{
+    height 0px;
+    display none;
+  }
+}
 //Settings component /end
 
 //Statuses component /start
