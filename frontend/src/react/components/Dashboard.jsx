@@ -60,12 +60,10 @@ function mapStateToProps(state) {
     errors: [
       ...state.email.errors,
       ...state.emails.errors,
+      ...state.folders.errors,
+      ...state.settings.errors,
+      ...state.statuses.errors
     ],
-    // errors: [...state.email.errors,
-    //   ...state.emails.errors,
-    //   ...state.folders.errors,
-    //   ...state.settings.errors,
-    //   ...state.statuses.errors],
     responseMsgs: [
       ...state.email.responseMsgs,
       ...state.settings.responseMsgs,
@@ -73,7 +71,7 @@ function mapStateToProps(state) {
       ...state.folders.responseMsgs,
       ...state.statuses.responseMsgs,
     ],
-    folders: state.folders.folders
+    folders: state.folders.folders,
   };
 }
 

@@ -199,7 +199,7 @@ export function asyncGetUsername() {
     })
       .then(res => res.json())
       .then((result) => {
-        dispatch(getUsername(result.name));
+        dispatch(getUsername(result));
       }).catch(() => {});
   };
 }
