@@ -17,8 +17,17 @@ templateHandlers.getTemplate = (req, res) => {
   if (errors) {
     return res.json({ errors });
   }
+  const templateId = req.params.templateId;
   const userId = req.session.userID;
-  return TemplatesModel.findOne({ _id: req.params.templateId, userId })
+  if (templateId === 'noTemplate') {
+    return res.json({
+      template: {
+        _id: 'noTemplate', userId, name: '', content: '', icon: '',
+      },
+      errors: [],
+    });
+  }
+  return TemplatesModel.findOne({ _id: templateId, userId })
     .then(template => res.json({ template, errors: [] }))
     .catch(() => res.json({ template: {}, errors: [{ msg: 'Something went wrong' }] }));
 };

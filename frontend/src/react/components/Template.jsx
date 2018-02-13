@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import DateTime from 'react-datetime';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Editor } from '@tinymce/tinymce-react';
@@ -45,7 +46,16 @@ class Template extends Component {
       this.props.addTemplate(templateName, templateContent);
     }
   };
+  renderDateTime = (evt) => {
+    console.log(evt.target.value);
+  }
+
+  handleEditorInit = () => {
+
+  }
+
   render() {
+    const renderDateTime = this.renderDateTime;
     return (
       <form>
         <div className="form-group">
@@ -59,17 +69,35 @@ class Template extends Component {
             initialValue=""
             content={this.props.template}
             init={{
-                plugins: 'link image code insertdatetime advlist autolink lists charmap print preview hr anchor pagebreak,'
-                + 'searchreplace wordcount visualblocks visualchars fullscreen,'
-                + 'media nonbreaking save table contextmenu directionality,'
-                + 'emoticons template paste textcolor colorpicker textpattern',
-                toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
-                toolbar2: 'print preview media | forecolor backcolor emoticons | insertdatetime',
-                relative_urls: false,
-                remove_script_host: false,
-                image_advtab: true,
-                height: '320',
-              }}
+              plugins: 'link image code insertdatetime advlist autolink lists charmap print preview hr anchor pagebreak,'
+              + 'searchreplace wordcount visualblocks visualchars fullscreen,'
+              + 'media nonbreaking save table contextmenu directionality,'
+              + 'emoticons template paste textcolor colorpicker textpattern',
+              toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
+              toolbar2: 'print preview media | forecolor backcolor emoticons | insertdatetime Datepicker',
+              relative_urls: false,
+              remove_script_host: false,
+              image_advtab: true,
+              height: '320',
+              setup: (editor) => {
+              editor.addButton('Datepicker', {
+                text: 'Datepicker',
+                icon: 'insertdatetimepicker',
+                onclick: () => {
+                  console.log('yo');
+                  console.log(this._datepicker);
+                  this._datepicker.state.open = true;
+                  this._datepicker.handleClickOutside();
+                  // this._datePicker.click(); Get Reference, How to force click.
+                },
+              });
+            },
+            }}
+          />
+        </div>
+        <div >
+          <DateTime
+            ref={(picker) => { this._datepicker = picker; }}
           />
         </div>
         <button onClick={this.saveTemplate} className="btn btn-success">Save!</button>
