@@ -22,7 +22,10 @@ function getFolders(result) {
   return {
     type: GET_FOLDERS,
     payload: {
-      folders: result.folders, inboxCount: result.inboxCount,
+      folders: result.folders,
+      inboxCount: result.inboxCount,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
     },
   };
 }
@@ -31,7 +34,9 @@ function createFolder(response) {
   return {
     type: CREATE_FOLDER,
     payload: {
-      createdFolder: response.createdFolder, folderErrors: response.errors,
+      createdFolder: response.createdFolder,
+      errors: response.errors,
+      responseMsgs: response.responseMsgs,
     },
   };
 }
@@ -40,7 +45,9 @@ function updateFolder(response) {
   return {
     type: UPDATE_FOLDER,
     payload: {
-      updatedFolder: response.updatedFolder, folderErrors: response.errors,
+      updatedFolder: response.updatedFolder,
+      errors: response.errors,
+      responseMsgs: response.responseMsgs,
     },
   };
 }
@@ -49,7 +56,9 @@ function deleteFolder(response) {
   return {
     type: DELETE_FOLDER,
     payload: {
-      deletedFolderID: response.deletedFolderID, folderErrors: response.errors,
+      deletedFolderID: response.deletedFolderID,
+      errors: response.errors,
+      responseMsgs: response.responseMsgs,
     },
   };
 }
@@ -61,6 +70,7 @@ function moveEmails(response) {
       emailsToMove: response.emailsToMove,
       errors: response.errors,
       originalFolder: response.originalFolder,
+      responseMsgs: response.responseMsgs,
     },
   };
 }
@@ -72,6 +82,7 @@ function deleteEmails(response) {
       emailsToDelete: response.emailsToDelete,
       errors: response.errors,
       originalFolder: response.originalFolder,
+      responseMsgs: response.responseMsgs,
     },
   };
 }
@@ -86,7 +97,10 @@ function refresh(result) {
   return {
     type: REFRESH,
     payload: {
-      folders: result.folders, inboxCount: result.inboxCount,
+      folders: result.folders,
+      inboxCount: result.inboxCount,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
     },
   };
 }
@@ -243,6 +257,8 @@ export default function folderReducer(state = initialState, action) {
           ...payload.folders
             .map(folder => Object.assign({}, folder, { isActive: !!folder.isActive })),
         ],
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     case UPDATE_COUNT:
       return {
@@ -275,7 +291,8 @@ export default function folderReducer(state = initialState, action) {
       return {
         ...state,
         folders: foldersAfterMove,
-        folderErrors: payload.errors,
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     }
     case DELETE_EMAILS: {
@@ -293,7 +310,8 @@ export default function folderReducer(state = initialState, action) {
       return {
         ...state,
         folders: afterDelete,
-        fodlerErrors: payload.errors,
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     }
     case CREATE_FOLDER: {
@@ -302,7 +320,10 @@ export default function folderReducer(state = initialState, action) {
         Object.assign({}, payload.createdFolder, { isActive: false }),
       ] : state.folders;
       return {
-        ...state, folders, folderErrors: payload.folderErrors,
+        ...state,
+        folders,
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     }
     case UPDATE_FOLDER:
@@ -314,13 +335,17 @@ export default function folderReducer(state = initialState, action) {
           }
           return folder;
         }),
-        folderErrors: payload.folderErrors,
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     case DELETE_FOLDER: {
       const foldersAfterDelete = state.folders
         .filter(folder => folder._id !== payload.deletedFolderID);
       return {
-        ...state, folders: foldersAfterDelete, folderErrors: payload.folderErrors,
+        ...state,
+        folders: foldersAfterDelete,
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     }
     case REFRESH:
@@ -337,6 +362,8 @@ export default function folderReducer(state = initialState, action) {
           ...payload.folders.map(folder =>
             Object.assign({}, folder, { isActive: !!folder.isActive })),
         ],
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
         loaded: true,
       };
     case SET_PAGE:
