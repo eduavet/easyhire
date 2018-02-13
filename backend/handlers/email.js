@@ -151,13 +151,17 @@ emailHandlers.emailsSent = (req, response) => {
           const packed = {
             name,
             emailsToSend: emailsToSend.filter(email => email != null),
+            errors: [],
+            responseMsgs: [],
           };
           response.json(packed);
         });
     })
     .catch(() => {
       response.json({
-        name: '', emailsToSend: [], errors: [{ msg: 'Something went wrong' }],
+        name: '', emailsToSend: [],
+        errors: [{ msg: 'Something went wrong' }],
+        responseMsgs: [],
       });
     });
 };
@@ -313,7 +317,7 @@ emailHandlers.changeEmailStatus = (req, res) => {
         }));
     })
     .catch((err) => {
-      res.json({ errors: [{ msg: 'Something went wrong', err }], status: '', responseMsgs: [{ msg: '', type: 'success' }] });
+      res.json({ errors: [{ msg: 'Something went wrong', err }], status: '', responseMsgs: [] });
     });
 };
 
