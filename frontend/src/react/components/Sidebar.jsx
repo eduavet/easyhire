@@ -156,8 +156,6 @@ Folder.propTypes = {
   toggleUpdateModal: PropTypes.func.isRequired,
   toggleCannotDeleteModal: PropTypes.func.isRequired,
   toggleDeleteModal: PropTypes.func.isRequired,
-  getEmails: PropTypes.func.isRequired,
-
 };
 
 function mapStateToProps(state) {
