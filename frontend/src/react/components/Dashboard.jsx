@@ -50,6 +50,7 @@ Dashboard.propTypes = {
 function mapStateToProps(state) {
   return {
     page: state.folders.page,
+    folders: state.folders.folders
   };
 }
 

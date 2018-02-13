@@ -1,5 +1,6 @@
 const moment = require('moment');
 const EmailsModel = require('../models/EmailsModel.js');
+const SentEmailsModel = require('../models/SentEmailsModel.js');
 const mongoose = require('mongoose');
 const Entities = require('html-entities').XmlEntities;
 
@@ -72,6 +73,38 @@ emailHelpers.buildNewEmailModel = (userId, email, folder, status) => {
     folder: mongoose.Types.ObjectId(folder._id),
     status: mongoose.Types.ObjectId(status._id),
     isRead: false,
+    attachments,
+    deleted: false,
+  });
+};
+
+
+
+emailHelpers.buildSentEmailModel = (userId, email, folder) => {
+  const attachments = [];
+  if (email.payload.parts) {
+    email.payload.parts.forEach((item) => {
+      if ('attachmentId' in item.body) {
+        attachments.push({ attachmentId: item.body.attachmentId, attachmentName: item.filename });
+      }
+    });
+  }
+  const emailId = email.id;
+  const { threadId } = email;
+  const sender = email.payload.headers.find(item => item.name === 'To').value;
+  const subject = email.payload.headers.find(item => item.name === 'Subject') ?
+    email.payload.headers.find(item => item.name === 'Subject').value : '';
+  const snippet = entities.decode(email.snippet);
+  const date = moment.unix(email.internalDate / 1000).format('MM/DD/YYYY, HH:mm:ss');
+  return new SentEmailsModel({
+    userId,
+    emailId,
+    threadId,
+    sender,
+    subject,
+    snippet,
+    date: date.toString(),
+    folder: mongoose.Types.ObjectId(folder._id),
     attachments,
     deleted: false,
   });

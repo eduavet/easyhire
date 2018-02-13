@@ -1,5 +1,7 @@
+const mongoose = require('mongoose')
 const EmailsModel = require('../models/EmailsModel.js');
 const FoldersModel = require('../models/FoldersModel.js');
+const SentEmailsModel = require('../models/SentEmailsModel.js');
 
 const folderHandlers = {};
 module.exports = folderHandlers;
@@ -7,6 +9,7 @@ module.exports = folderHandlers;
 // Getting folders
 folderHandlers.getFolders = (req, response) => {
   const userId = req.session.userID;
+
   if (!userId) {
     return response.json({ folders: [] });
   }
@@ -128,9 +131,30 @@ folderHandlers.getEmails = (req, res) => {
   }
   const userId = req.session.userID;
   const folderId = req.params.ID;
+  let sentId = '';
   const promises = [];
-  if (folderId === 'allEmails') {
-    return EmailsModel.find({ userId, deleted: false })
+  FoldersModel.findOne({ name: 'Sent' }, '_id').then((folder) => {
+    sentId = folder._id;
+    if (folderId === sentId.toString()) {
+      return SentEmailsModel.find({ folder: folderId, userId, deleted: false })
+        .populate('folder status')
+        .then(result => Promise.all(promises)
+          .then(() => {
+            res.json({ emailsToSend: result, errors: [] });
+          }))
+        .catch(err => res.json({ emailsToSend: [], errors: err }));
+    }
+    if (folderId === 'allEmails') {
+      return EmailsModel.find({ userId, deleted: false })
+        .populate('folder status')
+        .then(result =>
+          Promise.all(promises)
+            .then(() => {
+              res.json({ emailsToSend: result, errors: [] });
+            }))
+        .catch(err => res.json({ emailsToSend: [], errors: err }));
+    }
+    return EmailsModel.find({ folder: folderId, userId, deleted: false })
       .populate('folder status')
       .then(result =>
         Promise.all(promises)
@@ -138,26 +162,5 @@ folderHandlers.getEmails = (req, res) => {
             res.json({ emailsToSend: result, errors: [] });
           }))
       .catch(err => res.json({ emailsToSend: [], errors: err }));
-  }
-  return EmailsModel.find({ folder: folderId, userId, deleted: false })
-    .populate('folder status')
-    .then(result =>
-      // for (let i = 0; i < result.length; i += 1) {
-      //   const id = result[i].emailId;
-      //   promises.push(fetch(`https://www.googleapis.com/gmail/v1/users/${userId}/messages/${id}?access_token=${accessToken}`)
-      //     .then(response => response.json())
-      //     .then((msgRes) => {
-      //       emailsToSend[i] = emailHelpers.extract(
-      //         msgRes,
-      //         folderId,
-      //         result[i].folder.name,
-      //         result[i].isRead,
-      //       );
-      //     }));
-      // }
-      Promise.all(promises)
-        .then(() => {
-          res.json({ emailsToSend: result, errors: [] });
-        }))
-    .catch(err => res.json({ emailsToSend: [], errors: err }));
+  });
 };
