@@ -62,8 +62,15 @@ class Template extends Component {
             initialValue=""
             content={this.props.template}
             init={{
-                plugins: 'link image code',
-                toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code',
+                plugins: 'link image code insertdatetime advlist autolink lists charmap print preview hr anchor pagebreak,'
+                + 'searchreplace wordcount visualblocks visualchars fullscreen,'
+                + 'media nonbreaking save table contextmenu directionality,'
+                + 'emoticons template paste textcolor colorpicker textpattern',
+                toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
+                toolbar2: 'print preview media | forecolor backcolor emoticons | insertdatetime',
+                relative_urls: false,
+                remove_script_host: false,
+                image_advtab: true,
                 height: '320',
               }}
           />

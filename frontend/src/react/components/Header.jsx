@@ -43,15 +43,12 @@ export class Header extends Component {
                   Settings&nbsp;
                   <i className="fas fa-cogs"></i>
                 </DropdownToggle>
-                <DropdownMenu>
+                <DropdownMenu className="settings">
                   <Link to="/settings/statuses" className="nav-link" onClick={() => this.setPage('statuses')}>
-                    <DropdownItem>Statuses</DropdownItem>
+                    <DropdownItem className="settings-list-item">Statuses</DropdownItem>
                   </Link>
                   <Link to="/settings/templates" className="nav-link" onClick={() => this.setPage('templates')}>
-                    <DropdownItem>Templates</DropdownItem>
-                  </Link>
-                  <Link to="/settings/signature" className="nav-link" onClick={() => this.setPage('signature')}>
-                    <DropdownItem>Signature</DropdownItem>
+                    <DropdownItem className="settings-list-item">Templates</DropdownItem>
                   </Link>
                 </DropdownMenu>
               </Dropdown>
