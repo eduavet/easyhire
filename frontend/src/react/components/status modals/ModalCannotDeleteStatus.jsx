@@ -7,7 +7,7 @@ export default class ModalCannotDeleteStatus extends Component {
     return (
       <div className="d-inline">
         <Modal isOpen={this.props.isOpenCannotDelete} toggle={this.toggle}>
-          <ModalHeader toggle={this.props.toggleCannotDeleteModal}>Cannot delete folder
+          <ModalHeader toggle={this.props.toggleCannotDeleteModal}>Cannot delete status
           </ModalHeader>
           <ModalBody>
             Status <b>{this.props.cannotDeleteStatusName}</b>
@@ -21,7 +21,6 @@ export default class ModalCannotDeleteStatus extends Component {
     );
   }
 }
-
 
 ModalCannotDeleteStatus.propTypes = {
   isOpenCannotDelete: PropTypes.bool.isRequired,

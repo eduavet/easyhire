@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import { Link, Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { notify } from 'react-notify-toast';
 import Template from './Template.jsx';
 import ModalDeleteTemplate from './ModalDeleteTemplate.jsx';
 import { asyncGetTemplate, asyncGetTemplates, asyncDeleteTemplate, templateIsActive, createTemplate } from '../../redux/reducers/settingsReducer';
@@ -28,7 +25,7 @@ class Templates extends Component {
     const templateId = evt.target.dataset.id ?
       evt.target.dataset.id :
       evt.target.parentElement.dataset.id;
-    this.props.templateIsActive(templateId)
+    this.props.templateIsActive(templateId);
     this.props.getTemplate(templateId);
   };
   createTemplate = () => {
@@ -50,16 +47,16 @@ class Templates extends Component {
   render() {
     return (
       <Loader loaded={this.props.loaded}>
-        <h1>Templates component</h1>
+        <h1>Templates</h1>
         <div className="row mt-4">
           <div className="col-3 mt-4">
             <ul className="list-group templates">
               {this.props.templates.map((template) => {
-                const templateIsActive = template.isActive ? 'active-template' : '';
+                const isActive = template.isActive ? 'active-template' : '';
                 return (
                   <li
                     key={template._id}
-                    className={`list-group-item list-group-item-action ${templateIsActive}`}
+                    className={`list-group-item list-group-item-action ${isActive}`}
                     onClick={this.selectTemplate} data-id={template._id}
                   >
                     <i className={`fa ${template.icon}`} aria-hidden="true" />
@@ -67,7 +64,7 @@ class Templates extends Component {
                     <i
                       className="fa fa-trash template-actions float-right" aria-hidden="true"
                       data-id={template._id} data-name={template.name}
-                      onClick={ this.toggleDeleteModal}
+                      onClick={this.toggleDeleteModal}
                     />
                   </li>
                 );
@@ -77,7 +74,7 @@ class Templates extends Component {
                 className="list-group-item list-group-item-action"
                 onClick={this.createTemplate}
               >
-                <i className="fa fa-circle" aria-hidden="true" />
+                <i className="fa fa-plus-circle" aria-hidden="true" />
                 &nbsp; Create new Template
               </li>
               <ModalDeleteTemplate

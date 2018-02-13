@@ -17,7 +17,6 @@ class Toolbar extends Component {
       filterOpen: false,
       deleteModal: false,
       deleteCount: 0,
-      typingTimeOut: 0,
     };
   }
 

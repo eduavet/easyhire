@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import { Link, Route, Switch } from 'react-router-dom';
 import DateTime from 'react-datetime';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { notify } from 'react-notify-toast';
 import { Editor } from '@tinymce/tinymce-react';
 import { asyncGetTemplate, asyncAddTemplate, asyncUpdateTemplate } from '../../redux/reducers/settingsReducer';
 
@@ -46,7 +43,7 @@ class Template extends Component {
     if (templateId) {
       this.props.updateTemplate(templateId, templateName, templateContent);
     } else {
-      this.props.addTemplate(templateName, templateContent)
+      this.props.addTemplate(templateName, templateContent);
     }
   };
   renderDateTime = (evt) => {
@@ -72,22 +69,29 @@ class Template extends Component {
             initialValue=""
             content={this.props.template}
             init={{
-              plugins: 'link image code',
-              toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code Datepicker',
+              plugins: 'link image code insertdatetime advlist autolink lists charmap print preview hr anchor pagebreak,'
+              + 'searchreplace wordcount visualblocks visualchars fullscreen,'
+              + 'media nonbreaking save table contextmenu directionality,'
+              + 'emoticons template paste textcolor colorpicker textpattern',
+              toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image',
+              toolbar2: 'print preview media | forecolor backcolor emoticons | insertdatetime Datepicker',
+              relative_urls: false,
+              remove_script_host: false,
+              image_advtab: true,
               height: '320',
               setup: (editor) => {
-                editor.addButton('Datepicker', {
-                  text: 'Datepicker',
-                  icon: 'insertdatetimepicker',
-                  onclick: () => {
-                    console.log('yo');
-                    console.log(this._datepicker);
-                    this._datepicker.state.open = true;
-                    this._datepicker.handleClickOutside();
-                    // this._datePicker.click(); Get Reference, How to force click.
-                  },
-                });
-              },
+              editor.addButton('Datepicker', {
+                text: 'Datepicker',
+                icon: 'insertdatetimepicker',
+                onclick: () => {
+                  console.log('yo');
+                  console.log(this._datepicker);
+                  this._datepicker.state.open = true;
+                  this._datepicker.handleClickOutside();
+                  // this._datePicker.click(); Get Reference, How to force click.
+                },
+              });
+            },
             }}
           />
         </div>
@@ -131,4 +135,3 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps,
 )(Template);
-

@@ -13,13 +13,17 @@ authRoutes.get('/google', passport.authenticate(
         // 'https://www.googleapis.com/auth/gmail.readonly',
         // 'https://www.googleapis.com/auth/gmail.metadata',
         'profile', 'email', 'openid'],
-  }));
+  },
+));
+
 authRoutes.get(
   '/google/callback',
   passport.authenticate('google', {
     successRedirect: 'http://localhost:8080',
     failureRedirect: '/auth/google',
-  }));
+  }),
+);
+
 authRoutes.get('/logout', authHandlers.logout);
 
 module.exports = authRoutes;

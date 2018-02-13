@@ -3,9 +3,9 @@ import { connect } from 'react-redux';
 import { Button, Modal, ModalHeader, ModalBody } from 'reactstrap';
 import { notify } from 'react-notify-toast';
 import PropTypes from 'prop-types';
-import { asyncCreateFolder } from '../../redux/reducers/folderReducer';
+import { asyncCreateStatus } from '../../../redux/reducers/statusReducer';
 
-class ModalNewFolder extends Component {
+class ModalNewStatus extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -13,17 +13,17 @@ class ModalNewFolder extends Component {
       input: '',
     };
   }
-  // Toggle new folder modal
+  // Toggle new status modal
   toggle = () => {
     this.setState({ modal: !this.state.modal });
   };
-  // Dispatch create folder action, display success message
-  createFolder = (e) => {
+  // Dispatch create status action, display success message
+  createStatus = (e) => {
     e.preventDefault();
-    const body = { folderName: this.refs.createFolder.value };
+    const newStatus = { statusName: this.refs.createStatus.value };
     this.setState({ modal: false, input: '' });
-    this.props.createFolder(body);
-    notify.show('Folder created!', 'success', 1500);
+    this.props.createStatus(newStatus);
+    notify.show('Status created!', 'success', 1500);
   };
 
   handleChange = (e) => {
@@ -36,17 +36,17 @@ class ModalNewFolder extends Component {
         <i className="fa fa-plus-circle" aria-hidden="true" />
           &nbsp; New Status
         <Modal isOpen={this.state.modal} toggle={this.toggle}>
-          <ModalHeader toggle={this.toggle}>Create New Folder</ModalHeader>
+          <ModalHeader toggle={this.toggle}>Create New Status</ModalHeader>
           <ModalBody>
-            <form onSubmit={this.createFolder}>
+            <form onSubmit={this.createStatus}>
               <div className="form-group">
-                <label htmlFor="folderName">Folder Name</label>
-                <input type="text" ref="createFolder" className="form-control" id="folderName" placeholder="Enter folder name" onChange={this.handleChange} />
+                <label htmlFor="statusName">Status Name</label>
+                <input type="text" ref="createStatus" className="form-control" id="statusName" placeholder="Enter status name" onChange={this.handleChange} />
               </div>
               <hr className="mt-4" />
               <div className="form-group">
                 <Button color="secondary float-right" onClick={this.toggle}>Cancel</Button>
-                <Button className="btn bg-light-blue float-right mr-2" onClick={this.createFolder} disabled={!this.state.input}>Create</Button>
+                <Button className="btn bg-light-blue float-right mr-2" onClick={this.createStatus} disabled={!this.state.input}>Create</Button>
               </div>
             </form>
           </ModalBody>
@@ -56,8 +56,8 @@ class ModalNewFolder extends Component {
   }
 }
 
-ModalNewFolder.propTypes = {
-  createFolder: PropTypes.func.isRequired,
+ModalNewStatus.propTypes = {
+  createStatus: PropTypes.func.isRequired,
 };
 
 function mapStateToProps() {
@@ -66,11 +66,11 @@ function mapStateToProps() {
 
 function mapDispatchToProps(dispatch) {
   return {
-    createFolder: param => dispatch(asyncCreateFolder(param)),
+    createStatus: newStatus => dispatch(asyncCreateStatus(newStatus)),
   };
 }
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(ModalNewFolder);
+)(ModalNewStatus);

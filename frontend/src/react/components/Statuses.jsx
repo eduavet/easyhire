@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { notify } from 'react-notify-toast';
 import PropTypes from 'prop-types';
-import ModalNewStatus from './ModalNewStatus.jsx';
-import ModalUpdateStatus from './ModalUpdateStatus.jsx';
-import ModalDeleteStatus from './ModalDeleteStatus.jsx';
-import ModalCannotDeleteStatus from './ModalCannotDeleteStatus.jsx';
+import ModalNewStatus from './status modals/ModalNewStatus.jsx';
+import ModalUpdateStatus from './status modals/ModalUpdateStatus.jsx';
+import ModalDeleteStatus from './status modals/ModalDeleteStatus.jsx';
+import ModalCannotDeleteStatus from './status modals/ModalCannotDeleteStatus.jsx';
 import { asyncGetFolderEmails, asyncRefresh } from '../../redux/reducers/emailsReducer';
-import { asyncDeleteFolder, asyncUpdateFolder, isActive } from '../../redux/reducers/folderReducer';
+import { isActive } from '../../redux/reducers/folderReducer';
 import { asyncGetStatuses, asyncDeleteStatus, asyncUpdateStatus } from '../../redux/reducers/statusReducer';
 
 const deleteId = { value: '' };
@@ -23,7 +23,6 @@ class Statuses extends Component {
       updateStatusName: '',
       deleteStatusName: '',
     };
-    // this.props.getStatuses()
   }
     toggleUpdateModal = (evt) => {
       evt.stopPropagation();
@@ -58,21 +57,14 @@ class Statuses extends Component {
       this.setState({ deleteModal: false, deleteStatusName: '' });
       notify.show('Status deleted!', 'success', 1500);
     };
-    // Make folder active to highlight it
-    statusToggler = (status) => {
-      // this.props.isActive(status);
-    };
-    // Handle folder click on non-inbox folders
-    openStatus = (statusId) => {
-      this.props.getStatusEmails(folderId);
-    };
+
     render() {
       return (
-        <div className="col-4 mt-4">
+        <div className="col-4 mt-4 statuses">
           <ul className="list-group folders">
             { this.props.statuses ? this.props.statuses.map(status =>
               (<Status
-                key={status._id} status={status} statusToggler={this.statusToggler}
+                key={status._id} status={status}
                 openStatus={this.openStatus}
                 toggleUpdateModal={this.toggleUpdateModal}
                 toggleDeleteModal={this.toggleDeleteModal}
@@ -85,11 +77,11 @@ class Statuses extends Component {
             toggleUpdateModal={this.toggleUpdateModal} updateStatus={this.updateStatus}
             updateStatusName={this.state.updateStatusName}
           />
-        <ModalDeleteStatus
+          <ModalDeleteStatus
             isOpenDelete={this.state.deleteModal} toggleDeleteModal={this.toggleDeleteModal}
             deleteStatus={this.deleteStatus} deleteStatusName={this.state.deleteStatusName}
           />
-        <ModalCannotDeleteStatus
+          <ModalCannotDeleteStatus
             isOpenCannotDelete={this.state.cannotDeleteModal}
             toggleCannotDeleteModal={this.toggleCannotDeleteModal}
             cannotDeleteStatusName={this.state.cannotDeleteStatusName}
@@ -101,33 +93,37 @@ class Statuses extends Component {
 
 function Status(props) {
   const isDeletable = props.status.userId;
+  const status = props.status;
   return (
     <li
-      className={`list-group-item list-group-item-action`}
+      className="list-group-item list-group-item-action"
+      data-id={status._id}
+      data-name={status.name}
+      onClick={isDeletable ? props.toggleUpdateModal : null}
     >
-      <i className={'fa fa-address-card'} aria-hidden="true" />
-      &nbsp;{props.status.name}
-      &nbsp;({props.status.count})
+      <i className="fa fa-address-card" aria-hidden="true" />
+      &nbsp;{status.name}
+      &nbsp;({status.count})
       <div className="d-inline float-right">
         {
           isDeletable ?
             <i
               className="fa fa-pencil-alt folder-actions" aria-hidden="true"
-              data-id={props.status._id} data-name={props.status.name}
+              data-id={status._id} data-name={status.name}
               onClick={props.toggleUpdateModal}
             />
-                  :
-                  ''
+          :
+            ''
         }
         {
           isDeletable ?
             <i
               className="fa fa-trash folder-actions" aria-hidden="true"
-              data-id={props.status._id} data-name={props.status.name}
-              onClick={props.status.count ? props.toggleCannotDeleteModal : props.toggleDeleteModal}
+              data-id={status._id} data-name={status.name}
+              onClick={status.count ? props.toggleCannotDeleteModal : props.toggleDeleteModal}
             />
-                  :
-                  ''
+          :
+            ''
         }
       </div>
     </li>
@@ -135,29 +131,22 @@ function Status(props) {
 }
 
 Statuses.propTypes = {
-  // updateStatus: PropTypes.func.isRequired,
-  // deleteFolder: PropTypes.func.isRequired,
-  // isActive: PropTypes.func.isRequired,
-  // getFolderEmails: PropTypes.func.isRequired,
-  // folders: PropTypes.array.isRequired,
-  // getEmails: PropTypes.func.isRequired,
+  updateStatus: PropTypes.func.isRequired,
+  deleteStatus: PropTypes.func.isRequired,
+  statuses: PropTypes.array.isRequired,
 };
 
-Statuses.propTypes = {
-  // folder: PropTypes.object.isRequired,
-  // folderToggler: PropTypes.func.isRequired,
-  // openFolder: PropTypes.func.isRequired,
-  // toggleUpdateModal: PropTypes.func.isRequired,
-  // toggleCannotDeleteModal: PropTypes.func.isRequired,
-  // toggleDeleteModal: PropTypes.func.isRequired,
-  // getEmails: PropTypes.func.isRequired,
-
+Status.propTypes = {
+  status: PropTypes.object.isRequired,
+  toggleUpdateModal: PropTypes.func.isRequired,
+  toggleCannotDeleteModal: PropTypes.func.isRequired,
+  toggleDeleteModal: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
   return {
     folders: state.folders.folders,
-    statuses: state.statuses.statuses
+    statuses: state.statuses.statuses,
   };
 }
 

@@ -2,33 +2,33 @@ import React, { Component } from 'react';
 import { Button, Modal, ModalHeader, ModalBody } from 'reactstrap';
 import PropTypes from 'prop-types';
 
-export default class ModalUpdateStatus extends Component {
+export default class ModalUpdateFolder extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      inputNotEmpty: true,
+      input: true,
     };
   }
   // Keep track of input field and disable update button if it's empty
   handleChange = (e) => {
-    this.setState({ inputNotEmpty: e.target.value });
+    this.setState({ input: e.target.value });
   };
 
   render() {
     return (
       <div className="d-inline">
         <Modal isOpen={this.props.isOpenUpdate} toggle={this.toggle}>
-          <ModalHeader toggle={this.props.toggleUpdateModal}>Update status name</ModalHeader>
+          <ModalHeader toggle={this.props.toggleUpdateModal}>Update folder name</ModalHeader>
           <ModalBody>
             <div className="form-group">
-              <label htmlFor="statusName">Status Name</label>
+              <label htmlFor="folderName">Folder Name</label>
               <input
                 type="text"
                 className="form-control"
-                id="statusName"
-                placeholder="Enter status name"
+                id="folderName"
+                placeholder="Enter folder name"
                 ref="inputField"
-                defaultValue={this.props.updateStatusName}
+                defaultValue={this.props.updateFolderName}
                 onChange={this.handleChange}
               />
             </div>
@@ -36,13 +36,15 @@ export default class ModalUpdateStatus extends Component {
             <div className="form-group">
               <Button
                 color="secondary float-right"
-                onClick={this.props.toggleUpdateModal}>
+                onClick={this.props.toggleUpdateModal}
+              >
                 Cancel
               </Button>
               <Button
                 className="btn bg-light-blue float-right mr-2"
-                onClick={() => this.props.updateStatus(this.refs.inputField)}
-                disabled={!this.state.inputNotEmpty}>
+                onClick={() => this.props.updateFolder(this.refs.inputField)}
+                disabled={!this.state.input}
+              >
                 Update
               </Button>
             </div>
@@ -53,9 +55,9 @@ export default class ModalUpdateStatus extends Component {
   }
 }
 
-ModalUpdateStatus.propTypes = {
+ModalUpdateFolder.propTypes = {
   isOpenUpdate: PropTypes.bool.isRequired,
-  updateStatusName: PropTypes.string.isRequired,
+  updateFolderName: PropTypes.string.isRequired,
   toggleUpdateModal: PropTypes.func.isRequired,
-  updateStatus: PropTypes.func.isRequired,
+  updateFolder: PropTypes.func.isRequired,
 };

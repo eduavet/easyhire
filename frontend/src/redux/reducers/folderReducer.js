@@ -1,5 +1,5 @@
 const initialState = {
-  folders: [], folderErrors: [], loaded: false, page: 'dashboard'
+  folders: [], folderErrors: [], loaded: false, page: 'dashboard',
 };
 
 const GET_FOLDERS = 'Get folders';
@@ -90,9 +90,9 @@ export function setPage(dispatch, pageValue) {
   return dispatch({
     type: SET_PAGE,
     payload: {
-      pageValue
+      pageValue,
     },
-  })
+  });
 }
 
 export function asyncGetFolders() {
@@ -242,7 +242,7 @@ export default function folderReducer(state = initialState, action) {
     case UPDATE_COUNT:
       return {
         ...state,
-      }
+      };
     case IS_ACTIVE:
       return {
         ...state,
@@ -301,7 +301,6 @@ export default function folderReducer(state = initialState, action) {
       };
     }
     case UPDATE_FOLDER:
-    console.log('here, wtf');
       return {
         ...state,
         folders: state.folders.map((folder) => {
@@ -331,15 +330,15 @@ export default function folderReducer(state = initialState, action) {
             count: payload.inboxCount,
           },
           ...payload.folders.map(folder =>
-            Object.assign({}, folder, { isActive: !!folder.isActive }))
+            Object.assign({}, folder, { isActive: !!folder.isActive })),
         ],
         loaded: true,
       };
     case SET_PAGE:
       return {
         ...state,
-        page: payload.pageValue
-      }
+        page: payload.pageValue,
+      };
     default:
       return state;
   }

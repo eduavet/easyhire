@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const fetch = require('node-fetch');
 const fs = require('fs');
 const request = require('request');
-const util = require('util');
 const EmailsModel = require('../models/EmailsModel.js');
 const UsersModel = require('../models/UsersModel.js');
 const FoldersModel = require('../models/FoldersModel.js');
@@ -66,7 +65,7 @@ emailHandlers.emails = (req, response) => {
                   userId,
                   upperEmail,
                   upperFolder,
-                  status
+                  status,
                 );
                 return newEmail.save();
               })
@@ -86,7 +85,7 @@ emailHandlers.emails = (req, response) => {
           response.json(packed);
         });
     })
-    .catch((err) => {
+    .catch(() => {
       response.json({
         name: '', emailsToSend: [], errors: [{ msg: 'Something went wrong' }],
       });
@@ -104,7 +103,7 @@ emailHandlers.emailsMoveToFolder = (req, res) => {
     })
     .then(() => EmailsModel.updateMany(
       { emailId: { $in: emailsToMove } },
-      { $set: { folder: mongoose.Types.ObjectId(folderToMove) } }
+      { $set: { folder: mongoose.Types.ObjectId(folderToMove) } },
     ))
     .then(() => EmailsModel.find({ emailId: { $in: emailsToMove } })
       .populate('folder').then(result => res.json({
@@ -134,7 +133,7 @@ emailHandlers.deleteEmails = (req, res) => {
     })
     .then(() => EmailsModel.updateMany(
       { emailId: { $in: emailsToDelete } },
-      { $set: { deleted: true } }
+      { $set: { deleted: true } },
     ))
     .then(() => res.json({ emailsToDelete, originalFolder, errors: [] }))
     .catch(err => res.json({ errors: err, emailsToDelete: [], originalFolder: [] }));
@@ -325,13 +324,13 @@ emailHandlers.reply = (req, res) => {
     return res.json({ errors, status: '' });
   }
   const userId = req.session.userID;
-  const accessToken = req.session.accessToken;
-  const emailId = req.params.emailId;
-  const content = req.body.content;
+  const { accessToken } = req.session;
+  const { emailId } = req.params;
+  const { content } = req.body;
   const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
   const uri = `${fetchUrl}${userId}/messages/send`;
   const sender = { name: '', email: '' };
-  UsersModel.findOne({ googleID: userId }, { email: true, name: true, _id: false })
+  return UsersModel.findOne({ googleID: userId }, { email: true, name: true, _id: false })
     .then((user) => {
       sender.name = user.name;
       sender.email = user.email;
@@ -346,7 +345,7 @@ emailHandlers.reply = (req, res) => {
             const subject = metadataResponse.payload.headers.find(header => header.name === 'Subject').value;
             const id = email.emailId;
             const to = email.sender;
-            const threadId = email.threadId;
+            const { threadId } = email;
             const emailLines = [];
             const contentType = 'text/html';
             emailLines.push(`From: ${sender.name} ${sender.email}`);
@@ -425,4 +424,4 @@ emailHandlers.getSignature = (req, res) => {
     .then(result => result.json())
     .then(result => res.json({ result, errors: [] }))
     .catch(err => res.json({ errors: [err] }));
-}
+};

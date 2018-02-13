@@ -1,3 +1,5 @@
+import { asyncGetStatuses } from './statusReducer';
+
 const initialState = {
   email: {
     date: 'MM/DD/YYYY, HH:mm:ss',
@@ -39,8 +41,6 @@ const GET_NOTE = 'Get note';
 const SEND_NOTE = 'Send note. Add or update';
 const CHANGE_NOTE_STATUS = 'Change note status';
 
-
-const REPLY_SELECT_TEMPLATE = 'Select template';
 const TOGGLE_COMPOSE_WINDOW = 'Toggle compose window';
 
 const CHANGE_COMPOSE_WINDOW_HEADER_TEXT = 'Change compose window header text';
@@ -225,6 +225,7 @@ export function asyncChangeEmailStatus(emailId, statusId) {
       .then(res => res.json())
       .then((result) => {
         dispatch(changeEmailStatus(result));
+        dispatch(asyncGetStatuses());
       })
       .catch(() => {});
   };
