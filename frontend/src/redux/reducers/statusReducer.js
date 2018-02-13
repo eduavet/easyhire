@@ -1,5 +1,8 @@
 const initialState = {
-  statuses: [], statusErrors: [],
+  statuses: [],
+  statusErrors: [],
+  errors: [],
+  responseMsgs: [],
 };
 
 const GET_STATUSES = 'Get statuses';

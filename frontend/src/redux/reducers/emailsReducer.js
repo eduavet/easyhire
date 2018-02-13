@@ -1,5 +1,11 @@
 const initialState = {
-  emails: [], name: '', signature: '', loading: true, errors: [], loaded: false,
+  emails: [],
+  name: '',
+  signature: '',
+  loading: true,
+  loaded: false,
+  errors: [],
+  responseMsgs: [],
 };
 
 /**

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Route, BrowserRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { notify } from 'react-notify-toast';
 import Header from './Header.jsx';
 import Toolbar from './Toolbar.jsx';
 import Sidebar from './Sidebar.jsx';
@@ -20,6 +21,9 @@ export class Dashboard extends Component {
     return (
       <BrowserRouter>
         <div>
+          {this.props.responseMsgs.map((responseMsg) => {
+            notify.show(responseMsg.msg, 'success', 1500);
+          })}
           <Header />
           {
             this.props.page !== 'dashboard' ?
@@ -45,11 +49,29 @@ export class Dashboard extends Component {
 
 Dashboard.propTypes = {
   page: PropTypes.string.isRequired,
+  errors: PropTypes.array.isRequired,
+  responseMsgs: PropTypes.array.isRequired,
 };
 
 function mapStateToProps(state) {
   return {
     page: state.folders.page,
+    errors: [
+      ...state.email.errors,
+      ...state.emails.errors,
+    ],
+    // errors: [...state.email.errors,
+    //   ...state.emails.errors,
+    //   ...state.folders.errors,
+    //   ...state.settings.errors,
+    //   ...state.statuses.errors],
+    responseMsgs: [
+      ...state.email.responseMsgs,
+      ...state.settings.responseMsgs,
+      ...state.emails.responseMsgs,
+      ...state.folders.responseMsgs,
+      ...state.statuses.responseMsgs,
+    ],
   };
 }
 

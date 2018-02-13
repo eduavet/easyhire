@@ -7,15 +7,15 @@ module.exports = templateHandlers;
 templateHandlers.getTemplates = (req, res) => {
   const userId = req.session.userID;
   return TemplatesModel.find({ userId })
-    .then(templates => res.json({ templates, errors: [] }))
-    .catch(() => res.json({ templates: [], errors: [{ msg: 'Something went wrong' }] }));
+    .then(templates => res.json({ templates, errors: [], responseMsgs: [] }))
+    .catch(() => res.json({ templates: [], errors: [{ msg: 'Something went wrong' }], responseMsgs: [] }));
 };
 // Get template
 templateHandlers.getTemplate = (req, res) => {
   req.checkParams('templateId').notEmpty().withMessage('Template id is required');
   const errors = req.validationErrors();
   if (errors) {
-    return res.json({ errors });
+    return res.json({ errors, responseMsgs: [] });
   }
   const templateId = req.params.templateId;
   const userId = req.session.userID;
@@ -25,10 +25,11 @@ templateHandlers.getTemplate = (req, res) => {
         _id: 'noTemplate', userId, name: '', content: '', icon: '',
       },
       errors: [],
+      responseMsgs: [],
     });
   }
   return TemplatesModel.findOne({ _id: templateId, userId })
-    .then(template => res.json({ template, errors: [] }))
+    .then(template => res.json({ template, errors: [], responseMsgs: [] }))
     .catch(() => res.json({ template: {}, errors: [{ msg: 'Something went wrong' }] }));
 };
 // Add new template
@@ -37,7 +38,7 @@ templateHandlers.addTemplate = (req, res) => {
   req.checkBody('content').notEmpty().withMessage('Content is required');
   const errors = req.validationErrors();
   if (errors) {
-    return res.json({ errors });
+    return res.json({ errors, responseMsgs: [] });
   }
   const userId = req.session.userID;
   const { name, content } = req.body;
@@ -49,8 +50,8 @@ templateHandlers.addTemplate = (req, res) => {
     icon,
   });
   return newTemplate.save()
-    .then(template => res.json({ template, errors: [] }))
-    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], template: {} }));
+    .then(template => res.json({ template, errors: [], responseMsgs: [{ msg: 'Template created', type: 'success' }] }))
+    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], template: {}, responseMsgs: [] }));
 };
 // Update existing template
 templateHandlers.updateTemplate = (req, res) => {
@@ -59,7 +60,7 @@ templateHandlers.updateTemplate = (req, res) => {
   req.checkBody('content').notEmpty().withMessage('Content is required');
   const errors = req.validationErrors();
   if (errors) {
-    return res.json({ errors });
+    return res.json({ errors, responseMsgs: [] });
   }
   const userId = req.session.userID;
   return TemplatesModel.findOne({ _id: req.params.templateId, userId })
@@ -68,9 +69,9 @@ templateHandlers.updateTemplate = (req, res) => {
       template.name = name;
       template.content = content;
       template.save()
-        .then(updatedTemplate => res.json({ template: updatedTemplate, errors: [] }));
+        .then(updatedTemplate => res.json({ template: updatedTemplate, errors: [], responseMsgs: [{ msg: 'Template updated', type: 'success' }] }));
     })
-    .catch(err => res.json({ template: {}, errors: ['Something went wrong', err] }));
+    .catch(() => res.json({ template: {}, errors: ['Something went wrong'], responseMsgs: [] }));
 };
 
 // Delete template
@@ -78,11 +79,11 @@ templateHandlers.deleteTemplate = (req, res) => {
   req.checkParams('templateId').notEmpty().withMessage('Template id is required');
   const errors = req.validationErrors();
   if (errors) {
-    return res.json({ errors });
+    return res.json({ errors, responseMsgs: [] });
   }
   const { templateId } = req.params;
   const userId = req.session.userID;
   return TemplatesModel.remove({ _id: templateId, userId })
-    .then(() => res.json({ _id: templateId, errors: [] }))
-    .catch(err => res.json({ _id: '', errors: ['Something went wrong', err] }));
+    .then(() => res.json({ _id: templateId, errors: [], responseMsgs: [{ msg: 'Template deleted', type: 'success' }] }))
+    .catch(err => res.json({ _id: '', errors: ['Something went wrong', err], responseMsgs: [] }));
 };

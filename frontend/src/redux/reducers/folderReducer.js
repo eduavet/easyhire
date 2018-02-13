@@ -1,5 +1,10 @@
 const initialState = {
-  folders: [], folderErrors: [], loaded: false, page: 'dashboard',
+  folders: [],
+  folderErrors: [],
+  loaded: false,
+  page: 'dashboard',
+  errors: [],
+  responseMsgs: [],
 };
 
 const GET_FOLDERS = 'Get folders';
