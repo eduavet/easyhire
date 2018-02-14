@@ -35,6 +35,10 @@ class Email extends Component {
     if (nextProps.email.sender !== this.props.email.sender) {
       const sender = nextProps.email.sender;
       this.props.getNote(sender);
+    } else if (!this.props.loaded && nextProps.email.sender) {
+      const sender = nextProps.email.sender;
+      this.props.getNote(sender);
+      this.setState({ noteContent: nextProps.note.content });
     }
     if (nextProps.note !== null && nextProps.note !== this.props.note) {
       const oldContent = this.props.note ? this.props.note.content : '';

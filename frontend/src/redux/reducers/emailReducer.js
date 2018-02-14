@@ -53,6 +53,7 @@ const SEND_NEW_EMAIL = 'Send new email';
 const REPLY = 'Reply';
 const GET_TEMPLATE = 'Get template';
 const LOADING = 'Loading';
+const CLEAR_EMAIL = 'Clear Email';
 
 /**
  * Action creator
@@ -194,6 +195,12 @@ function loading() {
   return {
     type: LOADING,
   };
+}
+
+export function clearEmail(dispatch) {
+  return dispatch({
+    type: CLEAR_EMAIL,
+  });
 }
 
 export function asyncGetEmailFromDb(id) {
@@ -461,6 +468,23 @@ export default function emailsReducer(state = initialState, action) {
         template: payload.template,
         errors: payload.errors,
         responseMsgs: payload.responseMsgs,
+      };
+    case CLEAR_EMAIL:
+      return {
+        ...state,
+        email: {
+          date: 'MM/DD/YYYY, HH:mm:ss',
+          emailId: '',
+          folderId: '',
+          htmlBody: '',
+          isRead: true,
+          sender: '',
+          snippet: '',
+          status: '',
+          subject: '',
+          isPlainText: false,
+          attachments: [],
+        },
       };
     default:
       return state;

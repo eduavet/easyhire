@@ -8,6 +8,7 @@ import ModalUpdateFolder from './folder modals/ModalUpdateFolder.jsx';
 import ModalDeleteFolder from './folder modals/ModalDeleteFolder.jsx';
 import ModalCannotDeleteFolder from './folder modals/ModalCannotDeleteFolder.jsx';
 import { asyncGetFolderEmails, asyncRefresh } from '../../redux/reducers/emailsReducer';
+import { clearEmail } from '../../redux/reducers/emailReducer';
 import { asyncDeleteFolder, asyncUpdateFolder, isActive } from '../../redux/reducers/folderReducer';
 
 const deleteId = { value: '' };
@@ -176,6 +177,7 @@ function mapDispatchToProps(dispatch) {
     isActive: item => dispatch(isActive(item)),
     getFolderEmails: folderId => dispatch(asyncGetFolderEmails(folderId)),
     getEmails: () => dispatch(asyncRefresh()),
+    clearEmail: () => dispatch(clearEmail(dispatch)),
   };
 }
 
