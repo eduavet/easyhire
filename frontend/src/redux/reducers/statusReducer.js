@@ -8,7 +8,6 @@ const GET_STATUSES = 'Get statuses';
 const CREATE_STATUS = 'Create status';
 const UPDATE_STATUS = 'Update status';
 const DELETE_STATUS = 'Delete status';
-const IS_ACTIVE = 'Is active';
 const REFRESH = 'Refresh';
 
 function getStatuses(result) {
@@ -52,13 +51,6 @@ function deleteStatus(response) {
       errors: response.errors,
       responseMsgs: response.responseMsgs,
     },
-  };
-}
-
-
-export function isStatusActive(item) {
-  return {
-    type: IS_ACTIVE, payload: { isActive: true, id: item._id },
   };
 }
 
@@ -164,18 +156,6 @@ export default function statusReducer(state = initialState, action) {
           Object.assign({}, status, { isActive: !!status.isActive })),
         errors: payload.errors,
         responseMsgs: payload.responseMsgs,
-      };
-    case IS_ACTIVE:
-      return {
-        ...state,
-        folders: state.statuses.map((status) => {
-          if (status._id === payload.id) {
-            Object.assign(status, { isActive: payload.isActive });
-          } else {
-            Object.assign(status, { isActive: false });
-          }
-          return status;
-        }),
       };
     case CREATE_STATUS: {
       const statuses = payload.createdStatus._id ? [
