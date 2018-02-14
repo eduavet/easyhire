@@ -43,6 +43,7 @@ class Sidebar extends Component {
       });
     };
     toggleCannotDeleteModal = (evt) => {
+      evt.preventDefault();
       evt.stopPropagation();
       this.setState({
         cannotDeleteModal: !this.state.cannotDeleteModal,

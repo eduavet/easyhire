@@ -116,10 +116,10 @@ minimized-background-color = #404040;
         pointer-events: auto;
         opacity  1 ;
         cursor: pointer;
+        padding 4px;
       }
     }
   }
-
 }
 
 .folder-badge{
@@ -140,10 +140,7 @@ minimized-background-color = #404040;
     color:blue-1-color;
   }
 }
-.folder-actions{
-  padding 3px;
-  margin 3px;
-}
+
 .folders> .list-group-item{
   cursor: pointer
 }
@@ -452,9 +449,28 @@ minimized-background-color = #404040;
 //Settings component /end
 
 //Statuses component /start
-.statuses{
+.wrapper {
   margin: auto;
 }
+
+.statuses{
+  .status-actions{
+    opacity  0;
+    pointer-events: none;
+    transition all 0.7s ease;
+  }
+  .status {
+    &:hover {
+      .status-actions {
+        padding-right: 10px;
+        pointer-events: auto;
+        opacity: 1;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
 //Statuses component /end
 
 //global styles /start

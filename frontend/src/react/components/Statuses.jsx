@@ -57,9 +57,9 @@ class Statuses extends Component {
 
     render() {
       return (
-        <div className="col-4 mt-4 statuses">
+        <div className="col-4 mt-4 wrapper">
           <h2>Statuses</h2>
-          <ul className="list-group folders">
+          <ul className="list-group statuses">
             { this.props.statuses ? this.props.statuses.map(status =>
               (<Status
                 key={status._id} status={status}
@@ -94,7 +94,7 @@ function Status(props) {
   const status = props.status;
   return (
     <li
-      className="list-group-item list-group-item-action"
+      className="list-group-item list-group-item-action status"
       data-id={status._id}
       data-name={status.name}
       onClick={isDeletable ? props.toggleUpdateModal : null}
@@ -106,7 +106,7 @@ function Status(props) {
         {
           isDeletable ?
             <i
-              className="fa fa-pencil-alt folder-actions" aria-hidden="true"
+              className="fa fa-pencil-alt status-actions" aria-hidden="true"
               data-id={status._id} data-name={status.name}
               onClick={props.toggleUpdateModal}
             />
@@ -116,7 +116,7 @@ function Status(props) {
         {
           isDeletable ?
             <i
-              className="fa fa-trash folder-actions" aria-hidden="true"
+              className="fa fa-trash status-actions" aria-hidden="true"
               data-id={status._id} data-name={status.name}
               onClick={status.count ? props.toggleCannotDeleteModal : props.toggleDeleteModal}
             />
