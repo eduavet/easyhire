@@ -14,6 +14,7 @@ const initialState = {
     isPlainText: false,
     attachments: [],
   },
+  thread : [],
   noteStatus: 'noteSaveStatus',
   note: { content: '' },
   loading: true,
@@ -31,9 +32,12 @@ const initialState = {
  * Action
  */
 const SET_EMAIL_ID = 'Set email id';
+const SET_THREAD_ID = 'Set thread id';
 
 const GET_EMAIL_FROM_DB = 'Get email from database';
+const GET_THREAD_FROM_DB = 'Get thread from database';
 const GET_EMAIL_FROM_GAPI = 'Get email from google api';
+const GET_THREAD_FROM_GAPI = 'Get thread from google api';
 const GET_ATTACHMENT_FROM_GAPI = 'Get attachment from google api';
 
 const CHANGE_EMAIL_STATUS = 'Change email status';
@@ -64,11 +68,28 @@ function setEmailId(emailId) {
   };
 }
 
+function setThreadId(threadId) {
+  return {
+    type: SET_THREAD_ID,
+    payload: { threadId },
+  };
+}
+
 function getEmailFromDb(result) {
   return {
     type: GET_EMAIL_FROM_DB,
     payload: {
       email: result.email,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
+    },
+  };
+}
+function getThreadFromDb(result) {
+  return {
+    type: GET_THREAD_FROM_DB,
+    payload: {
+      emails: result.emails,
       errors: result.errors,
       responseMsgs: result.responseMsgs,
     },
@@ -80,6 +101,18 @@ function getEmailFromGapi(result) {
     type: GET_EMAIL_FROM_GAPI,
     payload: {
       email: result.email,
+      isPlainText: result.isPlainText,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
+    },
+  };
+}
+
+function getThreadFromGapi(result) {
+  return {
+    type: GET_THREAD_FROM_GAPI,
+    payload: {
+      emails: result.emails,
       isPlainText: result.isPlainText,
       errors: result.errors,
       responseMsgs: result.responseMsgs,
@@ -210,6 +243,22 @@ export function asyncGetEmailFromDb(id) {
       .catch(() => {});
   };
 }
+
+export function asyncGetThreadFromDb(threadId) {
+  return function asyncGetThreadFromDbInner(dispatch) {
+    dispatch(loading());
+    dispatch(setThreadId(threadId));
+    fetch(`http://localhost:3000/api/emails/${threadId}`, {
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+        dispatch(getThreadFromDb(result));
+      })
+      .catch(() => {});
+  };
+}
+
 export function asyncGetEmailFromGapi(id) {
   return function asyncGetEmailFromGapiInner(dispatch) {
     fetch(`http://localhost:3000/api/emails/${id}/gapi`, {
@@ -218,6 +267,19 @@ export function asyncGetEmailFromGapi(id) {
       .then(res => res.json())
       .then((result) => {
         dispatch(getEmailFromGapi(result));
+      })
+      .catch(() => {});
+  };
+}
+
+export function asyncGetThreadFromGapi(threadId) {
+  return function asyncGetThreadFromGapiInner(dispatch) {
+    fetch(`http://localhost:3000/api/emails/${threadId}/gapi`, {
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+        dispatch(getThreadFromGapi(result));
       })
       .catch(() => {});
   };
@@ -352,6 +414,11 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         email: Object.assign({}, state.email, { emailId: payload.emailId }),
       };
+    case SET_THREAD_ID:
+      return {
+        ...state,
+        threadId: payload.threadId,
+      };
     case GET_EMAIL_FROM_DB:
     {
       const checkHtmlBody = state.htmlBody ? state.htmlBody : '<div dir="auto"></div>';
@@ -359,6 +426,18 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         email: Object.assign({}, payload.email, { htmlBody: checkHtmlBody }),
         url: [],
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
+      };
+    }
+    case GET_THREAD_FROM_DB:
+    {
+      const checkHtmlBody = state.htmlBody ? state.htmlBody : '<div dir="auto"></div>';
+      return {
+        ...state,
+        thread: payload.emails.map(email => Object.assign({}, email, { htmlBody: checkHtmlBody })),
+        url: [],
+        loaded: true,
         errors: payload.errors,
         responseMsgs: payload.responseMsgs,
       };
@@ -375,6 +454,22 @@ export default function emailsReducer(state = initialState, action) {
               isPlainText: payload.isPlainText.value,
             },
           ),
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
+      };
+    case GET_THREAD_FROM_GAPI:
+      return {
+        ...state,
+        thread: state.thread.map(email => Object
+          .assign(
+            {},
+            email,
+            {
+              htmlBody: payload.emails[email.emailId].htmlBody,
+              isPlainText: payload.isPlainText[email.emailId].value,
+            },
+          )),
+        loaded: true,
         errors: payload.errors,
         responseMsgs: payload.responseMsgs,
       };

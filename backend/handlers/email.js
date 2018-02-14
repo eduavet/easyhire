@@ -274,6 +274,24 @@ emailHandlers.getEmailFromDb = (req, res) => {
       res.json({ errors: [{ msg: 'Something went wrong', err }], responseMsgs: [] });
     });
 };
+
+emailHandlers.getThreadFromDb = (req, res) => {
+  req.checkParams('threadId').notEmpty().withMessage('Thread id is required');
+  const userId = req.session.userID;
+  const threadId = req.params.threadId;
+  const errors = req.validationErrors();
+  if (errors) {
+    return res.json({ errors, responseMsgs: [] });
+  }
+  return EmailsModel.update({ threadId, userId }, { $set: { isRead: true } }).then(() => (
+    EmailsModel.find({ threadId, userId })
+      .then((emails) => {
+        res.json({ emails: emails, errors: [], responseMsgs: [] });
+      })
+      .catch((err) => {
+        res.json({ emails: [], errors: [{ msg: 'Something went wrong', err }], responseMsgs: [] });
+      })));
+};
 // Get specified email data from gmail such as email body
 emailHandlers.getEmailFromGapi = (req, res) => {
   req.checkParams('id').notEmpty().withMessage('Email id is required');
@@ -309,6 +327,55 @@ emailHandlers.getEmailFromGapi = (req, res) => {
     })
     .catch((err) => {
       res.json({
+        errors: [{
+          msg: 'Something went wrong', err, isPlainText: { value: false }, responseMsgs: [],
+        }],
+      });
+    });
+};
+
+emailHandlers.getThreadFromGapi = (req, res) => {
+  req.checkParams('threadId').notEmpty().withMessage('Thread id is required');
+  const userId = req.session.userID;
+  const threadId = req.params.threadId;
+  const { accessToken } = req.session;
+  const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
+  const errors = req.validationErrors();
+  const threadEmails = [];
+  const emailsToSend = {};
+  const isPlainText = {};
+  const promises = [];
+  if (errors) {
+    return res.json({ errors, responseMsgs: [] });
+  }
+  return fetch(`${fetchUrl}${userId}/threads/${threadId}?access_token=${accessToken}`)
+    .then(response => response.json())
+    .then(response => response.messages.map((message) => { threadEmails.push(message.id); return message; }))
+    .then(() => (
+      threadEmails.map(emailId => promises.push(fetch(`${fetchUrl}${userId}/messages/${emailId}?access_token=${accessToken}`)
+        .then(response => response.json())
+        .then((response) => {
+          const emailParts = {};
+          const htmlBody = { value: '' };
+          emailParts.findHtml = response.payload;
+          if (emailParts.findHtml.mimeType !== 'text/html' && response.payload.parts) {
+            emailParts.findHtml = response.payload.parts.find(item => item.mimeType === 'text/html');
+            if (!emailParts.findHtml) {
+              emailParts.findHtmlPartCountainer = response.payload.parts.find(item => item.mimeType === 'multipart/alternative') ? response.payload.parts.find(item => item.mimeType === 'multipart/alternative') : { parts: [] };
+              emailParts.findHtml = emailParts.findHtmlPartCountainer.parts.find(item => item.mimeType === 'text/html');
+            }
+          }
+          htmlBody.value = emailParts.findHtml ? emailParts.findHtml.body.data : '';
+          isPlainText[emailId] = { value: emailParts.findHtml.mimeType === 'text/plain' };
+          emailsToSend[emailId] = { htmlBody: Buffer.from(htmlBody.value, 'base64').toString() };
+        })))))
+    .then(() => Promise.all(promises)
+      .then(() => res.json({
+        emails: emailsToSend, errors: [], isPlainText, responseMsgs: [],
+      })))
+    .catch((err) => {
+      res.json({
+        emails: {},
         errors: [{
           msg: 'Something went wrong', err, isPlainText: { value: false }, responseMsgs: [],
         }],
