@@ -159,7 +159,8 @@ emailHandlers.emailsSent = (req, response) => {
     })
     .catch(() => {
       response.json({
-        name: '', emailsToSend: [],
+        name: '',
+        emailsToSend: [],
         errors: [{ msg: 'Something went wrong' }],
         responseMsgs: [],
       });
@@ -356,7 +357,7 @@ emailHandlers.search = (req, res) => {
         promises.push(EmailsModel.findOne({ emailId: id, deleted: false })
           .populate('folder')
           .populate('status')
-          .then((group) => {
+          .then(group => {
             if (group) {
               emailsToSend[i] = helper.groupExtract(group);
             }
@@ -416,7 +417,7 @@ emailHandlers.getAttachmentFromGapi = (req, res) => {
       }
       request(fullpath).pipe(res);
     })
-    .catch((err) => {
+    .catch(() => {
       res.json({ errors: [{ msg: 'Something went wrong' }], responseMsgs: [] });
     });
 };
@@ -513,12 +514,12 @@ emailHandlers.sendNewEmail = (req, res) => {
       })
       .then(() => fetch(`${fetchUrl}${userId}/messages/send?access_token=${accessToken}`, {
         method: 'POST',
-        body: JSON.stringify({ raw: encodedEmail.body, id: '1616f8cdd817db87', threadId: '1616f8cdd817db87' }),
+        body: JSON.stringify({ raw: encodedEmail.body }),
         headers: {
           'Content-Type': 'application/json',
         },
       }))
-      .then(resp => res.json({ status: resp.status, errors: [] })))
+      .then(resp => res.json({ status: resp.status, errors: [], responseMsgs: [{ msg: 'Email has been sent', type: 'success' }] })))
     .catch(err => res.json({ status: null, errors: ['Message is not sent', err] }));
 };
 // console.log(util.inspect(res, { depth: 8 }));
@@ -530,6 +531,6 @@ emailHandlers.getSignature = (req, res) => {
     .then((user) => { sender.address = user.email; sender.name = user.name; })
     .then(() => fetch(`https://www.googleapis.com/gmail/v1/users/${userId}/settings/sendAs/${sender.address}?access_token=${accessToken}`))
     .then(result => result.json())
-    .then(result => res.json({ result, errors: [], responseMsgs: [{ msg: 'Email has been sent', type: 'success' }] }))
+    .then(result => res.json({ result, errors: [], responseMsgs: [] }))
     .catch(() => res.json({ errors: [{ msg: "Couldn't send email.Please try again" }], responseMsgs: [] }));
 };

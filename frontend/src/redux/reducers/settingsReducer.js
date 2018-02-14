@@ -3,7 +3,7 @@ const initialState = {
   template: {},
   loaded: false,
   errors: [],
-  responseMsgs: [{ msg: 'great' }],
+  responseMsgs: [],
 };
 
 /**

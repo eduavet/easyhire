@@ -64,7 +64,7 @@ function mapStateToProps(state) {
       ...state.emails.errors,
       ...state.folders.errors,
       ...state.settings.errors,
-      ...state.statuses.errors
+      ...state.statuses.errors,
     ],
     responseMsgs: [
       ...state.email.responseMsgs,
