@@ -56,7 +56,6 @@ function getSentEmails(result) {
 }
 
 function getUsername(result) {
-  console.log(result);
   return {
     type: GET_USERNAME,
     payload: {
@@ -309,7 +308,7 @@ export function asyncDeleteEmails(emailIds) {
 export function asyncRefresh() {
   return function asyncRefreshInner(dispatch) {
     dispatch(loading());
-    fetch('http://localhost:3000/api/emails', {
+    fetch('http://localhost:3000/api/emails/refresh', {
       credentials: 'include',
     })
       .then(res => res.json())
@@ -367,7 +366,13 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         emails: [
           ...payload.emails
-            .map(email => Object.assign({}, email, { isChecked: !!email.isChecked }))],
+            .map(email => Object.assign({}, email, {
+              isChecked: !!email.isChecked,
+              folderName: email.folder.name,
+              folderId: email.folder._id,
+              statusName: email.status ? email.status.name : '',
+              statusId: email.status ? email.status._id : null,
+            }))],
         errors: payload.errors,
         responseMsgs: payload.responseMsgs,
         loaded: true,
@@ -380,7 +385,6 @@ export default function emailsReducer(state = initialState, action) {
             .map(email => Object.assign({}, email, { isChecked: !!email.isChecked }))],
         errors: payload.errors,
         responseMsgs: payload.responseMsgs,
-        loaded: true,
       };
     case GET_USERNAME:
       return {

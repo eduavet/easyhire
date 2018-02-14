@@ -111,14 +111,14 @@ class Email extends Component {
           <hr />
           <div>
             {
-            this.props.email.attachments ?
-            this.props.email.attachments.map((attachment, index) => (
-              <a
-                key={attachment.attachmentId} href={this.props.url[index]}
-                download={attachment.attachmentName}
-              >{attachment.attachmentName}<i className="fa fa-download" />
-              </a>)) : ''
-          }
+              this.props.email.attachments ?
+              this.props.email.attachments.map((attachment, index) => (
+                <a
+                  key={attachment.attachmentId} href={this.props.url[index]}
+                  download={attachment.attachmentName}
+                >{attachment.attachmentName}<i className="fa fa-download" />
+                </a>)) : ''
+            }
           </div>
           {
                this.props.email.isPlainText ?

@@ -3,8 +3,9 @@ const emailHandlers = require('../handlers/email');
 
 const emailRoutes = Router();
 
-emailRoutes.get('/', emailHandlers.emails);
-emailRoutes.get('/sent',  emailHandlers.emailsSent);
+emailRoutes.get('/', emailHandlers.getEmailsFromDb);
+emailRoutes.get('/refresh', emailHandlers.emails);
+emailRoutes.get('/sent', emailHandlers.emailsSent);
 emailRoutes.delete('/:ID', emailHandlers.deleteEmails);
 emailRoutes.post('/move', emailHandlers.emailsMoveToFolder);
 emailRoutes.post('/mark', emailHandlers.mark);
