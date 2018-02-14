@@ -13,6 +13,16 @@ const config = {
     inline: true,
     hot: true,
     port: 8080,
+    watchContentBase: true,
+    watchOptions: {
+      poll: true,
+    },
+    historyApiFallback: {
+      // rewrites: [
+      //     { from: /^\/tacos/, to: '/index.html' },
+      // ],
+      index: '/404.html',
+    },
   },
   module: {
     loaders: [

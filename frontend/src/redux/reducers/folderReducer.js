@@ -405,7 +405,6 @@ export default function folderReducer(state = initialState, action) {
         errors: state.errors.filter(error => error.msg !== payload.error),
       };
     case CLEAR_RESPONSEMSG:
-      console.log('CLEAR_RESPONSEMSG', payload.responseMsg)
       return {
         ...state,
         responseMsgs: state.responseMsgs

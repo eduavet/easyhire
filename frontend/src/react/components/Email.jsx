@@ -128,30 +128,24 @@ class Email extends Component {
     return (
       <div className="col-10 mt-2 ">
         <Loader loaded={this.props.loaded}>
-          <div style={{ float: 'right' }}>
-            <label htmlFor="selectStatus"><b>Change Status</b></label>
-            <select className="form-control" id="selectStatus" onChange={this.changeStatus} value={this.props.email.status}>
-              {this.props.statuses
-                .map(status => <option key={status._id} value={status._id}>{status.name}</option>)}
-            </select>
-          </div>
           {this.props.thread.map((email, index) => {
-            return <div key={index}>
-              <p><b>Sender:</b> {email.sender}</p>
-              <p><b>Subject:</b> {email.subject}</p>
-              <p><b>Date:</b> {email.date}</p>
-              <hr />
-              <div>
-                {/*{
-                  email.attachments ?
-                  email.attachments.map((attachment, index) => (
-                    <a
-                      key={attachment.attachmentId} href={this.props.url[index]}
-                      download={attachment.attachmentName}
-                    >{attachment.attachmentName}<i className="fa fa-download" />
-                    </a>)) : ''
-                }*/}
+            return <div key={email.emailId}>
+              <div className="d-flex justify-content-between">
+                <div>
+                  {index ? '' : <p><b>Sender:</b> {email.sender}</p>}
+                  {index ? '' : <p><b>Subject:</b> {email.subject}</p>}
+                  <p><b>Date:</b> {email.date}</p>
+                </div>
+                <div >
+                  <label htmlFor="selectStatus"><b>Change Status</b></label>
+                  <select className="form-control" id="selectStatus" onChange={this.changeStatus} value={this.props.email.status}>
+                    {this.props.statuses
+                      .map(status =>
+                        <option key={status._id} value={status._id}>{status.name}</option>)}
+                  </select>
+                </div>
               </div>
+              <hr />
               {
                 email.isPlainText ?
                   <pre>{email.htmlBody}</pre>
