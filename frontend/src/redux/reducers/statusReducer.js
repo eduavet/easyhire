@@ -10,6 +10,8 @@ const UPDATE_STATUS = 'Update status';
 const DELETE_STATUS = 'Delete status';
 const IS_ACTIVE = 'Is active';
 const REFRESH = 'Refresh';
+const CLEAR_ERROR = 'Clear error';
+const CLEAR_RESPONSEMSG = 'Clear response msg';
 
 function getStatuses(result) {
   return {
@@ -71,6 +73,18 @@ function refreshStatus(result) {
       errors: result.errors,
       responseMsgs: result.responseMsgs,
     },
+  };
+}
+export function clearError(value) {
+  return {
+    type: CLEAR_ERROR,
+    payload: { error: value },
+  };
+}
+export function clearResponseMsg(value) {
+  return {
+    type: CLEAR_RESPONSEMSG,
+    payload: { responseMsg: value },
   };
 }
 
@@ -162,8 +176,10 @@ export default function statusReducer(state = initialState, action) {
         ...state,
         statuses: payload.statuses.map(status =>
           Object.assign({}, status, { isActive: !!status.isActive })),
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearStatusError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearStatusResponseMsg' })),
       };
     case IS_ACTIVE:
       return {
@@ -185,8 +201,10 @@ export default function statusReducer(state = initialState, action) {
       return {
         ...state,
         statuses,
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearStatusError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearStatusResponseMsg' })),
       };
     }
     case UPDATE_STATUS:
@@ -198,8 +216,10 @@ export default function statusReducer(state = initialState, action) {
           }
           return status;
         }),
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearStatusError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearStatusResponseMsg' })),
       };
     case DELETE_STATUS: {
       const statusesAfterDelete = state.statuses
@@ -207,8 +227,10 @@ export default function statusReducer(state = initialState, action) {
       return {
         ...state,
         statuses: statusesAfterDelete,
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearStatusError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearStatusResponseMsg' })),
       };
     }
     case REFRESH:
@@ -217,8 +239,21 @@ export default function statusReducer(state = initialState, action) {
         statuses: [
           ...payload.statuses
             .map(status => Object.assign({}, status, { isActive: !!status.isActive }))],
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearStatusError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearStatusResponseMsg' })),
+      };
+    case CLEAR_ERROR:
+      return {
+        ...state,
+        errors: state.errors.filter(error => error.msg !== payload.error),
+      };
+    case CLEAR_RESPONSEMSG:
+      return {
+        ...state,
+        responseMsgs: state.responseMsgs
+          .filter(responseMsg => responseMsg.msg !== payload.responseMsg),
       };
     default:
       return state;
