@@ -260,7 +260,7 @@ emailHandlers.getEmailFromDb = (req, res) => {
   const emailId = req.params.id;
   const errors = req.validationErrors();
   if (errors) {
-    return res.json({ errors });
+    return res.json({ errors, responseMsgs : [] });
   }
   return EmailsModel.findOne({ emailId, userId })
     .then((email) => {
@@ -271,7 +271,7 @@ emailHandlers.getEmailFromDb = (req, res) => {
         });
     })
     .catch((err) => {
-      res.json({ errors: [{ msg: 'Something went wrong', err }], responseMsgs: [] });
+      res.json({ email: [], errors: [{ msg: 'Something went wrong', err }], responseMsgs: [] });
     });
 };
 

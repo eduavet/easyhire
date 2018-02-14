@@ -11,7 +11,7 @@ emailRoutes.post('/move', emailHandlers.emailsMoveToFolder);
 emailRoutes.post('/mark', emailHandlers.mark);
 emailRoutes.get('/signature', emailHandlers.getSignature);
 emailRoutes.get('/:threadId', emailHandlers.getThreadFromDb);
-//emailRoutes.get('/:id', emailHandlers.getEmailFromDb);
+emailRoutes.get('/email/:id', emailHandlers.getEmailFromDb);
 //emailRoutes.get('/:id/gapi/', emailHandlers.getEmailFromGapi);
 emailRoutes.get('/:threadId/gapi/', emailHandlers.getThreadFromGapi);
 emailRoutes.get('/:emailId/status/:statusId', emailHandlers.changeEmailStatus);

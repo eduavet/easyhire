@@ -240,7 +240,7 @@ export function asyncGetEmailFromDb(id) {
   return function asyncGetEmailFromDbInner(dispatch) {
     dispatch(loading());
     dispatch(setEmailId(id));
-    fetch(`http://localhost:3000/api/emails/${id}`, {
+    fetch(`http://localhost:3000/api/emails/email/${id}`, {
       credentials: 'include',
     })
       .then(res => res.json())
