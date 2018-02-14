@@ -24,6 +24,7 @@ class Sidebar extends Component {
     };
   }
     toggleUpdateModal = (evt) => {
+      evt.preventDefault();
       evt.stopPropagation();
       updateId.value = evt.target.dataset ? evt.target.dataset.id : '';
       this.setState({
@@ -32,6 +33,7 @@ class Sidebar extends Component {
       });
     };
     toggleDeleteModal = (evt) => {
+      evt.preventDefault();
       evt.stopPropagation();
       deleteId.value = evt.target.dataset ? evt.target.dataset.id : '';
       this.setState({
