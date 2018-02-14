@@ -17,6 +17,8 @@ const REFRESH = 'Refresh';
 const DELETE_EMAILS = 'Delete emails';
 const MOVE_EMAILS = 'Update Email Folders';
 const SET_PAGE = 'Set Page';
+const CLEAR_ERROR = 'Clear error';
+const CLEAR_RESPONSEMSG = 'Clear response msg';
 
 function getFolders(result) {
   return {
@@ -112,6 +114,18 @@ export function setPage(dispatch, pageValue) {
       pageValue,
     },
   });
+}
+export function clearError(value) {
+  return {
+    type: CLEAR_ERROR,
+    payload: { error: value },
+  };
+}
+export function clearResponseMsg(value) {
+  return {
+    type: CLEAR_RESPONSEMSG,
+    payload: { responseMsg: value },
+  };
 }
 
 export function asyncGetFolders() {
@@ -257,8 +271,10 @@ export default function folderReducer(state = initialState, action) {
           ...payload.folders
             .map(folder => Object.assign({}, folder, { isActive: !!folder.isActive })),
         ],
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearFolderError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearFolderResponseMsg' })),
       };
     case UPDATE_COUNT:
       return {
@@ -291,8 +307,10 @@ export default function folderReducer(state = initialState, action) {
       return {
         ...state,
         folders: foldersAfterMove,
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearFolderError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearFolderResponseMsg' })),
       };
     }
     case DELETE_EMAILS: {
@@ -310,8 +328,10 @@ export default function folderReducer(state = initialState, action) {
       return {
         ...state,
         folders: afterDelete,
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearFolderError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearFolderResponseMsg' })),
       };
     }
     case CREATE_FOLDER: {
@@ -322,8 +342,10 @@ export default function folderReducer(state = initialState, action) {
       return {
         ...state,
         folders,
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearFolderError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearFolderResponseMsg' })),
       };
     }
     case UPDATE_FOLDER:
@@ -335,8 +357,10 @@ export default function folderReducer(state = initialState, action) {
           }
           return folder;
         }),
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearFolderError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearFolderResponseMsg' })),
       };
     case DELETE_FOLDER: {
       const foldersAfterDelete = state.folders
@@ -344,8 +368,10 @@ export default function folderReducer(state = initialState, action) {
       return {
         ...state,
         folders: foldersAfterDelete,
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearFolderError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearFolderResponseMsg' })),
       };
     }
     case REFRESH:
@@ -362,14 +388,28 @@ export default function folderReducer(state = initialState, action) {
           ...payload.folders.map(folder =>
             Object.assign({}, folder, { isActive: !!folder.isActive })),
         ],
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearFolderError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearFolderResponseMsg' })),
         loaded: true,
       };
     case SET_PAGE:
       return {
         ...state,
         page: payload.pageValue,
+      };
+    case CLEAR_ERROR:
+      return {
+        ...state,
+        errors: state.errors.filter(error => error.msg !== payload.error),
+      };
+    case CLEAR_RESPONSEMSG:
+      console.log('CLEAR_RESPONSEMSG', payload.responseMsg)
+      return {
+        ...state,
+        responseMsgs: state.responseMsgs
+          .filter(responseMsg => responseMsg.msg !== payload.responseMsg),
       };
     default:
       return state;

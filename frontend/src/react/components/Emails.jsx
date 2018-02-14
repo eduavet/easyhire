@@ -147,18 +147,16 @@ class Emails extends Component {
   render() {
     const pages = [];
     for (let i = 1; i <= Math.ceil(this.props.emails.length / this.state.emailsPerPage); i += 1) {
-      pages.push(
-        <li
-          key={i}
-          className={this.state.pageActive[i] ? 'page-item active' : 'page-item'}
-          onClick={this.openPage}
-        >
-          <a className="page-link paging" href="#top">{i}</a>
-        </li>
-      );
+      pages.push(<li
+        key={i}
+        className={this.state.pageActive[i] ? 'page-item active' : 'page-item'}
+        onClick={this.openPage}
+      >
+        <a className="page-link paging" href="#top">{i}</a>
+                 </li>);
     }
     return (
-      <div className="col-10 mt-4">
+      <div className="col-10 mt-2">
         <Loader loaded={this.props.loaded}>
           <table size="" className="table-sm emailsTable w-100" data-toggle="table">
             <thead>

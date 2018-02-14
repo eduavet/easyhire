@@ -68,7 +68,7 @@ class Sidebar extends Component {
     };
     render() {
       return (
-        <div className="col-2 mt-4">
+        <div className="sidebarContainer">
           <div className="list-group folders">
             { this.props.folders.map(folder =>
               (<Folder

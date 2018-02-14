@@ -18,7 +18,8 @@ const TEMPLATE_IS_ACTIVE = 'Template is active';
 const CREATE_TEMPLATE = 'Create template';
 
 const LOADING = 'Loading';
-
+const CLEAR_ERROR = 'Clear error';
+const CLEAR_RESPONSEMSG = 'Clear response msg';
 /**
  * Action creator
  */
@@ -88,6 +89,18 @@ export function templateIsActive(_id) {
   return {
     type: TEMPLATE_IS_ACTIVE,
     payload: { isActive: true, id: _id },
+  };
+}
+export function clearError(value) {
+  return {
+    type: CLEAR_ERROR,
+    payload: { error: value },
+  };
+}
+export function clearResponseMsg(value) {
+  return {
+    type: CLEAR_RESPONSEMSG,
+    payload: { responseMsg: value },
   };
 }
 export function asyncGetTemplates() {
@@ -179,15 +192,20 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         templates: payload.templates
           .map(template => Object.assign({}, template, { isActive: !!template.isActive })),
-        errors: payload.errors,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearSettingsError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearSettingsResponseMsg' })),
         loaded: true,
       };
     case GET_TEMPLATE:
       return {
         ...state,
         template: payload.template,
-        responseMsgs: payload.responseMsgs,
-        errors: payload.errors,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearSettingsError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearSettingsResponseMsg' })),
       };
     case ADD_TEMPLATE:
     {
@@ -201,8 +219,10 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         templates: templatesAfterAdd,
         template: addedTemplate,
-        responseMsgs: payload.responseMsgs,
-        errors: payload.errors,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearSettingsError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearSettingsResponseMsg' })),
       };
     }
     case UPDATE_TEMPLATE:
@@ -223,8 +243,10 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         templates: templatesAfterUpdtate,
         template: updatedTemple,
-        responseMsgs: payload.responseMsgs,
-        errors: payload.errors,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearSettingsError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearSettingsResponseMsg' })),
       };
     }
     case DELETE_TEMPLATE:
@@ -236,8 +258,10 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         templates: templatesAfterDelete,
-        responseMsgs: payload.responseMsgs,
-        errors: payload.errors,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearSettingsError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearSettingsResponseMsg' })),
       };
     }
     case TEMPLATE_IS_ACTIVE:
@@ -265,6 +289,17 @@ export default function emailsReducer(state = initialState, action) {
     case LOADING:
       return {
         ...state, loaded: false,
+      };
+    case CLEAR_ERROR:
+      return {
+        ...state,
+        errors: state.errors.filter(error => error.msg !== payload.error),
+      };
+    case CLEAR_RESPONSEMSG:
+      return {
+        ...state,
+        responseMsgs: state.responseMsgs
+          .filter(responseMsg => responseMsg.msg !== payload.responseMsg),
       };
     default:
       return state;

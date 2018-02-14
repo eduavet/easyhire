@@ -47,7 +47,11 @@ class Templates extends Component {
   render() {
     return (
       <Loader loaded={this.props.loaded}>
-        <h1>Templates</h1>
+        <h2>Templates</h2>
+        <div className="alert alert-info" role="alert">
+          Note: Use <strong>FIRST_NAME</strong> when composing a template,
+          to have it automatically replaced by recipient's first name.
+        </div>
         <div className="row mt-4">
           <div className="col-3 mt-4">
             <ul className="list-group templates">

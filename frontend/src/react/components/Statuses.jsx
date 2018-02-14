@@ -58,6 +58,7 @@ class Statuses extends Component {
     render() {
       return (
         <div className="col-4 mt-4 statuses">
+          <h2>Statuses</h2>
           <ul className="list-group folders">
             { this.props.statuses ? this.props.statuses.map(status =>
               (<Status

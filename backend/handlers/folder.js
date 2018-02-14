@@ -80,7 +80,7 @@ folderHandlers.createFolder = (req, res) => {
         userId: createdFolder.userId,
         isActive: false,
       };
-      return res.json({ createdFolder: createdFolderToSend, errors: [], responseMsgs: [] });
+      return res.json({ createdFolder: createdFolderToSend, errors: [], responseMsgs: [{ msg: 'Folder created', type: 'success' }] });
     })
     .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], createdFolder: {}, responseMsgs: [] }));
 };

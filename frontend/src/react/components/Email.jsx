@@ -126,7 +126,7 @@ class Email extends Component {
 
   render() {
     return (
-      <div className="col-10 mt-4">
+      <div className="col-10 mt-2 ">
         <Loader loaded={this.props.loaded}>
           <div style={{ float: 'right' }}>
             <label htmlFor="selectStatus"><b>Change Status</b></label>

@@ -32,7 +32,7 @@ class ModalNewFolder extends Component {
     return (
       <li className="list-group-item list-group-item-action " onClick={this.toggle}>
         <i className="fa fa-plus-circle" aria-hidden="true" />
-          &nbsp; New Status
+          &nbsp; New Folder
         <Modal isOpen={this.state.modal} toggle={this.toggle}>
           <ModalHeader toggle={this.toggle}>Create New Folder</ModalHeader>
           <ModalBody>

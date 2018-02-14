@@ -31,6 +31,8 @@ const SELECT_NONE = 'Select none';
 
 const MARK = 'Mark';
 const SEARCH = 'Search';
+const CLEAR_ERROR = 'Clear error';
+const CLEAR_RESPONSEMSG = 'Clear response msg';
 /**
  * Action creator
  */
@@ -161,6 +163,19 @@ function search(result) {
       errors: result.errors,
       responseMsgs: result.responseMsgs,
     },
+  };
+}
+
+export function clearError(value) {
+  return {
+    type: CLEAR_ERROR,
+    payload: { error: value },
+  };
+}
+export function clearResponseMsg(value) {
+  return {
+    type: CLEAR_RESPONSEMSG,
+    payload: { responseMsg: value },
   };
 }
 
@@ -373,8 +388,10 @@ export default function emailsReducer(state = initialState, action) {
               statusName: email.status ? email.status.name : '',
               statusId: email.status ? email.status._id : null,
             }))],
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailsError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailsResponseMsg' })),
         loaded: true,
       };
     case GET_SENT:
@@ -383,24 +400,30 @@ export default function emailsReducer(state = initialState, action) {
         sentEmails: [
           ...payload.emails
             .map(email => Object.assign({}, email, { isChecked: !!email.isChecked }))],
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailsError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailsResponseMsg' })),
       };
     case GET_USERNAME:
       return {
         ...state,
         name: payload.name,
         loading: false,
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailsError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailsResponseMsg' })),
         successMsgs: payload.successMsgs,
       };
     case GET_SIGNATURE:
       return {
         ...state,
         signature: payload.signature,
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailsError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailsResponseMsg' })),
       };
     case GET_FOLDER_EMAILS:
       return {
@@ -414,8 +437,10 @@ export default function emailsReducer(state = initialState, action) {
               statusName: email.status ? email.status.name : '',
               statusId: email.status ? email.status._id : null,
             })),
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailsError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailsResponseMsg' })),
         loaded: true,
       };
     case GET_STATUS_EMAILS:
@@ -430,8 +455,10 @@ export default function emailsReducer(state = initialState, action) {
               statusName: email.status.name,
               statusId: email.status._id,
             })),
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailsError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailsResponseMsg' })),
         loaded: true,
       };
     case IS_CHECKED:
@@ -469,8 +496,10 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         emails: emailsAfterMove,
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailsError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailsResponseMsg' })),
       };
     }
     case DELETE_EMAILS:
@@ -482,8 +511,10 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         emails: emailsAfterDelete,
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailsError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailsResponseMsg' })),
       };
     }
     case EMAIL_REFRESH:
@@ -491,8 +522,10 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         emails: payload.emails
           .map(email => Object.assign({}, email, { isChecked: !!email.isChecked })),
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailsError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailsResponseMsg' })),
         loaded: true,
       };
     case MARK:
@@ -507,21 +540,36 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         emails: updatedEmails,
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailsError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailsResponseMsg' })),
       };
     }
     case SEARCH:
       return {
         ...state,
         emails: payload.emails,
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailsError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailsResponseMsg' })),
         loaded: true,
       };
     case LOADING:
       return {
         ...state, loaded: false,
+      };
+    case CLEAR_ERROR:
+      return {
+        ...state,
+        errors: state.errors.filter(error => error.msg !== payload.error),
+      };
+    case CLEAR_RESPONSEMSG:
+      return {
+        ...state,
+        responseMsgs: state.responseMsgs
+          .filter(responseMsg => responseMsg.msg !== payload.responseMsg),
       };
     default:
       return state;

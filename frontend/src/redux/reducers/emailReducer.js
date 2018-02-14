@@ -57,6 +57,8 @@ const SEND_NEW_EMAIL = 'Send new email';
 const REPLY = 'Reply';
 const GET_TEMPLATE = 'Get template';
 const LOADING = 'Loading';
+const CLEAR_ERROR = 'Clear error';
+const CLEAR_RESPONSEMSG = 'Clear response msg';
 const CLEAR_EMAIL = 'Clear Email';
 
 /**
@@ -155,6 +157,19 @@ export function changeComposeWindowHeaderText(value) {
     payload: { composeWindowHeaderText: value },
   };
 }
+export function clearError(value) {
+  return {
+    type: CLEAR_ERROR,
+    payload: { error: value },
+  };
+}
+export function clearResponseMsg(value) {
+  return {
+    type: CLEAR_RESPONSEMSG,
+    payload: { responseMsg: value },
+  };
+}
+
 
 function sendNewEmail(result) {
   return {
@@ -433,8 +448,10 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         email: Object.assign({}, payload.email, { htmlBody: checkHtmlBody }),
         url: [],
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailResponseMsg' })),
       };
     }
     case GET_THREAD_FROM_DB:
@@ -461,8 +478,10 @@ export default function emailsReducer(state = initialState, action) {
               isPlainText: payload.isPlainText.value,
             },
           ),
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailResponseMsg' })),
       };
     case GET_THREAD_FROM_GAPI:
       return {
@@ -484,15 +503,19 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         url: [...state.url, payload.url],
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailResponseMsg' })),
       };
     case SEND_NEW_EMAIL: {
       return {
         ...state,
         messageSent: payload.status,
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailResponseMsg' })),
       };
     }
     case CHANGE_BUTTON_NAME: {
@@ -505,8 +528,10 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         messageSent: payload.ok,
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailResponseMsg' })),
       };
     }
     case CHANGE_EMAIL_STATUS:
@@ -515,8 +540,10 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         email: Object.assign({}, state.email, { status: emailNewStatus }),
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailResponseMsg' })),
       };
     }
     case GET_NOTE:
@@ -525,8 +552,10 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         note: payload.note,
         loaded: true,
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailResponseMsg' })),
       };
     }
     case SEND_NOTE:
@@ -534,8 +563,10 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         noteStatus: payload.errors.length < 1 && payload.note ? 'noteSaveStatus active' : 'noteSaveStatus',
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailResponseMsg' })),
       };
     }
     case LOADING:
@@ -561,8 +592,21 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         template: payload.template,
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailResponseMsg' })),
+      };
+    case CLEAR_ERROR:
+      return {
+        ...state,
+        errors: state.errors.filter(error => error.msg !== payload.error),
+      };
+    case CLEAR_RESPONSEMSG:
+      return {
+        ...state,
+        responseMsgs: state.responseMsgs
+          .filter(responseMsg => responseMsg.msg !== payload.responseMsg),
       };
     case CLEAR_EMAIL:
       return {
