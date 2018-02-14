@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Button, Modal, ModalHeader, ModalBody } from 'reactstrap';
-import { notify } from 'react-notify-toast';
 import PropTypes from 'prop-types';
 import { asyncCreateFolder } from '../../../redux/reducers/folderReducer';
 
@@ -23,7 +22,6 @@ class ModalNewFolder extends Component {
     const body = { folderName: this.refs.createFolder.value };
     this.setState({ modal: false, input: '' });
     this.props.createFolder(body);
-    notify.show('Folder created!', 'success', 1500);
   };
 
   handleChange = (e) => {

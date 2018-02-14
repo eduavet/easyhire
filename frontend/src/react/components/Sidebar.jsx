@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { withRouter, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { notify } from 'react-notify-toast';
 import PropTypes from 'prop-types';
 import ModalNewFolder from './folder modals/ModalNewFolder.jsx';
 import ModalUpdateFolder from './folder modals/ModalUpdateFolder.jsx';
@@ -53,12 +52,10 @@ class Sidebar extends Component {
     updateFolder = (folderName) => {
       this.props.updateFolder({ id: updateId.value, folderName: folderName.value });
       this.setState({ updateModal: false, updateFolderName: '' });
-      notify.show('Folder name updated!', 'success', 1500);
     };
     deleteFolder = () => {
       this.props.deleteFolder(deleteId.value);
       this.setState({ deleteModal: false, deleteFolderName: '' });
-      notify.show('Folder deleted!', 'success', 1500);
     };
     // Make folder active to highlight it
     folderToggler = (folder) => {

@@ -23,7 +23,6 @@ class ModalNewStatus extends Component {
     const newStatus = { statusName: this.refs.createStatus.value };
     this.setState({ modal: false, input: '' });
     this.props.createStatus(newStatus);
-    notify.show('Status created!', 'success', 1500);
   };
 
   handleChange = (e) => {

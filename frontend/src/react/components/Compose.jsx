@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { notify } from 'react-notify-toast';
 import { Editor } from '@tinymce/tinymce-react';
 import { toggleComposeWindow, asyncSendNewEmail, asyncReply } from '../../redux/reducers/emailReducer';
 
@@ -41,7 +40,6 @@ class Compose extends Component {
       this.props.reply(emailId, messageBody);
     }
     this.props.toggleComposeWindow('compose');
-    notify.show('Mesasge sent!', 'success', 1500);
   };
 
   closeCompose = (evt) => {
