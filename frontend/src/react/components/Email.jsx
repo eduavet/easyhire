@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Button, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
-import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetAttachmentFromGapi, asyncGetNote, asyncSendNote, changeNoteStatus, asyncGetTemplate, changeComposeWindowHeaderText, toggleButtonName } from '../../redux/reducers/emailReducer';
+import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetThreadFromGapi, asyncGetAttachmentFromGapi, asyncGetNote, asyncSendNote, changeNoteStatus, asyncGetTemplate, changeComposeWindowHeaderText, toggleButtonName } from '../../redux/reducers/emailReducer';
 import { asyncGetSignature } from '../../redux/reducers/emailsReducer';
 import { asyncGetTemplates } from '../../redux/reducers/settingsReducer';
 
@@ -19,8 +19,9 @@ class Email extends Component {
   }
 
   componentDidMount() {
-    const emailId = this.props.email.emailId;
-    this.props.getEmailFromGapi(emailId);
+    const threadId = this.props.threadId;
+    //this.props.getEmailFromGapi(emailId);
+    this.props.getThreadFromGapi(threadId);
     this.props.getTemplates();
   }
 
@@ -28,13 +29,17 @@ class Email extends Component {
     if (nextProps === this.props) {
       return;
     }
-    if (nextProps.email.emailId !== this.props.email.emailId) {
+    /* if (nextProps.email.emailId !== this.props.email.emailId) {
       const emailId = nextProps.email.emailId;
       this.props.getEmailFromGapi(emailId);
     }
     if (nextProps.email.sender !== this.props.email.sender) {
       const sender = nextProps.email.sender;
       this.props.getNote(sender);
+    } else if (!this.props.loaded && nextProps.email.sender) {
+      const sender = nextProps.email.sender;
+      this.props.getNote(sender);
+      this.setState({ noteContent: nextProps.note.content });
     }
     if (nextProps.note !== null && nextProps.note !== this.props.note) {
       const oldContent = this.props.note ? this.props.note.content : '';
@@ -47,7 +52,32 @@ class Email extends Component {
       nextProps.email.attachments !== this.props.email.attachments) {
       nextProps.email.attachments
         .map(attachment => this.props.getAttachmentFromGapi(nextProps.email.emailId, attachment));
+    } */
+
+    if (nextProps.threadId !== this.props.threadId) {
+      const threadId = nextProps.threadId;
+      this.props.getEmailFromGapi(threadId);
     }
+    /*if (nextProps.thread[0].sender !== this.props.thread[0].sender) {
+      const sender = nextProps.thread[0].sender;
+      this.props.getNote(sender);
+    }*/
+    if (nextProps.note !== null && nextProps.note !== this.props.note) {
+      const oldContent = this.props.note ? this.props.note.content : '';
+      const newContent = nextProps.note ? nextProps.note.content : '';
+      if (newContent !== oldContent) {
+        this.setState({ noteContent: nextProps.note.content });
+      }
+    }
+    /*if(nextProps !== this.props){
+      nextProps.thread.map(email => {
+        if (email.attachments && email.attachments.length>0) {
+          email.attachments.map(attachment => this.props.getAttachmentFromGapi(email.emailId, attachment));
+        }
+        return email;
+      });
+    }*/
+
   }
 
   sendNoteInfo = { time: 0 };
@@ -92,7 +122,7 @@ class Email extends Component {
     this.setState({ replyPopoverOpen: false, newPopoverOpen: false });
   };
 
-  handleEditorChange = () => {}
+  handleEditorChange = () => {};
 
   render() {
     return (
@@ -105,35 +135,41 @@ class Email extends Component {
                 .map(status => <option key={status._id} value={status._id}>{status.name}</option>)}
             </select>
           </div>
-          <p><b>Sender:</b> {this.props.email.sender}</p>
-          <p><b>Subject:</b> {this.props.email.subject}</p>
-          <p><b>Date:</b> {this.props.email.date}</p>
-          <hr />
-          <div>
-            {
-              this.props.email.attachments ?
-              this.props.email.attachments.map((attachment, index) => (
-                <a
-                  key={attachment.attachmentId} href={this.props.url[index]}
-                  download={attachment.attachmentName}
-                >{attachment.attachmentName}<i className="fa fa-download" />
-                </a>)) : ''
-            }
-          </div>
-          {
-               this.props.email.isPlainText ?
-                 <pre>{this.props.email.htmlBody}</pre>
-          :
-                 <iframe
-                   sandbox="allow-scripts"
-                   ref={(el) => { this.iframeRef = el; }}
-                   srcDoc={this.props.email.htmlBody} title="Email Content"
-                   width="100%"
-                   height="320px"
-                   frameBorder="0"
-                 />
-            }
-
+          {this.props.thread.map((email, index) => {
+            return <div key={index}>
+              <p><b>Sender:</b> {email.sender}</p>
+              <p><b>Subject:</b> {email.subject}</p>
+              <p><b>Date:</b> {email.date}</p>
+              <hr />
+              <div>
+                {/*{
+                  email.attachments ?
+                  email.attachments.map((attachment, index) => (
+                    <a
+                      key={attachment.attachmentId} href={this.props.url[index]}
+                      download={attachment.attachmentName}
+                    >{attachment.attachmentName}<i className="fa fa-download" />
+                    </a>)) : ''
+                }*/}
+              </div>
+              {
+                email.isPlainText ?
+                  <pre>{email.htmlBody}</pre>
+                  :
+                  <iframe
+                    sandbox="allow-scripts"
+                    ref={(el) => {
+                      this.iframeRef = el;
+                    }}
+                    srcDoc={email.htmlBody} title="Email Content"
+                    width="100%"
+                    height="320px"
+                    frameBorder="0"
+                  />
+              }
+              <hr />
+            </div>
+          })}
           <hr />
           <div className="btn-group" role="group">
             <Button id="replyButton" onClick={this.handleReplyPopover} className="btn bg-light-blue rounded">
@@ -192,6 +228,7 @@ class Email extends Component {
 
 Email.propTypes = {
   email: PropTypes.object.isRequired,
+  thread: PropTypes.array.isRequired,
   getEmailFromGapi: PropTypes.func.isRequired,
   getAttachmentFromGapi: PropTypes.func,
   statuses: PropTypes.array.isRequired,
@@ -209,6 +246,8 @@ Email.propTypes = {
   toggleButtonName: PropTypes.func,
   loaded: PropTypes.bool,
   getSignature: PropTypes.func,
+  getThreadFromGapi: PropTypes.func,
+  threadId: PropTypes.string,
 };
 
 Email.defaultProps = {
@@ -219,6 +258,7 @@ Email.defaultProps = {
 function mapStateToProps(state) {
   return {
     email: state.email.email,
+    thread: state.email.thread,
     statuses: state.statuses.statuses,
     note: state.email.note,
     noteStatus: state.email.noteStatus,
@@ -226,12 +266,14 @@ function mapStateToProps(state) {
     template: state.email.template,
     loaded: state.email.loaded,
     templates: state.settings.templates,
+    threadId: state.email.threadId,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     getEmailFromGapi: emailId => dispatch(asyncGetEmailFromGapi(emailId)),
+    getThreadFromGapi: threadId => dispatch(asyncGetThreadFromGapi(threadId)),
     changeEmailStatus: (emailId, statusId) => dispatch(asyncChangeEmailStatus(emailId, statusId)),
     getAttachmentFromGapi: (
       emailId,

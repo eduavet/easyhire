@@ -241,7 +241,7 @@ export function asyncGetFolderEmails(folderId) {
       .then(res => res.json())
       .then((result) => {
         dispatch(getFolderEmails(result));
-      }).catch((err) => { console.log(err); });
+      }).catch(() => {});
   };
 }
 

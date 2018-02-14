@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { Nav, NavItem, Dropdown, DropdownItem, DropdownToggle, DropdownMenu, NavLink, Input } from 'reactstrap';
 import { selectAll, selectNone, asyncMoveEmails, asyncDeleteEmails, asyncMark, asyncGetStatusEmails, asyncSearch } from '../../redux/reducers/emailsReducer';
 import ModalDeleteEmails from './ModalDeleteEmails.jsx';
-import { isStatusActive } from '../../redux/reducers/statusReducer';
 
 class Toolbar extends Component {
   constructor(props) {
@@ -72,10 +71,6 @@ class Toolbar extends Component {
 
   filterBy = (statusId, folderId) => {
     this.props.getStatusEmails(statusId, folderId);
-  };
-
-  statusToggler = (status) => {
-    this.props.isStatusActive(status);
   };
 
   search = (e) => {
@@ -150,7 +145,6 @@ class Toolbar extends Component {
                   return (
                     <DropdownItem key={status._id}>
                       <div onClick={() => {
-                        this.statusToggler(status);
                         this.filterBy(status._id, activeFolder._id);
                       }}
                       >{status.name}
@@ -195,7 +189,6 @@ Toolbar.propTypes = {
   selectAll: PropTypes.func.isRequired,
   selectNone: PropTypes.func.isRequired,
   statuses: PropTypes.array,
-  isStatusActive: PropTypes.func.isRequired,
   getStatusEmails: PropTypes.func.isRequired,
   asyncSearch: PropTypes.func.isRequired,
 };
@@ -217,7 +210,6 @@ function mapDispatchToProps(dispatch) {
       dispatch(asyncMoveEmails(emailIds, folderId, inboxActive)),
     deleteEmails: emailIds => dispatch(asyncDeleteEmails(emailIds)),
     getStatusEmails: (statusId, folderId) => dispatch(asyncGetStatusEmails(statusId, folderId)),
-    isStatusActive: item => dispatch(isStatusActive(item)),
     asyncSearch: (text, folderId) => dispatch(asyncSearch(text, folderId)),
   };
 }
