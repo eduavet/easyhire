@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { isChecked, asyncGetEmails, asyncGetSentEmails } from '../../redux/reducers/emailsReducer';
-import { asyncGetEmailFromDb } from '../../redux/reducers/emailReducer';
+import { asyncGetEmailFromDb, asyncGetThreadFromDb } from '../../redux/reducers/emailReducer';
 
 const Loader = require('react-loader');
 
@@ -73,7 +73,11 @@ class Emails extends Component {
     const id = evt.target.dataset.id ?
       evt.target.dataset.id :
       evt.target.parentElement.dataset.id;
-    this.props.getEmailFromDb(id);
+    const threadId = evt.target.dataset.threadid ?
+      evt.target.dataset.threadid :
+      evt.target.parentElement.dataset.threadid;
+    //this.props.getEmailFromDb(id);
+    this.props.getThreadFromDb(threadId);
   };
 
   sortBySender = () => {
@@ -143,18 +147,16 @@ class Emails extends Component {
   render() {
     const pages = [];
     for (let i = 1; i <= Math.ceil(this.props.emails.length / this.state.emailsPerPage); i += 1) {
-      pages.push(
-        <li
-          key={i}
-          className={this.state.pageActive[i] ? 'page-item active' : 'page-item'}
-          onClick={this.openPage}
-        >
-          <a className="page-link paging" href="#top">{i}</a>
-        </li>
-      );
+      pages.push(<li
+        key={i}
+        className={this.state.pageActive[i] ? 'page-item active' : 'page-item'}
+        onClick={this.openPage}
+      >
+        <a className="page-link paging" href="#top">{i}</a>
+                 </li>);
     }
     return (
-      <div className="col-10 mt-4">
+      <div className="col-10 mt-2">
         <Loader loaded={this.props.loaded}>
           <table size="" className="table-sm emailsTable w-100" data-toggle="table">
             <thead>
@@ -189,6 +191,7 @@ class Emails extends Component {
                         className={item.isRead ? 'text-center' : 'text-center bold'}
                         to={`/email/${item.emailId}`}
                         data-id={item.emailId}
+                        data-threadid={item.threadId}
                         onClick={this.openEmail}
                       >
                         {item.sender}
@@ -198,6 +201,7 @@ class Emails extends Component {
                       <Link
                         to={`/email/${item.emailId}`}
                         data-id={item.emailId}
+                        data-threadid={item.threadId}
                         onClick={this.openEmail}
                       >
                         <span className={item.isRead ? '' : 'bold'}>
@@ -239,6 +243,7 @@ Emails.propTypes = {
   getEmailFromDb: PropTypes.func.isRequired,
   getEmails: PropTypes.func.isRequired,
   getSentEmails: PropTypes.func.isRequired,
+  getThreadFromDb: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -254,6 +259,7 @@ function mapDispatchToProps(dispatch) {
     getEmailFromDb: item => dispatch(asyncGetEmailFromDb(item)),
     getEmails: () => dispatch(asyncGetEmails()),
     getSentEmails: () => dispatch(asyncGetSentEmails()),
+    getThreadFromDb: (threadId) => dispatch(asyncGetThreadFromDb(threadId)),
   };
 }
 
