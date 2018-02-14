@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { notify } from 'react-notify-toast';
 import PropTypes from 'prop-types';
 import ModalNewStatus from './status modals/ModalNewStatus.jsx';
 import ModalUpdateStatus from './status modals/ModalUpdateStatus.jsx';
@@ -50,12 +49,10 @@ class Statuses extends Component {
     updateStatus = (statusName) => {
       this.props.updateStatus({ id: updateId.value, statusName: statusName.value });
       this.setState({ updateModal: false, updateStatusName: '' });
-      notify.show('Status name updated!', 'success', 1500);
     };
     deleteStatus = () => {
       this.props.deleteStatus(deleteId.value);
       this.setState({ deleteModal: false, deleteStatusName: '' });
-      notify.show('Status deleted!', 'success', 1500);
     };
 
     render() {

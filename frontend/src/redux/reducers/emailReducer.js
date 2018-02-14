@@ -92,8 +92,8 @@ function getAttachmentFromGapi(result) {
     type: GET_ATTACHMENT_FROM_GAPI,
     payload: {
       url: result.objectURL,
-      errors: result.errors,
-      responseMsgs: result.responseMsgs,
+      errors: result.errors ? result.errors : [],
+      responseMsgs: [],
     },
   };
 }

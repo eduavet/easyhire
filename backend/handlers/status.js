@@ -51,7 +51,7 @@ statusHandlers.getStatuses = (req, response) => {
       ])
       .then((statuses) => {
         response.json({
-          statuses, inboxCount, errors: [], responseMsgs: [{ msg: 'statuses', type: 'success' }],
+          statuses, inboxCount, errors: [], responseMsgs: [],
         });
       })).catch({
       statuses: [], inboxCount: 0, errors: [{ msg: 'something went wrong while getting statuses' }], responseMsgs: [],
@@ -145,7 +145,7 @@ statusHandlers.getEmails = (req, res) => {
       .then((result) => {
         Promise.all(promises)
           .then(() => {
-            res.json({ emailsToSend: result, errors: [], responseMsgs: [{ msg: 'emails of specified status', type: 'success' }] });
+            res.json({ emailsToSend: result, errors: [], responseMsgs: [] });
           });
       })
       .catch((err) => {
@@ -157,7 +157,7 @@ statusHandlers.getEmails = (req, res) => {
     .then((result) => {
       Promise.all(promises)
         .then(() => {
-          res.json({ emailsToSend: result, errors: [], responseMsgs: [{ msg: 'emails of specified status', type: 'success' }] });
+          res.json({ emailsToSend: result, errors: [], responseMsgs: [] });
         });
     })
     .catch((err) => {
