@@ -21,12 +21,12 @@ export class Dashboard extends Component {
     return (
       <BrowserRouter>
         <div>
-          {this.props.responseMsgs.map((responseMsg) => {
+          {/* this.props.responseMsgs.map((responseMsg) => {
             notify.show(responseMsg.msg, responseMsg.type, 1500);
-          })}
-          {this.props.errors.map((error) => {
+          }) */}
+          {/* this.props.errors.map((error) => {
             notify.show(error.msg, 'error', 1500);
-          })}
+          }) */}
           <Header />
           {
             this.props.page !== 'dashboard' ?

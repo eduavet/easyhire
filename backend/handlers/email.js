@@ -94,7 +94,7 @@ emailHandlers.emails = (req, response) => {
       });
     });
 };
- // Get emails from db
+// Get emails from db
 
 emailHandlers.getEmailsFromDb = (req, res) => {
   const userId = req.session.userID;
@@ -115,7 +115,7 @@ emailHandlers.getEmailsFromDb = (req, res) => {
       errors: [{ msg: 'something went wrong when getting emails of specified folder' }, err],
       responseMsgs: [],
     }));
-}
+};
 
 // Get sent emails from gmail
 emailHandlers.emailsSent = (req, response) => {
@@ -179,7 +179,7 @@ emailHandlers.emailsSent = (req, response) => {
           response.json(packed);
         });
     })
-    .catch((err) => {
+    .catch(() => {
       response.json({
         name: '',
         emailsToSend: [],
@@ -446,7 +446,7 @@ emailHandlers.search = (req, res) => {
         promises.push(EmailsModel.findOne({ emailId: id, deleted: false })
           .populate('folder')
           .populate('status')
-          .then(group => {
+          .then((group) => {
             if (group) {
               emailsToSend[i] = helper.groupExtract(group);
             }
