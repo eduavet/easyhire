@@ -47,12 +47,13 @@ class Templates extends Component {
   render() {
     return (
       <Loader loaded={this.props.loaded}>
-        <h2>Templates</h2>
-        <div className="alert alert-info" role="alert">
+        <h2 className="template-header">Templates</h2>
+        <div className="alert alert-info col-9 mt-1 template-hint" role="alert">
           Note: Use <strong>FIRST_NAME</strong> when composing a template,
           to have it automatically replaced by recipient's first name.
         </div>
-        <div className="row mt-4">
+        <br /><br /><br />
+        <div className="row mt-1">
           <div className="col-3 mt-4">
             <ul className="list-group templates">
               {this.props.templates.map((template) => {

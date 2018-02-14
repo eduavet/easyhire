@@ -62,11 +62,9 @@ class Template extends Component {
     return (
       <form>
         <div className="form-group">
-          <label htmlFor="templateName">Template name</label>
           <input type="text" ref={(editor) => { this.templateNameRef = editor; }} className="form-control" id="templateName" placeholder="Enter template name" onChange={this.changeName} value={this.state.templateName} />
         </div>
         <div className="form-group">
-          <label htmlFor="templateName">Template Content</label>
           <div className="editorDateTimePickerContainer">
             <Editor
               ref={(editor) => { this._editor = editor; }}
