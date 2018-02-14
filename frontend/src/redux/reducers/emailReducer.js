@@ -17,13 +17,14 @@ const initialState = {
   noteStatus: 'noteSaveStatus',
   note: { content: '' },
   loading: true,
-  errors: [],
   loaded: false,
   url: [],
   template: '',
   composeWindowClassName: 'compose',
   composeWindowHeaderText: 'Compose',
   btnName: '',
+  errors: [],
+  responseMsgs: [],
 };
 
 /**
@@ -68,6 +69,8 @@ function getEmailFromDb(result) {
     type: GET_EMAIL_FROM_DB,
     payload: {
       email: result.email,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
     },
   };
 }
@@ -76,16 +79,21 @@ function getEmailFromGapi(result) {
   return {
     type: GET_EMAIL_FROM_GAPI,
     payload: {
-      email: result.email, isPlainText: result.isPlainText,
+      email: result.email,
+      isPlainText: result.isPlainText,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
     },
   };
 }
 
-function getAttachmentFromGapi(objectURL) {
+function getAttachmentFromGapi(result) {
   return {
     type: GET_ATTACHMENT_FROM_GAPI,
     payload: {
-      url: objectURL,
+      url: result.objectURL,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
     },
   };
 }
@@ -93,7 +101,11 @@ function getAttachmentFromGapi(objectURL) {
 function getTemplate(result) {
   return {
     type: GET_TEMPLATE,
-    payload: { template: result.template.content },
+    payload: {
+      template: result.template.content,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
+    },
   };
 }
 export function toggleComposeWindow(value) {
@@ -113,14 +125,23 @@ export function changeComposeWindowHeaderText(value) {
 function sendNewEmail(result) {
   return {
     type: SEND_NEW_EMAIL,
-    payload: { status: result.status },
+    payload: {
+      status: result.status,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
+    },
   };
 }
 
 function reply(result) {
   return {
     type: REPLY,
-    payload: { ok: result.ok, status: result.status, errors: result.errors },
+    payload: {
+      ok: result.ok,
+      status: result.status,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
+    },
   };
 }
 
@@ -128,8 +149,9 @@ function changeEmailStatus(result) {
   return {
     type: CHANGE_EMAIL_STATUS,
     payload: {
-      errors: result.errors,
       emailNewStatus: result.status,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
     },
   };
 }
@@ -139,6 +161,8 @@ function getNote(result) {
     type: GET_NOTE,
     payload: {
       note: result.note,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
     },
   };
 }
@@ -147,8 +171,9 @@ function sendNote(result) {
     type: SEND_NOTE,
     payload: {
       note: result.note,
-      errors: result.errors,
       noteUpdated: result.noteUpdated,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
     },
   };
 }
@@ -334,6 +359,8 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         email: Object.assign({}, payload.email, { htmlBody: checkHtmlBody }),
         url: [],
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     }
     case GET_EMAIL_FROM_GAPI:
@@ -348,16 +375,22 @@ export default function emailsReducer(state = initialState, action) {
               isPlainText: payload.isPlainText.value,
             },
           ),
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     case GET_ATTACHMENT_FROM_GAPI:
       return {
         ...state,
         url: [...state.url, payload.url],
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     case SEND_NEW_EMAIL: {
       return {
         ...state,
         messageSent: payload.status,
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     }
     case CHANGE_BUTTON_NAME: {
@@ -370,6 +403,8 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         messageSent: payload.ok,
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     }
     case CHANGE_EMAIL_STATUS:
@@ -377,8 +412,9 @@ export default function emailsReducer(state = initialState, action) {
       const emailNewStatus = payload.emailNewStatus ? payload.emailNewStatus : state.email.status;
       return {
         ...state,
-        errors: payload.errors,
         email: Object.assign({}, state.email, { status: emailNewStatus }),
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     }
     case GET_NOTE:
@@ -387,14 +423,17 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         note: payload.note,
         loaded: true,
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     }
     case SEND_NOTE:
     {
       return {
         ...state,
-        errors: [],
         noteStatus: payload.errors.length < 1 && payload.note ? 'noteSaveStatus active' : 'noteSaveStatus',
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     }
     case LOADING:
@@ -420,6 +459,8 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         template: payload.template,
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     default:
       return state;

@@ -7,7 +7,7 @@ module.exports = statusHandlers;
 statusHandlers.getStatuses = (req, response) => {
   const userId = req.session.userID;
   if (!userId) {
-    return response.json({ statuses: [] });
+    return response.json({ statuses: [], errors: [{ msg: 'user not found' }], responseMsgs: [] });
   }
   return EmailsModel.count({ userId })
     .then(inboxCount => StatusesModel
@@ -50,12 +50,12 @@ statusHandlers.getStatuses = (req, response) => {
         { $sort: { userId: 1, name: 1 } },
       ])
       .then((statuses) => {
-        const packed = {
-          statuses,
-          inboxCount,
-        };
-        response.json(packed);
-      })).catch({ statuses: [], inboxCount: 0, errors: [] });
+        response.json({
+          statuses, inboxCount, errors: [], responseMsgs: [],
+        });
+      })).catch({
+      statuses: [], inboxCount: 0, errors: [{ msg: 'something went wrong while getting statuses' }], responseMsgs: [],
+    });
 };
 
 // Create new status
@@ -63,7 +63,7 @@ statusHandlers.createStatus = (req, res) => {
   req.checkBody('statusName').notEmpty().withMessage('Status name is required');
   const errors = req.validationErrors();
   if (errors) {
-    return res.json({ errors, createdStatus: {} });
+    return res.json({ errors, createdStatus: {}, responseMsgs: [] });
   }
   const userId = req.session.userID;
   const name = req.body.statusName;
@@ -79,9 +79,9 @@ statusHandlers.createStatus = (req, res) => {
         userId: createdStatus.userId,
         count: 0,
       };
-      return res.json({ createdStatus: createdStatusToSend, errors: [] });
+      return res.json({ createdStatus: createdStatusToSend, errors: [], responseMsgs: [{ msg: 'status created', type: 'success' }] });
     })
-    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], createdStatus: {} }));
+    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], createdStatus: {}, responseMsgs: [] }));
 };
 
 // Update existing status
@@ -89,15 +89,15 @@ statusHandlers.updateStatus = (req, res) => {
   req.checkBody('statusName').notEmpty().withMessage('Status name is required');
   const errors = req.validationErrors();
   if (errors) {
-    return res.json({ errors, updatedStatus: {} });
+    return res.json({ errors, updatedStatus: {}, responseMsgs: [] });
   }
   const statusId = req.params.ID ? req.params.ID : '';
   const statusNewName = req.body.statusName;
   return StatusesModel.findByIdAndUpdate(statusId, { $set: { name: statusNewName } }, { new: true })
     .then((status) => {
-      res.json({ updatedStatus: status, errors: [] });
+      res.json({ updatedStatus: status, errors: [], responseMsgs: [{ msg: 'status updated', type: 'success' }] });
     })
-    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], updatedStatus: {} }));
+    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], updatedStatus: {}, responseMsgs: [] }));
 };
 
 // Delete status
@@ -113,17 +113,18 @@ statusHandlers.deleteStatus = (req, res) => {
               res.json({
                 errors: [{ msg: 'There are emails with this status and status cannot be deleted' }],
                 deletedStatusID: '',
+                responseMsgs: [],
               });
             } else {
               StatusesModel.findOne({ userId: req.session.userID, _id: req.params.ID })
                 .remove().exec();
-              res.json({ deletedStatusID: req.params.ID, errors: [] });
+              res.json({ deletedStatusID: req.params.ID, errors: [], responseMsgs: [{ msg: 'status deleted', type: 'success' }] });
             }
           });
       }
-      return res.json({ errors: [{ msg: 'Main statuses "Approved", "Rejected", "Interview Scheduled" and "Not Reviewed" cannot be deleted' }], deletedStatusID: '' });
+      return res.json({ errors: [{ msg: 'Main statuses "Approved", "Rejected", "Interview Scheduled" and "Not Reviewed" cannot be deleted' }], responseMsgs: [], deletedStatusID: '' });
     })
-    .catch(err => res.json({ errors: err, deletedStatusID: '' }));
+    .catch(err => res.json({ errors: err, deletedStatusID: '', responseMsgs: [] }));
 };
 
 // Get status emails
@@ -131,7 +132,7 @@ statusHandlers.getEmails = (req, res) => {
   req.checkParams('statusId').notEmpty().withMessage('Status ID is required');
   const errors = req.validationErrors();
   if (errors) {
-    return res.json({ errors });
+    return res.json({ errors, responseMsgs: [] });
   }
   const userId = req.session.userID;
   const { statusId, folderId } = req.params;
@@ -144,11 +145,11 @@ statusHandlers.getEmails = (req, res) => {
       .then((result) => {
         Promise.all(promises)
           .then(() => {
-            res.json({ emailsToSend: result, errors: [] });
+            res.json({ emailsToSend: result, errors: [], responseMsgs: [{ msg: 'emails of specified status', type: 'success' }] });
           });
       })
       .catch((err) => {
-        res.json({ emailsToSend: [], errors: err });
+        res.json({ emailsToSend: [], errors: [{ msg: 'smth went wrong while getting emails of specified status' }, err], responseMsgs: [] });
       });
   }
   return EmailsModel.find({ status: statusId, userId, folder: folderId })
@@ -156,10 +157,10 @@ statusHandlers.getEmails = (req, res) => {
     .then((result) => {
       Promise.all(promises)
         .then(() => {
-          res.json({ emailsToSend: result, errors: [] });
+          res.json({ emailsToSend: result, errors: [], responseMsgs: [{ msg: 'emails of specified status', type: 'success' }] });
         });
     })
     .catch((err) => {
-      res.json({ emailsToSend: [], errors: err });
+      res.json({ emailsToSend: [], errors: [{ msg: 'smth went wrong while getting emails of specified status' }, err], responseMsgs: [] });
     });
 };

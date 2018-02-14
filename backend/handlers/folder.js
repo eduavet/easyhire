@@ -1,4 +1,3 @@
-const mongoose = require('mongoose')
 const EmailsModel = require('../models/EmailsModel.js');
 const FoldersModel = require('../models/FoldersModel.js');
 const SentEmailsModel = require('../models/SentEmailsModel.js');
@@ -11,7 +10,7 @@ folderHandlers.getFolders = (req, response) => {
   const userId = req.session.userID;
 
   if (!userId) {
-    return response.json({ folders: [] });
+    return response.json({ folders: [], errors: [{ msg: 'user not found' }], responseMsgs: [] });
   }
   return EmailsModel.count({ userId, deleted: false })
     .then(inboxCount => FoldersModel
@@ -46,12 +45,15 @@ folderHandlers.getFolders = (req, response) => {
         { $sort: { userId: 1, name: 1 } },
       ])
       .then((folders) => {
-        const packed = {
-          folders,
-          inboxCount,
-        };
-        response.json(packed);
-      })).catch({ folders: [], inboxCount: 0, errors: [] });
+        response.json({
+          folders, inboxCount, errors: [], responseMsgs: [],
+        });
+      })).catch({
+      folders: [],
+      inboxCount: 0,
+      errors: [{ msg: 'Something went wrong, when getting folders' }],
+      responseMsgs: [],
+    });
 };
 // Create new folder
 folderHandlers.createFolder = (req, res) => {
@@ -78,9 +80,9 @@ folderHandlers.createFolder = (req, res) => {
         userId: createdFolder.userId,
         isActive: false,
       };
-      return res.json({ createdFolder: createdFolderToSend, errors: [] });
+      return res.json({ createdFolder: createdFolderToSend, errors: [], responseMsgs: [] });
     })
-    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], createdFolder: {} }));
+    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], createdFolder: {}, responseMsgs: [] }));
 };
 // Update existing folder
 folderHandlers.updateFolder = (req, res) => {
@@ -93,9 +95,9 @@ folderHandlers.updateFolder = (req, res) => {
   const folderNewName = req.body.folderName;
   return FoldersModel.findByIdAndUpdate(folderId, { $set: { name: folderNewName } }, { new: true })
     .then((folder) => {
-      res.json({ updatedFolder: folder, errors: [] });
+      res.json({ updatedFolder: folder, errors: [], responseMsgs: [{ msg: 'Folder successfully updated', type: 'success' }] });
     })
-    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], updatedFolder: {} }));
+    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], updatedFolder: {}, responseMsgs: [] }));
 };
 // Delete folder
 // Cannot delete default folders and folders which contain emails.
@@ -110,39 +112,44 @@ folderHandlers.deleteFolder = (req, res) => {
               res.json({
                 errors: [{ msg: 'Folder contains emails and cannot be deleted' }],
                 deletedFolderID: '',
+                responseMsgs: [],
               });
             } else {
               FoldersModel.findOne({ userId: req.session.userID, _id: req.params.ID })
                 .remove().exec();
-              res.json({ deletedFolderID: req.params.ID, errors: [] });
+              res.json({ deletedFolderID: req.params.ID, errors: [], responseMsgs: [{ msg: 'Folder successfully deleted', type: 'success' }] });
             }
           });
       }
-      return res.json({ errors: [{ msg: 'Main folders "Inbox" and "Uncategorized" cannot be deleted' }], deletedFolderID: '' });
+      return res.json({ errors: [{ msg: 'Main folders "Inbox" and "Uncategorized" cannot be deleted' }], deletedFolderID: '', responseMsgs: [] });
     })
-    .catch(err => res.json({ errors: err, deletedFolderID: '' }));
+    .catch(err => res.json({ errors: [{ msg: 'Something went wrong' }, err], deletedFolderID: '', responseMsgs: [] }));
 };
 // Get folder emails
 folderHandlers.getEmails = (req, res) => {
   req.checkParams('ID').notEmpty().withMessage('Folder ID is required');
   const errors = req.validationErrors();
   if (errors) {
-    return res.json({ errors });
+    return res.json({ errors, responseMsgs: [] });
   }
   const userId = req.session.userID;
   const folderId = req.params.ID;
   let sentId = '';
   const promises = [];
-  FoldersModel.findOne({ name: 'Sent' }, '_id').then((folder) => {
+  return FoldersModel.findOne({ name: 'Sent' }, '_id').then((folder) => {
     sentId = folder._id;
     if (folderId === sentId.toString()) {
       return SentEmailsModel.find({ folder: folderId, userId, deleted: false })
         .populate('folder status')
         .then(result => Promise.all(promises)
           .then(() => {
-            res.json({ emailsToSend: result, errors: [] });
+            res.json({ emailsToSend: result, errors: [], responseMsgs: [] });
           }))
-        .catch(err => res.json({ emailsToSend: [], errors: err }));
+        .catch(err => res.json({
+          emailsToSend: [],
+          errors: [{ msg: 'something went wrong when getting emails of specified folder' }, err],
+          responseMsgs: [],
+        }));
     }
     if (folderId === 'allEmails') {
       return EmailsModel.find({ userId, deleted: false })
@@ -150,17 +157,25 @@ folderHandlers.getEmails = (req, res) => {
         .then(result =>
           Promise.all(promises)
             .then(() => {
-              res.json({ emailsToSend: result, errors: [] });
+              res.json({ emailsToSend: result, errors: [], responseMsgs: [] });
             }))
-        .catch(err => res.json({ emailsToSend: [], errors: err }));
+        .catch(err => res.json({
+          emailsToSend: [],
+          errors: [{ msg: 'something went wrong when getting emails of specified folder' }, err],
+          responseMsgs: [],
+        }));
     }
     return EmailsModel.find({ folder: folderId, userId, deleted: false })
       .populate('folder status')
       .then(result =>
         Promise.all(promises)
           .then(() => {
-            res.json({ emailsToSend: result, errors: [] });
+            res.json({ emailsToSend: result, errors: [], responseMsgs: [] });
           }))
-      .catch(err => res.json({ emailsToSend: [], errors: err }));
+      .catch(err => res.json({
+        emailsToSend: [],
+        errors: [{ msg: 'something went wrong when getting emails of specified folder' }, err],
+        responseMsgs: [],
+      }));
   });
 };

@@ -2,6 +2,8 @@ const initialState = {
   templates: [],
   template: {},
   loaded: false,
+  errors: [],
+  responseMsgs: [],
 };
 
 /**
@@ -23,31 +25,51 @@ const LOADING = 'Loading';
 function getTemplates(result) {
   return {
     type: GET_TEMPLATES,
-    payload: { templates: result.templates, errors: result.errors },
+    payload: {
+      templates: result.templates,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
+    },
   };
 }
 function getTemplate(result) {
   return {
     type: GET_TEMPLATE,
-    payload: { template: result.template, errors: result.errors },
+    payload: {
+      template: result.template,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
+    },
   };
 }
 function addTemplate(result) {
   return {
     type: ADD_TEMPLATE,
-    payload: { template: result.template, errors: result.errors },
+    payload: {
+      template: result.template,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
+    },
   };
 }
 function updateTemplate(result) {
   return {
     type: UPDATE_TEMPLATE,
-    payload: { template: result.template, errors: result.errors },
+    payload: {
+      template: result.template,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
+    },
   };
 }
 function deleteTemplate(result) {
   return {
     type: DELETE_TEMPLATE,
-    payload: { _id: result._id, errors: result.errors },
+    payload: {
+      _id: result._id,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
+    },
   };
 }
 export function createTemplate() {
@@ -164,6 +186,7 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         template: payload.template,
+        responseMsgs: payload.responseMsgs,
         errors: payload.errors,
       };
     case ADD_TEMPLATE:
@@ -178,6 +201,7 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         templates: templatesAfterAdd,
         template: addedTemplate,
+        responseMsgs: payload.responseMsgs,
         errors: payload.errors,
       };
     }
@@ -199,6 +223,7 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         templates: templatesAfterUpdtate,
         template: updatedTemple,
+        responseMsgs: payload.responseMsgs,
         errors: payload.errors,
       };
     }
@@ -211,6 +236,7 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         templates: templatesAfterDelete,
+        responseMsgs: payload.responseMsgs,
         errors: payload.errors,
       };
     }

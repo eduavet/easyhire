@@ -1,5 +1,12 @@
 const initialState = {
-  emails: [], sentEmails: [], name: '', signature: '', loading: true, errors: [], loaded: false,
+  emails: [],
+  name: '',
+  signature: '',
+  loading: true,
+  loaded: false,
+  errors: [],
+  responseMsgs: [],
+  sentEmails: [],
 };
 
 /**
@@ -33,6 +40,7 @@ function getEmails(result) {
     payload: {
       emails: result.emailsToSend,
       errors: result.errors,
+      responseMsgs: result.responseMsgs,
     },
   };
 }
@@ -42,13 +50,20 @@ function getSentEmails(result) {
     payload: {
       emails: result.emailsToSend,
       errors: result.errors,
+      responseMsgs: result.responseMsgs,
     },
   };
 }
 
-function getUsername(name) {
+function getUsername(result) {
+  console.log(result);
   return {
-    type: GET_USERNAME, payload: { name },
+    type: GET_USERNAME,
+    payload: {
+      name: result.name,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
+    },
   };
 }
 
@@ -57,6 +72,8 @@ function getSignature(result) {
     type: GET_SIGNATURE,
     payload: {
       signature: result.result.signature,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
     },
   };
 }
@@ -67,6 +84,7 @@ function getFolderEmails(result) {
     payload: {
       emails: result.emailsToSend,
       errors: result.errors,
+      responseMsgs: result.responseMsgs,
     },
   };
 }
@@ -77,6 +95,7 @@ function getStatusEmails(result) {
     payload: {
       emails: result.emailsToSend,
       errors: result.errors,
+      responseMsgs: result.responseMsgs,
     },
   };
 }
@@ -89,6 +108,7 @@ function moveEmails(response, inboxActive) {
       errors: response.errors,
       originalFolder: response.originalFolder,
       inboxActive,
+      responseMsgs: response.responseMsgs,
     },
   };
 }
@@ -100,6 +120,7 @@ function deleteEmails(response) {
       emailsToDelete: response.emailsToDelete,
       errors: response.errors,
       originalFolder: response.originalFolder,
+      responseMsgs: response.responseMsgs,
     },
   };
 }
@@ -109,6 +130,8 @@ function emailRefresh(result) {
     type: EMAIL_REFRESH,
     payload: {
       emails: result.emailsToSend,
+      responseMsgs: result.responseMsgs,
+      errors: result.errors,
     },
   };
 }
@@ -119,6 +142,8 @@ function mark(result) {
     payload: {
       emailsToMark: result.emailsToMark,
       newValue: result.newValue,
+      responseMsgs: result.responseMsgs,
+      errors: result.errors,
     },
   };
 }
@@ -135,6 +160,7 @@ function search(result) {
     payload: {
       emails: result.emailsToSend,
       errors: result.errors,
+      responseMsgs: result.responseMsgs,
     },
   };
 }
@@ -174,7 +200,7 @@ export function asyncGetUsername() {
     })
       .then(res => res.json())
       .then((result) => {
-        dispatch(getUsername(result.name));
+        dispatch(getUsername(result));
       }).catch(() => {});
   };
 }
@@ -201,7 +227,7 @@ export function asyncGetFolderEmails(folderId) {
       .then(res => res.json())
       .then((result) => {
         dispatch(getFolderEmails(result));
-      }).catch((err) => {console.log(err)});
+      }).catch((err) => { console.log(err); });
   };
 }
 
@@ -343,6 +369,7 @@ export default function emailsReducer(state = initialState, action) {
           ...payload.emails
             .map(email => Object.assign({}, email, { isChecked: !!email.isChecked }))],
         errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
         loaded: true,
       };
     case GET_SENT:
@@ -352,6 +379,7 @@ export default function emailsReducer(state = initialState, action) {
           ...payload.emails
             .map(email => Object.assign({}, email, { isChecked: !!email.isChecked }))],
         errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
         loaded: true,
       };
     case GET_USERNAME:
@@ -360,12 +388,15 @@ export default function emailsReducer(state = initialState, action) {
         name: payload.name,
         loading: false,
         errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
         successMsgs: payload.successMsgs,
       };
     case GET_SIGNATURE:
       return {
         ...state,
         signature: payload.signature,
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     case GET_FOLDER_EMAILS:
       return {
@@ -379,6 +410,8 @@ export default function emailsReducer(state = initialState, action) {
               statusName: email.status ? email.status.name : '',
               statusId: email.status ? email.status._id : null,
             })),
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
         loaded: true,
       };
     case GET_STATUS_EMAILS:
@@ -393,6 +426,8 @@ export default function emailsReducer(state = initialState, action) {
               statusName: email.status.name,
               statusId: email.status._id,
             })),
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
         loaded: true,
       };
     case IS_CHECKED:
@@ -428,7 +463,10 @@ export default function emailsReducer(state = initialState, action) {
         });
       }
       return {
-        ...state, emails: emailsAfterMove,
+        ...state,
+        emails: emailsAfterMove,
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     }
     case DELETE_EMAILS:
@@ -438,7 +476,10 @@ export default function emailsReducer(state = initialState, action) {
         return payload.emailsToDelete.indexOf(email.emailId) === -1;
       });
       return {
-        ...state, emails: emailsAfterDelete, errors: payload.errors,
+        ...state,
+        emails: emailsAfterDelete,
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     }
     case EMAIL_REFRESH:
@@ -446,6 +487,8 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         emails: payload.emails
           .map(email => Object.assign({}, email, { isChecked: !!email.isChecked })),
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
         loaded: true,
       };
     case MARK:
@@ -458,7 +501,10 @@ export default function emailsReducer(state = initialState, action) {
         return email;
       });
       return {
-        ...state, emails: updatedEmails, errors: payload.errors,
+        ...state,
+        emails: updatedEmails,
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     }
     case SEARCH:
@@ -466,6 +512,7 @@ export default function emailsReducer(state = initialState, action) {
         ...state,
         emails: payload.emails,
         errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
         loaded: true,
       };
     case LOADING:

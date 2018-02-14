@@ -11,13 +11,13 @@ noteHandlers.getNote = (req, res) => {
   req.checkParams('sender').notEmpty().withMessage('Sender is required');
   const errors = req.validationErrors();
   if (errors) {
-    return res.json({ errors, notes: [] });
+    return res.json({ errors, notes: [], responseMsgs: [] });
   }
   const userId = req.session.userID;
   const { sender } = req.params;
   return NotesModel.findOne({ userId, sender })
-    .then(note => res.json({ note, errors: [] }))
-    .catch(() => res.json({ note: {}, errors: [{ msg: 'Something went wrong' }] }));
+    .then(note => res.json({ note, errors: [], responseMsgs: [] }))
+    .catch(() => res.json({ note: {}, errors: [{ msg: 'Something went wrong' }], responseMsgs: [] }));
 };
 // Add new note
 noteHandlers.addNote = (req, res) => {
@@ -26,7 +26,7 @@ noteHandlers.addNote = (req, res) => {
   req.checkBody('content').notEmpty().withMessage('Note content is required');
   const errors = req.validationErrors();
   if (errors) {
-    return res.json({ errors, note: {} });
+    return res.json({ errors, note: {}, responseMsgs: [] });
   }
   const userId = req.session.userID;
   const { content, emailId } = req.body;
@@ -41,8 +41,8 @@ noteHandlers.addNote = (req, res) => {
     dateUpdated: dateCreated,
   });
   return newNote.save()
-    .then(note => res.json({ note, errors: [] }))
-    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], note: {} }));
+    .then(note => res.json({ note, errors: [], responseMsgs: [] }))
+    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], note: {}, responseMsgs: [] }));
 };
 
 // Update existing note
@@ -51,7 +51,7 @@ noteHandlers.updateNote = (req, res) => {
   req.checkBody('content').notEmpty().withMessage('Note content is required');
   const errors = req.validationErrors();
   if (errors) {
-    return res.json({ errors, note: {} });
+    return res.json({ errors, note: {}, responseMsgs: [] });
   }
   const noteId = req.params.id;
   const userId = req.session.userID;
@@ -60,7 +60,7 @@ noteHandlers.updateNote = (req, res) => {
       note.content = req.body.content;
       note.dateUpdated = Date.now();
       return note.save()
-        .then(updatedNote => res.json({ note: updatedNote, errors: [] }));
+        .then(updatedNote => res.json({ note: updatedNote, errors: [], responseMsgs: [] }));
     })
-    .catch(() => res.json({ note: {}, errors: [{ msg: 'Something went wrong' }] }));
+    .catch(() => res.json({ note: {}, errors: [{ msg: 'Something went wrong' }], responseMsgs: [] }));
 };

@@ -1,5 +1,7 @@
 const initialState = {
-  statuses: [], statusErrors: [],
+  statuses: [],
+  errors: [],
+  responseMsgs: [],
 };
 
 const GET_STATUSES = 'Get statuses';
@@ -13,7 +15,10 @@ function getStatuses(result) {
   return {
     type: GET_STATUSES,
     payload: {
-      statuses: result.statuses, inboxCount: result.inboxCount,
+      statuses: result.statuses,
+      inboxCount: result.inboxCount,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
     },
   };
 }
@@ -21,7 +26,9 @@ function createStatus(response) {
   return {
     type: CREATE_STATUS,
     payload: {
-      createdStatus: response.createdStatus, statusErrors: response.errors,
+      createdStatus: response.createdStatus,
+      errors: response.errors,
+      responseMsgs: response.responseMsgs,
     },
   };
 }
@@ -30,7 +37,9 @@ function updateStatus(response) {
   return {
     type: UPDATE_STATUS,
     payload: {
-      updatedStatus: response.updatedStatus, statusErrors: response.errors,
+      updatedStatus: response.updatedStatus,
+      errors: response.errors,
+      responseMsgs: response.responseMsgs,
     },
   };
 }
@@ -39,7 +48,9 @@ function deleteStatus(response) {
   return {
     type: DELETE_STATUS,
     payload: {
-      deletedStatusID: response.deletedStatusID, statusErrors: response.errors,
+      deletedStatusID: response.deletedStatusID,
+      errors: response.errors,
+      responseMsgs: response.responseMsgs,
     },
   };
 }
@@ -55,7 +66,10 @@ function refreshStatus(result) {
   return {
     type: REFRESH,
     payload: {
-      statuses: result.statuses, inboxCount: result.inboxCount,
+      statuses: result.statuses,
+      inboxCount: result.inboxCount,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
     },
   };
 }
@@ -148,6 +162,8 @@ export default function statusReducer(state = initialState, action) {
         ...state,
         statuses: payload.statuses.map(status =>
           Object.assign({}, status, { isActive: !!status.isActive })),
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     case IS_ACTIVE:
       return {
@@ -167,7 +183,10 @@ export default function statusReducer(state = initialState, action) {
         Object.assign({}, payload.createdStatus, { isActive: false }),
       ] : state.statuses;
       return {
-        ...state, statuses, statusErrors: payload.statusErrors,
+        ...state,
+        statuses,
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     }
     case UPDATE_STATUS:
@@ -179,13 +198,17 @@ export default function statusReducer(state = initialState, action) {
           }
           return status;
         }),
-        statusErrors: payload.statusErrors,
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     case DELETE_STATUS: {
       const statusesAfterDelete = state.statuses
         .filter(status => status._id !== payload.deletedStatusID);
       return {
-        ...state, statuses: statusesAfterDelete, statusErrors: payload.statusErrors,
+        ...state,
+        statuses: statusesAfterDelete,
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     }
     case REFRESH:
@@ -194,6 +217,8 @@ export default function statusReducer(state = initialState, action) {
         statuses: [
           ...payload.statuses
             .map(status => Object.assign({}, status, { isActive: !!status.isActive }))],
+        errors: payload.errors,
+        responseMsgs: payload.responseMsgs,
       };
     default:
       return state;

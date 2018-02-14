@@ -28,8 +28,8 @@ emailHelpers.groupExtract = (group) => {
   } = group;
   const folderId = group.folder._id;
   const folderName = group.folder.name;
-  const statusId = group.status._id;
-  const statusName = group.status.name;
+  const statusId = group.status ? group.status._id: null;
+  const statusName = group.status ? group.status.name: '';
   const snippet = entities.decode(group.snippet);
   return {
     emailId,
