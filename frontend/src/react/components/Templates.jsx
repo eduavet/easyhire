@@ -79,7 +79,7 @@ class Templates extends Component {
                 onClick={this.createTemplate}
               >
                 <i className="fa fa-plus-circle" aria-hidden="true" />
-                &nbsp; Create new Template
+                &nbsp; Create New Template
               </li>
               <ModalDeleteTemplate
                 isOpenDelete={this.state.deleteModal}

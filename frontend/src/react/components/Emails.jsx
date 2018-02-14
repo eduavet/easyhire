@@ -221,7 +221,7 @@ class Emails extends Component {
             </tbody>
           </table>
           {this.props.emails.length > this.state.emailsPerPage ?
-            <nav aria-label="Email pages" className="paging">
+            <nav aria-label="Email pages" className="paging mt-2">
               <ul className="pagination justify-content-center">
                 <li className="page-item" onClick={this.prevPage}><a className="page-link paging" href="#top">Previous</a></li>
                 {pages}
