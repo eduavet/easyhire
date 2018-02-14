@@ -51,7 +51,7 @@ statusHandlers.getStatuses = (req, response) => {
       ])
       .then((statuses) => {
         response.json({
-          statuses, inboxCount, errors: [], responseMsgs: [{ msg: 'statuses', type: 'success' }],
+          statuses, inboxCount, errors: [], responseMsgs: [],
         });
       })).catch({
       statuses: [], inboxCount: 0, errors: [{ msg: 'something went wrong while getting statuses' }], responseMsgs: [],

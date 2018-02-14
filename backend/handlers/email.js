@@ -157,7 +157,8 @@ emailHandlers.emailsSent = (req, response) => {
           response.json(packed);
         });
     })
-    .catch(() => {
+    .catch((err) => {
+    console.log(err)
       response.json({
         name: '',
         emailsToSend: [],
