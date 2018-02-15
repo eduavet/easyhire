@@ -117,7 +117,7 @@ function Folder(props) {
     >
       <i className={`fa ${icon}`} aria-hidden="true" />
       &nbsp;{props.folder.name}
-      &nbsp;({props.folder.count})
+      &nbsp;({props.folder.count ? props.folder.count : props.folder.sentCount })
       <div className="d-inline float-right">
         {
           isDeletable ?
@@ -134,7 +134,9 @@ function Folder(props) {
             <i
               className="fa fa-trash folder-actions" aria-hidden="true"
               data-id={props.folder._id} data-name={props.folder.name}
-              onClick={props.folder.count ? props.toggleCannotDeleteModal : props.toggleDeleteModal}
+              onClick={props.folder.count || props.folder.sentCount ?
+                props.toggleCannotDeleteModal :
+                props.toggleDeleteModal}
             />
           :
             ''

@@ -2,8 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import _ from 'lodash';
 import { isChecked, asyncGetEmails, asyncGetSentEmails } from '../../redux/reducers/emailsReducer';
 import { asyncGetEmailFromDb, asyncGetThreadFromDb, setEmailId, setThreadId } from '../../redux/reducers/emailReducer';
+import { asyncGetFolders } from '../../redux/reducers/folderReducer';
 
 const Loader = require('react-loader');
 
@@ -27,6 +29,18 @@ class Emails extends Component {
       this.props.getEmails();
     }
   };
+  componentWillReceiveProps(nextProps) {
+    if (nextProps === this.props) {
+      return;
+    }
+    const watchProps = _.pick(this.props, ['emails']);
+    const nextWatchProps = _.pick(nextProps, ['emails']);
+
+    if (!_.isEqual(watchProps, nextWatchProps)) {
+      console.log('get folders from Emails.jsx');
+      this.props.getFolders();
+    }
+  }
 
   openPage = (e) => {
     this.setState({
@@ -234,6 +248,7 @@ class Emails extends Component {
 
 Emails.propTypes = {
   isChecked: PropTypes.func.isRequired,
+  getFolders: PropTypes.func.isRequired,
   loaded: PropTypes.bool.isRequired,
   emails: PropTypes.array.isRequired,
   getEmailFromDb: PropTypes.func.isRequired,
@@ -260,6 +275,7 @@ function mapDispatchToProps(dispatch) {
     getThreadFromDb: threadId => dispatch(asyncGetThreadFromDb(threadId)),
     setEmailId: emailId => dispatch(setEmailId(emailId)),
     setThreadId: threadId => dispatch(setThreadId(threadId)),
+    getFolders: () => dispatch(asyncGetFolders()),
   };
 }
 

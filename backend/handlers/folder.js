@@ -29,7 +29,7 @@ folderHandlers.getFolders = (req, response) => {
             from: 'sentemails',
             localField: '_id',
             foreignField: 'folder',
-            as: 'emails',
+            as: 'sentEmails',
           },
         },
         {
@@ -48,11 +48,31 @@ folderHandlers.getFolders = (req, response) => {
                 },
               },
             },
+            sentCount: {
+              $size: {
+                $filter: {
+                  input: '$sentEmails',
+                  as: 'sentEmail',
+                  cond: { $eq: ['$$sentEmail.userId', userId] },
+                },
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            userId: 1,
+            name: 1,
+            icon: 1,
+            count: 1,
+            sentCount: 1,
           },
         },
         { $sort: { userId: 1, name: 1 } },
       ])
       .then((folders) => {
+        console.log(folders)
         response.json({
           folders, inboxCount, errors: [], responseMsgs: [],
         });

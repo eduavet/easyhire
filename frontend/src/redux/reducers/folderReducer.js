@@ -249,7 +249,6 @@ export default function folderReducer(state = initialState, action) {
       return {
         ...state,
         folders: [
-          ...state.folders,
           {
             _id: 'allEmails',
             name: 'Inbox',
