@@ -6,7 +6,6 @@ import { asyncGetTemplate, toggleButtonName, clearEmail } from '../../redux/redu
 import { asyncGetSignature } from '../../redux/reducers/emailsReducer';
 import { asyncGetTemplates } from '../../redux/reducers/settingsReducer';
 
-
 class ComposeButton extends Component {
   constructor(...args) {
     super(...args);
@@ -35,7 +34,7 @@ class ComposeButton extends Component {
           <i className="fa fa-comment-alt" />
         &nbsp;Compose
         </Button>
-        <Popover placement="bottom" isOpen={this.state.composePopoverOpen} target="composeButton" toggle={this.handleComposePopover}>
+        <Popover placement="right" isOpen={this.state.composePopoverOpen} target="composeButton" toggle={this.handleComposePopover}>
           <PopoverHeader>Select Template</PopoverHeader>
           <PopoverBody>
             <select className="form-control" onChange={this.selectedNewTemplate} defaultValue="_default">

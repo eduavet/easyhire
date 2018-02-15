@@ -2,7 +2,6 @@ const initialState = {
   folders: [],
   folderErrors: [],
   loaded: false,
-  page: 'dashboard',
   errors: [],
   responseMsgs: [],
 };
@@ -16,7 +15,6 @@ const IS_ACTIVE = 'Is active';
 const REFRESH = 'Refresh';
 const DELETE_EMAILS = 'Delete emails';
 const MOVE_EMAILS = 'Update Email Folders';
-const SET_PAGE = 'Set Page';
 const CLEAR_ERROR = 'Clear error';
 const CLEAR_RESPONSEMSG = 'Clear response msg';
 
@@ -107,14 +105,6 @@ function refresh(result) {
   };
 }
 
-export function setPage(dispatch, pageValue) {
-  return dispatch({
-    type: SET_PAGE,
-    payload: {
-      pageValue,
-    },
-  });
-}
 export function clearError(value) {
   return {
     type: CLEAR_ERROR,
@@ -393,11 +383,6 @@ export default function folderReducer(state = initialState, action) {
         responseMsgs: payload.responseMsgs
           .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearFolderResponseMsg' })),
         loaded: true,
-      };
-    case SET_PAGE:
-      return {
-        ...state,
-        page: payload.pageValue,
       };
     case CLEAR_ERROR:
       return {
