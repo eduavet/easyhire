@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import { Button, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
 import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetThreadFromGapi, asyncGetAttachmentFromGapi, asyncGetNote, asyncSendNote, changeNoteStatus, asyncGetTemplate, changeComposeWindowHeaderText, toggleButtonName } from '../../redux/reducers/emailReducer';
 import { asyncGetSignature } from '../../redux/reducers/emailsReducer';
@@ -36,10 +37,6 @@ class Email extends Component {
     if (nextProps.email.sender !== this.props.email.sender) {
       const sender = nextProps.email.sender;
       this.props.getNote(sender);
-    } else if (!this.props.loaded && nextProps.email.sender) {
-      const sender = nextProps.email.sender;
-      this.props.getNote(sender);
-      this.setState({ noteContent: nextProps.note.content });
     }
     if (nextProps.note !== null && nextProps.note !== this.props.note) {
       const oldContent = this.props.note ? this.props.note.content : '';
@@ -69,21 +66,22 @@ class Email extends Component {
         this.setState({ noteContent: nextProps.note.content });
       }
     }
-    /*if(nextProps !== this.props){
-      nextProps.thread.map(email => {
-        if (email.attachments && email.attachments.length>0) {
-          email.attachments.map(attachment => this.props.getAttachmentFromGapi(email.emailId, attachment));
-        }
-        return email;
-      });
-    }*/
+    const watchProps = _.pick(this.props, ['thread']);
+    const nextWatchProps = _.pick(nextProps, ['thread']);
 
+    if (!_.isEqual(watchProps, nextWatchProps)) {
+      nextProps.thread.forEach((email) => {
+        if (email.attachments && email.attachments.length > 0) {
+          email.attachments.forEach(attachment => this.props.getAttachmentFromGapi(email.emailId, attachment));
+        }
+      });
+    }
   }
 
   sendNoteInfo = { time: 0 };
   changeStatus = (evt) => {
     const statusId = evt.target.value;
-    const emailId = evt.target.dataset.id;
+    const emailId = this.props.email.emailId;
     this.props.changeEmailStatus(emailId, statusId);
   };
 
@@ -122,30 +120,36 @@ class Email extends Component {
     this.setState({ replyPopoverOpen: false, newPopoverOpen: false });
   };
 
-  handleEditorChange = () => {};
+  handleEditorChange = () => {}
 
   render() {
     return (
-      <div className="col-10 mt-2 ">
+      <div className="col-10 mt-4">
         <Loader loaded={this.props.loaded}>
+          <div style={{ float: 'right' }}>
+            <label htmlFor="selectStatus"><b>Change Status</b></label>
+            <select className="form-control" id="selectStatus" onChange={this.changeStatus} value={this.props.email.status}>
+              {this.props.statuses
+                .map(status => <option key={status._id} value={status._id}>{status.name}</option>)}
+            </select>
+          </div>
           {this.props.thread.map((email, index) => {
-            return <div key={email.emailId}>
-              <div className="d-flex justify-content-between">
-                <div>
-                  {index ? '' : <p><b>Sender:</b> {email.sender}</p>}
-                  {index ? '' : <p><b>Subject:</b> {email.subject}</p>}
-                  <p><b>Date:</b> {email.date}</p>
-                </div>
-                <div >
-                  <label htmlFor="selectStatus"><b>Change Status</b></label>
-                  <select className="form-control" id="selectStatus" onChange={this.changeStatus} data-id={email.emailId} value={email.status}>
-                    {this.props.statuses
-                      .map(status =>
-                        <option key={status._id} value={status._id}>{status.name}</option>)}
-                  </select>
-                </div>
-              </div>
+            return <div key={index}>
+              <p><b>Sender:</b> {email.sender}</p>
+              <p><b>Subject:</b> {email.subject}</p>
+              <p><b>Date:</b> {email.date}</p>
               <hr />
+              <div>
+                {
+                  email.attachments ?
+                  email.attachments.map((attachment, index) => (
+                    <a
+                      key={attachment.attachmentId} href={this.props.url[index]}
+                      download={attachment.attachmentName}
+                    >{attachment.attachmentName}<i className="fa fa-download" />
+                    </a>)) : ''
+                }
+              </div>
               {
                 email.isPlainText ?
                   <pre>{email.htmlBody}</pre>

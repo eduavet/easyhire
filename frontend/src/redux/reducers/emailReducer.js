@@ -127,7 +127,7 @@ function getAttachmentFromGapi(result) {
   return {
     type: GET_ATTACHMENT_FROM_GAPI,
     payload: {
-      url: result.objectURL,
+      url: result,
       errors: result.errors ? result.errors : [],
       responseMsgs: [],
     },
@@ -496,6 +496,7 @@ export default function emailsReducer(state = initialState, action) {
               isPlainText: payload.isPlainText[email.emailId].value,
             },
           )),
+        url: [],
         loaded: true,
         errors: payload.errors,
         responseMsgs: payload.responseMsgs,

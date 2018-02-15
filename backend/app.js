@@ -15,6 +15,7 @@ connectMongo();
 require('./config/passport');
 
 const app = express();
+app.use(require('morgan')(':method :url :status - :response-time ms'));
 app.use(express.static(path.join(__dirname, 'attachments')));
 app.use(cors({
   origin: process.env.HOMEPAGE,
