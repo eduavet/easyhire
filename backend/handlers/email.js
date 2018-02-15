@@ -94,6 +94,87 @@ emailHandlers.emails = (req, response) => {
       });
     });
 };
+
+// Sync
+emailHandlers.syncEmails = (req, response) => {
+  const userId = req.session.userID;
+  const { name, accessToken } = req.session;
+  const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
+  const emailsToSend = [];
+  if (!userId) {
+    return response.json({ emailsToSend, errors: [{ msg: 'Log in to see emails' }], responseMsgs: [] });
+  }
+  return fetch(`${fetchUrl}${userId}/messages?access_token=${accessToken}&maxResults=10000`)
+    .then(account => account.json())
+    .then((account) => {
+      const { messages } = account;
+      const promises = [];
+      for (let i = 0; i < messages.length; i += 1) {
+        if (!messages) {
+          return response.json({
+            emailsToSend,
+            errors: [{
+              msg: 'Log out and log in' +
+            ' to see emails',
+            }],
+            responseMsgs: [],
+          });
+        }
+        const { id } = messages[i];
+        let upperEmail = '';
+        let upperFolder = '';
+        promises.push(EmailsModel.findOne({ emailId: id })
+          .then((emailDb) => {
+            if (emailDb) {
+              return;
+            }
+            return fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`)
+              .then(email => email.json())
+              .then((email) => {
+                upperEmail = email;
+                return FoldersModel.findOne({ name: 'Uncategorized' }, '_id');
+              })
+              .then((folder) => {
+                upperFolder = folder;
+                return StatusesModel.findOne({ name: 'Not Reviewed' }, '_id');
+              })
+              .then((status) => {
+                if (!upperEmail.payload.headers.find(item => item.name === 'To').value.includes(req.session.email)) {
+                  return null;
+                }
+                const newEmail = helper.buildNewEmailModel(
+                  userId,
+                  upperEmail,
+                  upperFolder,
+                  status,
+                );
+                return newEmail.save();
+              })
+              .then(() => EmailsModel.findOne({ emailId: upperEmail.id })
+                .populate('folder status').then((group1) => {
+                  emailsToSend[i] = group1 ? helper.groupExtract(group1) : null;
+                }));
+          }));
+      }
+      return Promise.all(promises)
+        .then(() => {
+          const packed = {
+            name,
+            emailsToSend: emailsToSend.filter(email => email != null),
+            errors: [],
+            responseMsgs: [],
+          };
+          response.json(packed);
+        });
+    })
+    .catch(() => {
+      response.json({
+        name: '', emailsToSend: [], errors: [{ msg: 'Something went wrong' }], responseMsgs: [],
+      });
+    });
+};
+
+
 // Get emails from db
 
 emailHandlers.getEmailsFromDb = (req, res) => {
@@ -117,6 +198,27 @@ emailHandlers.getEmailsFromDb = (req, res) => {
     }));
 };
 
+emailHandlers.getSentEmailsFromDb = (req, res) => {
+  const userId = req.session.userID;
+  const emailsToSend = [];
+  const promises = [];
+  if (!userId) {
+    return res.json({ emailsToSend, errors: [{ msg: 'Log in to see emails' }], responseMsgs: [] });
+  }
+  return SentEmailsModel.find({ userId, deleted: false })
+    .populate('folder status')
+    .then(result =>
+      Promise.all(promises)
+        .then(() => {
+          res.json({ emailsToSend: result, errors: [], responseMsgs: [] });
+        }))
+    .catch(err => res.json({
+      emailsToSend: [],
+      errors: [{ msg: 'something went wrong when getting emails of specified folder' }, err],
+      responseMsgs: [],
+    }));
+};
+
 // Get sent emails from gmail
 emailHandlers.emailsSent = (req, response) => {
   const userId = req.session.userID;
@@ -124,7 +226,7 @@ emailHandlers.emailsSent = (req, response) => {
   const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
   const emailsToSend = [];
   if (!userId) {
-    return response.json({ emailsToSend });
+    return response.json({ emailsToSend, errors: [{ msg: 'Log in to continue' }], responseMsgs: [] });
   }
   return fetch(`${fetchUrl}${userId}/messages?access_token=${accessToken}&maxResults=10000`)
     .then(account => account.json())
@@ -328,11 +430,13 @@ emailHandlers.getEmailFromGapi = (req, res) => {
         email: emailToSend, errors: [], isPlainText, responseMsgs: [],
       });
     })
-    .catch((err) => {
+    .catch(() => {
       res.json({
         errors: [{
-          msg: 'Something went wrong', err, isPlainText: { value: false }, responseMsgs: [],
+          msg: 'Something went wrong',
         }],
+        isPlainText: { value: false },
+        responseMsgs: [],
       });
     });
 };
@@ -376,12 +480,14 @@ emailHandlers.getThreadFromGapi = (req, res) => {
       .then(() => res.json({
         emails: emailsToSend, errors: [], isPlainText, responseMsgs: [],
       })))
-    .catch((err) => {
+    .catch(() => {
       res.json({
         emails: {},
         errors: [{
-          msg: 'Something went wrong', err, isPlainText: { value: false }, responseMsgs: [],
+          msg: 'Something went wrong',
         }],
+        isPlainText: { value: false },
+        responseMsgs: [],
       });
     });
 };
@@ -410,8 +516,10 @@ emailHandlers.changeEmailStatus = (req, res) => {
           }],
         }));
     })
-    .catch((err) => {
-      res.json({ errors: [{ msg: 'Something went wrong', err }], status: '', emailId: '', responseMsgs: [] });
+    .catch(() => {
+      res.json({
+        errors: [{ msg: 'Something went wrong' }], status: '', emailId: '', responseMsgs: [],
+      });
     });
 };
 
@@ -567,13 +675,27 @@ emailHandlers.reply = (req, res) => {
               },
             })
               .then((response) => {
+                const respMsg = response.ok ? 'Email has been sent' : "Couldn't send" +
+                  ' email.Please try again';
+                const respType = response.ok ? 'success' : 'error';
                 res.json({
-                  ok: response.ok, status: response.status, errors: [], responseMsgs: [{ msg: 'Email has been sent', type: 'success' }],
+                  ok: response.ok,
+                  status: response.status,
+                  errors: [],
+                  responseMsgs: [{ msg: respMsg, type: respType }],
                 });
               });
           }));
     })
-    .catch(() => res.json({ ok: false, errors: [{ msg: "Couldn't send email.Please try again" }], responseMsgs: [] }));
+    .catch(() => res.json({
+      ok: false,
+      status: 700,
+      errors: [{
+        msg: "Couldn't send" +
+        ' email.Please try again',
+      }],
+      responseMsgs: [],
+    }));
 };
 emailHandlers.sendNewEmail = (req, res) => {
   req.checkParams('emailId').notEmpty().withMessage('Email id is required');
@@ -612,8 +734,26 @@ emailHandlers.sendNewEmail = (req, res) => {
           'Content-Type': 'application/json',
         },
       }))
-      .then(resp => res.json({ status: resp.status, errors: [], responseMsgs: [{ msg: 'Email has been sent', type: 'success' }] })))
-    .catch(err => res.json({ status: null, errors: ['Message is not sent', err] }));
+      .then((resp) => {
+        const respMsg = resp.ok ? 'Email has been sent' : "Couldn't send" +
+          ' email.Please try again';
+        const respType = resp.ok ? 'success' : 'error';
+        res.json({
+          ok: resp.ok,
+          status: resp.status,
+          errors: [],
+          responseMsgs: [{ msg: respMsg, type: respType }],
+        });
+      }))
+    .catch(() => res.json({
+      ok: false,
+      status: null,
+      errors: [{
+        msg: "Couldn't send email.Please" +
+        ' try again',
+      }],
+      responseMsgs: [],
+    }));
 };
 // console.log(util.inspect(res, { depth: 8 }));
 emailHandlers.getSignature = (req, res) => {
