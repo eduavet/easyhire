@@ -13,6 +13,7 @@ const sentEmailsSchema = new Schema({
   threadId: String,
   attachments: Array,
   deleted: Boolean,
+  isRead: Boolean,
 }, {
   versionKey: false,
 });

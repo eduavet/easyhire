@@ -134,7 +134,7 @@ Compose.propTypes = {
   getSignature: PropTypes.func.isRequired,
   composeWindowClassName: PropTypes.string.isRequired,
   composeWindowHeaderText: PropTypes.string.isRequired,
-  templateContent: PropTypes.string.isRequired,
+  templateContent: PropTypes.string,
   sendNewEmail: PropTypes.func,
   btnName: PropTypes.string,
   emailId: PropTypes.string,

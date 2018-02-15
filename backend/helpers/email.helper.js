@@ -105,6 +105,7 @@ emailHelpers.buildSentEmailModel = (userId, email, folder) => {
     snippet,
     date: date.toString(),
     folder: mongoose.Types.ObjectId(folder._id),
+    isRead: true,
     attachments,
     deleted: false,
   });
