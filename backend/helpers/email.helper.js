@@ -80,7 +80,6 @@ emailHelpers.buildNewEmailModel = (userId, email, folder, status) => {
 };
 
 
-
 emailHelpers.buildSentEmailModel = (userId, email, folder) => {
   const attachments = [];
   if (email.payload.parts) {

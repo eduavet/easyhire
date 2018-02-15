@@ -25,7 +25,6 @@ class Emails extends Component {
         window.location.href === 'http://localhost:8080' ||
         window.location.href === 'http://localhost:8080/#') {
       this.props.getEmails();
-      this.props.getSentEmails();
     }
   };
   componentDidMount = () => {
@@ -76,6 +75,7 @@ class Emails extends Component {
     const threadId = evt.target.dataset.threadid ?
       evt.target.dataset.threadid :
       evt.target.parentElement.dataset.threadid;
+    console.log(threadId, 'aaaa')
     this.props.getEmailFromDb(id);
     this.props.getThreadFromDb(threadId);
   };

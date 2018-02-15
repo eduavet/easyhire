@@ -20,7 +20,6 @@ import { clearError as clearStatusError, clearResponseMsg as clearStatusResponse
 
 
 export class Dashboard extends Component {
-
   componentWillMount() {
     this.props.responseMsgs.map((responseMsg) => {
       const msgToShow = responseMsg.msg;
@@ -71,12 +70,15 @@ export class Dashboard extends Component {
             :
               <div className="container-fluid mt-4">
                 <div className="row">
-                  <Refresh />
-                  <Toolbar ref="toolbar" />
+                  <Route exact path="/" component={Refresh} />
+                  <Route exact path="/folder/:id" component={Refresh} />
+                  <Route exact path="/" component={Toolbar} />
+                  <Route exact path="/folder/:id" component={Toolbar} />
                 </div>
                 <div className="row">
                   <div className="col-2 mt-2">
-                    <ComposeButton />
+                    <Route exact path="/" component={ComposeButton} />
+                    <Route exact path="/folder/:id" component={ComposeButton} />
                     <Sidebar />
                   </div>
                   <Route exact path="/" component={Emails} />

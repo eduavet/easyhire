@@ -8,7 +8,6 @@ const session = require('express-session');
 const path = require('path');
 const MongoStore = require('connect-mongo')(session);
 const mongoose = require('mongoose');
-const morgan = require('morgan');
 const { connectMongo } = require('./db.js');
 const initializeRoutes = require('./routes/index');
 
@@ -51,4 +50,3 @@ initializeRoutes(app);
 app.listen(3000, () => {
   console.log('Listening to port 3000');
 });
-

@@ -15,7 +15,8 @@ const initialState = {
 const GET_USERNAME = 'Get username';
 const GET_SIGNATURE = 'Get signature';
 const GET_EMAILS = 'Get emails';
-const GET_SENT = 'Get sent emails';
+const GET_SENT_EMAILS = 'Get sent emails from db';
+const GET_SENT_GAPI = 'Get sent emails';
 const DELETE_EMAILS = 'Delete emails';
 
 const MOVE_EMAILS = 'Update Email Folders';
@@ -46,9 +47,20 @@ function getEmails(result) {
     },
   };
 }
+
 function getSentEmails(result) {
   return {
-    type: GET_SENT,
+    type: GET_SENT_EMAILS,
+    payload: {
+      emails: result.emailsToSend,
+      errors: result.errors,
+      responseMsgs: result.responseMsgs,
+    },
+  };
+}
+function getSentEmailsFromGapi(result) {
+  return {
+    type: GET_SENT_GAPI,
     payload: {
       emails: result.emailsToSend,
       errors: result.errors,
@@ -202,6 +214,20 @@ export function asyncGetSentEmails() {
       .then(res => res.json())
       .then((result) => {
         dispatch(getSentEmails(result));
+      })
+      .catch();
+  };
+}
+
+export function asyncGetSentEmailsFromGapi() {
+  return function asyncGetSentEmailsFromGapiInner(dispatch) {
+    dispatch(loading());
+    fetch('http://localhost:3000/api/emails/sent/gapi', {
+      credentials: 'include',
+    })
+      .then(res => res.json())
+      .then((result) => {
+        dispatch(getSentEmailsFromGapi(result));
       })
       .catch();
   };
@@ -399,12 +425,27 @@ export default function emailsReducer(state = initialState, action) {
         loaded: true,
       };
     }
-    case GET_SENT:
+    case GET_SENT_EMAILS:
       return {
         ...state,
         sentEmails: [
           ...payload.emails
-            .map(email => Object.assign({}, email, { isChecked: !!email.isChecked }))],
+            .map(email => Object.assign({}, email, {
+              isChecked: !!email.isChecked,
+              folderName: email.folder.name,
+              folderId: email.folder._id,
+            }))],
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailsError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailsResponseMsg' })),
+        loaded: true,
+      };
+    case GET_SENT_GAPI:
+      return {
+        ...state,
+        sentEmails: payload.emails
+            .map(email => Object.assign({}, email, { isChecked: !!email.isChecked })),
         errors: payload.errors
           .map(error => Object.assign({}, error, { clearFunction: 'clearEmailsError' })),
         responseMsgs: payload.responseMsgs
