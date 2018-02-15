@@ -472,9 +472,11 @@ export default function emailsReducer(state = initialState, action) {
           .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailsResponseMsg' })),
       };
     case GET_FOLDER_EMAILS:
+      const folderEmailsSoretedByDate = payload.emails
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
       return {
         ...state,
-        emails: payload.emails
+        emails: folderEmailsSoretedByDate
           .map(email =>
             Object.assign({}, email, {
               isChecked: !!email.isChecked,
