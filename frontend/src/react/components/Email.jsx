@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Button, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
-import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetThreadFromGapi, asyncGetAttachmentFromGapi, asyncGetNote, asyncSendNote, changeNoteStatus, asyncGetTemplate, changeComposeWindowHeaderText, toggleButtonName } from '../../redux/reducers/emailReducer';
+import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetThreadFromGapi, asyncGetAttachmentFromGapi, asyncGetNote, asyncSendNote, changeNoteStatus, asyncGetTemplate, changeComposeWindowHeaderText, toggleButtonName, refreshSetEmailId, refreshSetThreadId, asyncGetEmailFromDb, asyncGetThreadFromDb } from '../../redux/reducers/emailReducer';
 import { asyncGetSignature } from '../../redux/reducers/emailsReducer';
 import { asyncGetTemplates } from '../../redux/reducers/settingsReducer';
 
@@ -18,10 +18,22 @@ class Email extends Component {
       newPopoverOpen: false,
     };
   }
-
+  componentWillMount() {
+    const urlString = window.location.href;
+    const urlParts = window.location.pathname.split('/');
+    const url = new URL(urlString);
+    const emailId = urlParts[urlParts.length - 1];
+    const threadId = url.searchParams.get('threadId');
+    this.props.refreshSetEmailId(emailId);
+    this.props.refreshSetThreadId(threadId);
+    this.props.getEmailFromDb(emailId);
+    this.props.getThreadFromDb(threadId);
+  }
   componentDidMount() {
-    const threadId = this.props.threadId;
-    //this.props.getEmailFromGapi(emailId);
+    const urlString = window.location.href;
+    const url = new URL(urlString);
+    const threadIdFromUrl = url.searchParams.get('threadId');
+    const threadId = this.props.threadId ? this.props.threadId : threadIdFromUrl;
     this.props.getThreadFromGapi(threadId);
     this.props.getTemplates();
   }
@@ -231,6 +243,10 @@ Email.propTypes = {
   templates: PropTypes.array.isRequired,
   changeEmailStatus: PropTypes.func.isRequired,
   changeComposeWindowHeaderText: PropTypes.func.isRequired,
+  refreshSetEmailId: PropTypes.func.isRequired,
+  refreshSetThreadId: PropTypes.func.isRequired,
+  getEmailFromDb: PropTypes.func.isRequired,
+  getThreadFromDb: PropTypes.func.isRequired,
   getTemplates: PropTypes.func.isRequired,
   note: PropTypes.object,
   getNote: PropTypes.func.isRequired,
@@ -288,6 +304,10 @@ function mapDispatchToProps(dispatch) {
     toggleButtonName: btnName => dispatch(toggleButtonName(btnName)),
     getSignature: () => dispatch(asyncGetSignature()),
     getTemplates: () => dispatch(asyncGetTemplates()),
+    refreshSetEmailId: emailId => dispatch(refreshSetEmailId(emailId)),
+    getEmailFromDb: emailId => dispatch(asyncGetEmailFromDb(emailId)),
+    refreshSetThreadId: threadId => dispatch(refreshSetThreadId(threadId)),
+    getThreadFromDb: threadId => dispatch(asyncGetThreadFromDb(threadId)),
   };
 }
 

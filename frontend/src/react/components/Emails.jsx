@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { isChecked, asyncGetEmails, asyncGetSentEmails } from '../../redux/reducers/emailsReducer';
-import { asyncGetEmailFromDb, asyncGetThreadFromDb } from '../../redux/reducers/emailReducer';
+import { asyncGetEmailFromDb, asyncGetThreadFromDb, setEmailId, setThreadId } from '../../redux/reducers/emailReducer';
 
 const Loader = require('react-loader');
 
@@ -72,8 +72,8 @@ class Emails extends Component {
     const threadId = evt.target.dataset.threadid ?
       evt.target.dataset.threadid :
       evt.target.parentElement.dataset.threadid;
-    this.props.getEmailFromDb(id);
-    this.props.getThreadFromDb(threadId);
+    this.props.setEmailId(id);
+    this.props.setThreadId(threadId);
   };
 
   sortBySender = () => {
@@ -185,7 +185,7 @@ class Emails extends Component {
                     <td >
                       <Link
                         className={item.isRead ? 'text-center' : 'text-center bold'}
-                        to={`/email/${item.emailId}`}
+                        to={`/email/${item.emailId}?threadId=${item.threadId}`}
                         data-id={item.emailId}
                         data-threadid={item.threadId}
                         onClick={this.openEmail}
@@ -195,7 +195,7 @@ class Emails extends Component {
                     </td>
                     <td>
                       <Link
-                        to={`/email/${item.emailId}`}
+                        to={`/email/${item.emailId}?threadId=${item.threadId}`}
                         data-id={item.emailId}
                         data-threadid={item.threadId}
                         onClick={this.openEmail}
@@ -238,6 +238,8 @@ Emails.propTypes = {
   emails: PropTypes.array.isRequired,
   getEmailFromDb: PropTypes.func.isRequired,
   getEmails: PropTypes.func.isRequired,
+  setEmailId: PropTypes.func.isRequired,
+  setThreadId: PropTypes.func.isRequired,
   getSentEmails: PropTypes.func.isRequired,
   getThreadFromDb: PropTypes.func.isRequired,
 };
@@ -255,7 +257,9 @@ function mapDispatchToProps(dispatch) {
     getEmailFromDb: item => dispatch(asyncGetEmailFromDb(item)),
     getEmails: () => dispatch(asyncGetEmails()),
     getSentEmails: () => dispatch(asyncGetSentEmails()),
-    getThreadFromDb: (threadId) => dispatch(asyncGetThreadFromDb(threadId)),
+    getThreadFromDb: threadId => dispatch(asyncGetThreadFromDb(threadId)),
+    setEmailId: emailId => dispatch(setEmailId(emailId)),
+    setThreadId: threadId => dispatch(setThreadId(threadId)),
   };
 }
 
