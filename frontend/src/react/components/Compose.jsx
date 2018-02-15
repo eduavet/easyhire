@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Editor } from '@tinymce/tinymce-react';
 import { toggleComposeWindow, asyncSendNewEmail, asyncReply } from '../../redux/reducers/emailReducer';
+import { asyncGetSignature } from '../../redux/reducers/emailsReducer';
 
 class Compose extends Component {
   constructor(...args) {
@@ -13,8 +14,13 @@ class Compose extends Component {
       disabled: false,
     };
   }
-
+  componentWillMount() {
+    this.props.getSignature();
+  }
   componentWillReceiveProps(nextProps) {
+    if (!nextProps.signature || !nextProps.template) {
+      return;
+    }
     this._receiver.value = this.props.receiver;
     const receiver = this.props.receiver.slice(0, this.props.receiver.indexOf(' ')).replace('"', '');
     const finalTemplate = nextProps.templateContent.replace('FIRST_NAME', receiver);
@@ -125,6 +131,7 @@ class Compose extends Component {
 
 Compose.propTypes = {
   toggleComposeWindow: PropTypes.func.isRequired,
+  getSignature: PropTypes.func.isRequired,
   composeWindowClassName: PropTypes.string.isRequired,
   composeWindowHeaderText: PropTypes.string.isRequired,
   templateContent: PropTypes.string.isRequired,
@@ -156,6 +163,7 @@ function mapDispatchToProps(dispatch) {
     sendNewEmail: (emailId, subject, messageBody) =>
       dispatch(asyncSendNewEmail(emailId, subject, messageBody)),
     reply: (emailId, content) => dispatch(asyncReply(emailId, content)),
+    getSignature: () => dispatch(asyncGetSignature()),
   };
 }
 

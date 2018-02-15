@@ -97,12 +97,10 @@ class Email extends Component {
   };
 
   handleReplyPopover = () => {
-    this.props.getSignature();
     this.setState({ replyPopoverOpen: !this.state.replyPopoverOpen });
   };
 
   handleNewPopover = () => {
-    this.props.getSignature();
     this.setState({ newPopoverOpen: !this.state.newPopoverOpen });
   };
 
