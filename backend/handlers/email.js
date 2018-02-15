@@ -117,6 +117,27 @@ emailHandlers.getEmailsFromDb = (req, res) => {
     }));
 };
 
+emailHandlers.getSentEmailsFromDb = (req, res) => {
+  const userId = req.session.userID;
+  const emailsToSend = [];
+  const promises = [];
+  if (!userId) {
+    return res.json({ emailsToSend, errors: [{ msg: 'Log in to see emails' }], responseMsgs: [] });
+  }
+  return SentEmailsModel.find({ userId, deleted: false })
+    .populate('folder status')
+    .then(result =>
+      Promise.all(promises)
+        .then(() => {
+          res.json({ emailsToSend: result, errors: [], responseMsgs: [] });
+        }))
+    .catch(err => res.json({
+      emailsToSend: [],
+      errors: [{ msg: 'something went wrong when getting emails of specified folder' }, err],
+      responseMsgs: [],
+    }));
+};
+
 // Get sent emails from gmail
 emailHandlers.emailsSent = (req, response) => {
   const userId = req.session.userID;

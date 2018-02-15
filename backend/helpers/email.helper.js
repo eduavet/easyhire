@@ -24,7 +24,7 @@ emailHelpers.extract = (res, folderId, folderName, isReadParam, statusId = '', s
 
 emailHelpers.groupExtract = (group) => {
   const {
-    emailId, sender, subject, date, isRead, attachments,
+    emailId, threadId, sender, subject, date, isRead, attachments,
   } = group;
   const folderId = group.folder._id;
   const folderName = group.folder.name;
@@ -33,6 +33,7 @@ emailHelpers.groupExtract = (group) => {
   const snippet = entities.decode(group.snippet);
   return {
     emailId,
+    threadId,
     sender,
     subject,
     snippet,

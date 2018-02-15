@@ -8,7 +8,6 @@ const session = require('express-session');
 const path = require('path');
 const MongoStore = require('connect-mongo')(session);
 const mongoose = require('mongoose');
-const morgan = require('morgan');
 const { connectMongo } = require('./db.js');
 const initializeRoutes = require('./routes/index');
 
@@ -18,7 +17,7 @@ require('./config/passport');
 const app = express();
 
 // app.use(morgan('combined'));
-app.use(':method :url :status - :response-time ms');
+app.use(require('morgan')(':method :url :status - :response-time ms'));
 app.use(express.static(path.join(__dirname, 'attachments')));
 app.use(cors({
   origin: process.env.HOMEPAGE,
