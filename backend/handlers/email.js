@@ -403,6 +403,7 @@ emailHandlers.changeEmailStatus = (req, res) => {
         .then(() => res.json({
           errors: [],
           status: statusId,
+          emailId,
           responseMsgs: [{
             msg: 'Email status has been changed',
             type: 'success',
@@ -410,7 +411,7 @@ emailHandlers.changeEmailStatus = (req, res) => {
         }));
     })
     .catch((err) => {
-      res.json({ errors: [{ msg: 'Something went wrong', err }], status: '', responseMsgs: [] });
+      res.json({ errors: [{ msg: 'Something went wrong', err }], status: '', emailId: '', responseMsgs: [] });
     });
 };
 

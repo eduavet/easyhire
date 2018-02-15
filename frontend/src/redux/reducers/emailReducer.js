@@ -128,7 +128,7 @@ function getAttachmentFromGapi(result) {
   return {
     type: GET_ATTACHMENT_FROM_GAPI,
     payload: {
-      url: result.objectURL,
+      url: result,
       errors: result.errors ? result.errors : [],
       responseMsgs: [],
     },
@@ -202,6 +202,7 @@ function changeEmailStatus(result) {
       emailNewStatus: result.status,
       errors: result.errors,
       responseMsgs: result.responseMsgs,
+      emailId: result.emailId,
     },
   };
 }
@@ -501,6 +502,7 @@ export default function emailsReducer(state = initialState, action) {
               isPlainText: payload.isPlainText[email.emailId].value,
             },
           )),
+        url: [],
         loaded: true,
         errors: payload.errors,
         responseMsgs: payload.responseMsgs,
@@ -546,6 +548,12 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         email: Object.assign({}, state.email, { status: emailNewStatus }),
+        thread: state.thread.map(email => {
+          if (email.emailId===payload.emailId) {
+            email.status = emailNewStatus
+          }
+          return email;
+        }),
         errors: payload.errors
           .map(error => Object.assign({}, error, { clearFunction: 'clearEmailError' })),
         responseMsgs: payload.responseMsgs
