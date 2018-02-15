@@ -27,9 +27,6 @@ class Emails extends Component {
       this.props.getEmails();
     }
   };
-  componentDidMount = () => {
-    this.setState({ pageCount: (this.props.emails.length / 2 + 1) });
-  };
 
   openPage = (e) => {
     this.setState({

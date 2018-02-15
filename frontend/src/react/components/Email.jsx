@@ -147,11 +147,15 @@ class Email extends Component {
                 {
                   email.attachments ?
                   email.attachments.map((attachment, index) => (
-                    <a
-                      key={attachment.attachmentId} href={this.props.url[index]}
-                      download={attachment.attachmentName}
-                    >{attachment.attachmentName}<i className="fa fa-download" />
-                    </a>)) : ''
+                    <div>
+                      <a
+                        key={attachment.attachmentId} href={this.props.url[index]}
+                        download={attachment.attachmentName}
+                        >{attachment.attachmentName}<i className="fa fa-download" />
+                      </a>
+                      <br />
+                    </div>
+                  )) : ''
                 }
               </div>
               {
