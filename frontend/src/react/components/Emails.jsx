@@ -75,7 +75,6 @@ class Emails extends Component {
     const threadId = evt.target.dataset.threadid ?
       evt.target.dataset.threadid :
       evt.target.parentElement.dataset.threadid;
-    console.log(threadId, 'aaaa')
     this.props.getEmailFromDb(id);
     this.props.getThreadFromDb(threadId);
   };
