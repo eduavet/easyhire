@@ -18,7 +18,7 @@ class Compose extends Component {
     this.props.getSignature();
   }
   componentWillReceiveProps(nextProps) {
-    if (!nextProps.signature || !nextProps.template) {
+    if (!nextProps.signature || !nextProps.templateContent) {
       return;
     }
     this._receiver.value = this.props.receiver;
