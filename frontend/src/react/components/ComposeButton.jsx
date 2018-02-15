@@ -33,7 +33,7 @@ class ComposeButton extends Component {
           <i className="fa fa-comment-alt" />
         &nbsp;Compose
         </Button>
-        <Popover placement="bottom" isOpen={this.state.composePopoverOpen} target="composeButton" toggle={this.handleNewPopover}>
+        <Popover placement="bottom" isOpen={this.state.composePopoverOpen} target="composeButton" toggle={this.handleComposePopover}>
           <PopoverHeader>Select Template</PopoverHeader>
           <PopoverBody>
             <select className="form-control" onChange={this.selectedNewTemplate} defaultValue="_default">
