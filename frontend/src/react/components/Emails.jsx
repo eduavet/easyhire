@@ -25,9 +25,9 @@ class Emails extends Component {
         window.location.href === 'http://localhost:8080' ||
         window.location.href === 'http://localhost:8080/#') {
       this.props.getEmails();
+      this.props.getSentEmails();
     }
-    // this.props.getSentEmails();
-  }
+  };
   componentDidMount = () => {
     this.setState({ pageCount: (this.props.emails.length / 2 + 1) });
   };

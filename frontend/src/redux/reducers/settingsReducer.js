@@ -255,9 +255,11 @@ export default function emailsReducer(state = initialState, action) {
         state.templates :
         state.templates
           .filter(template => template._id !== payload._id);
+      const templateAfterDelete = state.template._id === payload._id ? {} : state.template;
       return {
         ...state,
         templates: templatesAfterDelete,
+        template: templateAfterDelete,
         errors: payload.errors
           .map(error => Object.assign({}, error, { clearFunction: 'clearSettingsError' })),
         responseMsgs: payload.responseMsgs
