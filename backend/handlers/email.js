@@ -260,7 +260,7 @@ emailHandlers.getEmailFromDb = (req, res) => {
   const emailId = req.params.id;
   const errors = req.validationErrors();
   if (errors) {
-    return res.json({ errors, responseMsgs : [] });
+    return res.json({ errors, responseMsgs: [] });
   }
   return EmailsModel.findOne({ emailId, userId })
     .then((email) => {
@@ -285,11 +285,14 @@ emailHandlers.getThreadFromDb = (req, res) => {
   }
   return EmailsModel.update({ threadId, userId }, { $set: { isRead: true } }).then(() => (
     EmailsModel.find({ threadId, userId })
-      .then((emails) => {
-        res.json({ emails: emails, errors: [], responseMsgs: [] });
-      })
+      .then(emails => SentEmailsModel.find({ threadId, userId })
+        .then(sentEmails => res.json({
+          emails, sentEmails, errors: [], responseMsgs: [],
+        })))
       .catch((err) => {
-        res.json({ emails: [], errors: [{ msg: 'Something went wrong', err }], responseMsgs: [] });
+        res.json({
+          emails: [], sentEmails: [], errors: [{ msg: 'Something went wrong', err }], responseMsgs: [],
+        });
       })));
 };
 // Get specified email data from gmail such as email body

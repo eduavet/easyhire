@@ -93,6 +93,7 @@ function getThreadFromDb(result) {
     type: GET_THREAD_FROM_DB,
     payload: {
       emails: result.emails,
+      sentEmails: result.sentEmails,
       errors: result.errors,
       responseMsgs: result.responseMsgs,
     },
@@ -443,7 +444,7 @@ export default function emailsReducer(state = initialState, action) {
       };
     case GET_EMAIL_FROM_DB:
     {
-      const checkHtmlBody = state.htmlBody ? state.htmlBody : '<div dir="auto"></div>';
+      const checkHtmlBody = state.htmlBody ? state.htmlBody : '';
       return {
         ...state,
         email: Object.assign({}, payload.email, { htmlBody: checkHtmlBody }),
@@ -456,10 +457,15 @@ export default function emailsReducer(state = initialState, action) {
     }
     case GET_THREAD_FROM_DB:
     {
-      const checkHtmlBody = state.htmlBody ? state.htmlBody : '<div dir="auto"></div>';
+      const allThreads = [...payload.emails, ...payload.sentEmails];
+      const allThreadsSoretedByDate = allThreads
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
       return {
         ...state,
-        thread: payload.emails.map(email => Object.assign({}, email, { htmlBody: checkHtmlBody })),
+        thread: allThreadsSoretedByDate.map((email) => {
+          const checkHtmlBody = email.htmlBody ? email.htmlBody : '';
+          return Object.assign({}, email, { htmlBody: checkHtmlBody });
+        }),
         url: [],
         loaded: true,
         errors: payload.errors,

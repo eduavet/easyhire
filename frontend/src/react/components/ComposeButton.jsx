@@ -29,7 +29,7 @@ class ComposeButton extends Component {
   render() {
     return (
       <div>
-        <Button className="btn btn-success composeButton" id="composeButton" onClick={this.handleComposePopover}>
+        <Button className="btn btn-success composeButton shineBtn" id="composeButton" onClick={this.handleComposePopover}>
           <i className="fa fa-comment-alt" />
         &nbsp;Compose
         </Button>

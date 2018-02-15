@@ -29,10 +29,6 @@ class Email extends Component {
     if (nextProps === this.props) {
       return;
     }
-    /* if (nextProps.email.emailId !== this.props.email.emailId) {
-      const emailId = nextProps.email.emailId;
-      this.props.getEmailFromGapi(emailId);
-    }
     if (nextProps.email.sender !== this.props.email.sender) {
       const sender = nextProps.email.sender;
       this.props.getNote(sender);
@@ -48,20 +44,11 @@ class Email extends Component {
         this.setState({ noteContent: nextProps.note.content });
       }
     }
-    if (nextProps.email.attachments !== undefined &&
-      nextProps.email.attachments !== this.props.email.attachments) {
-      nextProps.email.attachments
-        .map(attachment => this.props.getAttachmentFromGapi(nextProps.email.emailId, attachment));
-    } */
-
     if (nextProps.threadId !== this.props.threadId) {
       const threadId = nextProps.threadId;
       this.props.getEmailFromGapi(threadId);
     }
-    /*if (nextProps.thread[0].sender !== this.props.thread[0].sender) {
-      const sender = nextProps.thread[0].sender;
-      this.props.getNote(sender);
-    }*/
+
     if (nextProps.note !== null && nextProps.note !== this.props.note) {
       const oldContent = this.props.note ? this.props.note.content : '';
       const newContent = nextProps.note ? nextProps.note.content : '';
@@ -69,17 +56,7 @@ class Email extends Component {
         this.setState({ noteContent: nextProps.note.content });
       }
     }
-    /*if(nextProps !== this.props){
-      nextProps.thread.map(email => {
-        if (email.attachments && email.attachments.length>0) {
-          email.attachments.map(attachment => this.props.getAttachmentFromGapi(email.emailId, attachment));
-        }
-        return email;
-      });
-    }*/
-
   }
-
   sendNoteInfo = { time: 0 };
   changeStatus = (evt) => {
     const statusId = evt.target.value;
@@ -132,7 +109,7 @@ class Email extends Component {
             return <div key={email.emailId}>
               <div className="d-flex justify-content-between">
                 <div>
-                  {index ? '' : <p><b>Sender:</b> {email.sender}</p>}
+                  <p><b>Sender:</b> {email.sender}</p>
                   {index ? '' : <p><b>Subject:</b> {email.subject}</p>}
                   <p><b>Date:</b> {email.date}</p>
                 </div>
