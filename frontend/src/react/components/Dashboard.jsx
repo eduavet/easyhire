@@ -10,7 +10,8 @@ import Emails from './Emails.jsx';
 import Refresh from './Refresh.jsx';
 import Email from './Email.jsx';
 import Compose from './Compose.jsx';
-import Settings from './Settings.jsx';
+import Templates from './Templates.jsx';
+import Statuses from './Statuses.jsx';
 import ComposeButton from './ComposeButton.jsx';
 import { clearError as clearEmailError, clearResponseMsg as clearEmailResponseMsg } from '../../redux/reducers/emailReducer';
 import { clearError as clearEmailsError, clearResponseMsg as clearEmailsResponseMsg } from '../../redux/reducers/emailsReducer';
@@ -65,28 +66,29 @@ export class Dashboard extends Component {
         <div>
           <Header />
           {
-            this.props.page !== 'dashboard' ?
-              <Settings />
-            :
-              <div className="container-fluid mt-4">
-                <div className="row">
-                  <Route exact path="/" component={Refresh} />
-                  <Route exact path="/folder/:id" component={Refresh} />
-                  <Route exact path="/" component={Toolbar} />
-                  <Route exact path="/folder/:id" component={Toolbar} />
-                </div>
-                <div className="row">
-                  <div className="col-2 mt-2">
-                    <Route exact path="/" component={ComposeButton} />
-                    <Route exact path="/folder/:id" component={ComposeButton} />
-                    <Sidebar />
-                  </div>
-                  <Route exact path="/" component={Emails} />
-                  <Route exact path="/email/:id" component={Email} />
-                  <Route exact path="/folder/:id" component={Emails} />
-                </div>
-                <Compose />
+            <div className="container-fluid mt-4">
+              <Route exact path="/settings/templates" component={Templates} />
+              <Route exact path="/settings/statuses" component={Statuses} />
+              <div className="row">
+                <Route exact path="/" component={Refresh} />
+                <Route exact path="/" component={Toolbar} />
+                <Route exact path="/folder/:id" component={Refresh} />
+                <Route exact path="/folder/:id" component={Toolbar} />
               </div>
+              <div className="row">
+                <div className="col-2 mt-2">
+                  <Route exact path="/" component={ComposeButton} />
+                  <Route exact path="/" component={Sidebar} />
+                  <Route exact path="/folder/:id" component={ComposeButton} />
+                  <Route exact path="/folder/:id" component={Sidebar} />
+                  <Route exact path="/email/:id" component={Sidebar} />
+                </div>
+                <Route exact path="/" component={Emails} />
+                <Route exact path="/email/:id" component={Email} />
+                <Route exact path="/folder/:id" component={Emails} />
+              </div>
+              <Compose />
+            </div>
           }
         </div>
       </BrowserRouter>);
@@ -94,7 +96,6 @@ export class Dashboard extends Component {
 }
 
 Dashboard.propTypes = {
-  page: PropTypes.string.isRequired,
   errors: PropTypes.array.isRequired,
   responseMsgs: PropTypes.array.isRequired,
   // all clear functions used in // used in this.props[clearFunctionName](msgToShow);

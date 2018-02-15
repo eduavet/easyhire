@@ -1,12 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Route, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Nav, NavItem, Navbar, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import Logout from './Logout.jsx';
-import Settings from './Settings.jsx';
-import { setPage } from '../../redux/reducers/folderReducer';
-
 
 export class Header extends Component {
   constructor(props) {
@@ -14,10 +11,6 @@ export class Header extends Component {
     this.state = {
       dropdownOpen: false,
     };
-  }
-
-  setPage = (value) => {
-    this.props.setPage(value);
   }
 
   toggle = () => {
@@ -31,7 +24,7 @@ export class Header extends Component {
     return (
       <div>
         <Navbar color="faded" light expand="md" className="header navbar-dark">
-          <Link to="/" className="nav-link" onClick={() => this.setPage('dashboard')}>
+          <Link to="/" className="nav-link">
             <img src="/src/assets/images/logo.png" height="40" className="d-inline-block align-top" alt="" />
           </Link>
           <Nav className="ml-auto navbar-nav" navbar>
@@ -45,10 +38,10 @@ export class Header extends Component {
                   <i className="fas fa-cogs" />
                 </DropdownToggle>
                 <DropdownMenu className="settings">
-                  <Link to="/settings/statuses" className="nav-link" onClick={() => this.setPage('statuses')}>
+                  <Link to="/settings/statuses" className="nav-link">
                     <DropdownItem className="settings-list-item">Statuses</DropdownItem>
                   </Link>
-                  <Link to="/settings/templates" className="nav-link" onClick={() => this.setPage('templates')}>
+                  <Link to="/settings/templates" className="nav-link">
                     <DropdownItem className="settings-list-item">Templates</DropdownItem>
                   </Link>
                 </DropdownMenu>
@@ -59,7 +52,6 @@ export class Header extends Component {
             </NavItem>
           </Nav>
         </Navbar>
-        <Route path="/settings/statuses" component={Settings} />
       </div>
     );
   }
@@ -67,7 +59,6 @@ export class Header extends Component {
 
 Header.propTypes = {
   username: PropTypes.string.isRequired,
-  setPage: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
