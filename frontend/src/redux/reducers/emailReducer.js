@@ -34,6 +34,9 @@ const initialState = {
 const SET_EMAIL_ID = 'Set email id';
 const SET_THREAD_ID = 'Set thread id';
 
+const REFRESH_SET_EMAIL_ID = 'Check set email id';
+const REFRESH_SET_THREAD_ID = 'Check set thread id';
+
 const GET_EMAIL_FROM_DB = 'Get email from database';
 const GET_THREAD_FROM_DB = 'Get thread from database';
 const GET_EMAIL_FROM_GAPI = 'Get email from google api';
@@ -64,16 +67,29 @@ const CLEAR_EMAIL = 'Clear Email';
 /**
  * Action creator
  */
-function setEmailId(emailId) {
+export function setEmailId(emailId) {
   return {
     type: SET_EMAIL_ID,
     payload: { emailId },
   };
 }
 
-function setThreadId(threadId) {
+export function setThreadId(threadId) {
   return {
     type: SET_THREAD_ID,
+    payload: { threadId },
+  };
+}
+export function refreshSetEmailId(emailId) {
+  return {
+    type: REFRESH_SET_EMAIL_ID,
+    payload: { emailId },
+  };
+}
+
+export function refreshSetThreadId(threadId) {
+  return {
+    type: REFRESH_SET_THREAD_ID,
     payload: { threadId },
   };
 }
@@ -431,13 +447,28 @@ export function asyncGetTemplate(templateId) {
 
 export default function emailsReducer(state = initialState, action) {
   const { type, payload } = action;
-
   switch (type) {
     case SET_EMAIL_ID:
       return {
         ...state,
         email: Object.assign({}, state.email, { emailId: payload.emailId }),
       };
+    case REFRESH_SET_EMAIL_ID:
+    {
+      const checkedEmailId = state.email.emailId ? state.email.emailId : payload.emailId;
+      return {
+        ...state,
+        email: Object.assign({}, state.email, { emailId: checkedEmailId}),
+      };
+    }
+    case REFRESH_SET_THREAD_ID:
+    {
+      const checkedThreadId = state.threadId ? state.threadId : payload.threadId;
+      return {
+        ...state,
+        threadId: checkedThreadId,
+      };
+    }
     case SET_THREAD_ID:
       return {
         ...state,
@@ -469,8 +500,10 @@ export default function emailsReducer(state = initialState, action) {
         }),
         url: [],
         loaded: true,
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailResponseMsg' })),
       };
     }
     case GET_EMAIL_FROM_GAPI:
@@ -504,8 +537,10 @@ export default function emailsReducer(state = initialState, action) {
           )),
         url: [],
         loaded: true,
-        errors: payload.errors,
-        responseMsgs: payload.responseMsgs,
+        errors: payload.errors
+          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailError' })),
+        responseMsgs: payload.responseMsgs
+          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailResponseMsg' })),
       };
     case GET_ATTACHMENT_FROM_GAPI:
       return {
