@@ -60,7 +60,6 @@ class Sidebar extends Component {
     };
     // Make folder active to highlight it
     folderToggler = (folder) => {
-      // this.props.history.push('/');
       this.props.isActive(folder);
     };
     // Handle folder click on non-inbox folders

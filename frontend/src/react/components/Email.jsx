@@ -36,26 +36,22 @@ class Email extends Component {
     const threadId = this.props.threadId ? this.props.threadId : threadIdFromUrl;
     this.props.getThreadFromGapi(threadId);
     this.props.getTemplates();
+    if (!!this.props.email.sender) {
+      this.props.getNote(this.props.email.sender);
+    }
+    if (!!this.props.note) {
+      this.setState({ noteContent: this.props.note.content });
+    }
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps === this.props) {
       return;
     }
+
     if (nextProps.email.sender !== this.props.email.sender) {
       const sender = nextProps.email.sender;
       this.props.getNote(sender);
-    }
-    if (nextProps.note !== null && nextProps.note !== this.props.note) {
-      const oldContent = this.props.note ? this.props.note.content : '';
-      const newContent = nextProps.note ? nextProps.note.content : '';
-      if (newContent !== oldContent) {
-        this.setState({ noteContent: nextProps.note.content });
-      }
-    }
-    if (nextProps.threadId !== this.props.threadId) {
-      const threadId = nextProps.threadId;
-      this.props.getEmailFromGapi(threadId);
     }
 
     if (nextProps.note !== null && nextProps.note !== this.props.note) {
@@ -65,13 +61,20 @@ class Email extends Component {
         this.setState({ noteContent: nextProps.note.content });
       }
     }
+
+    if (nextProps.threadId !== this.props.threadId) {
+      const threadId = nextProps.threadId;
+      this.props.getEmailFromGapi(threadId);
+    }
+
     const watchProps = _.pick(this.props, ['thread']);
     const nextWatchProps = _.pick(nextProps, ['thread']);
 
     if (!_.isEqual(watchProps, nextWatchProps)) {
       nextProps.thread.forEach((email) => {
         if (email.attachments && email.attachments.length > 0) {
-          email.attachments.forEach(attachment => this.props.getAttachmentFromGapi(email.emailId, attachment));
+          email.attachments.forEach(attachment =>
+            this.props.getAttachmentFromGapi(email.emailId, attachment));
         }
       });
     }
@@ -116,23 +119,21 @@ class Email extends Component {
     this.setState({ replyPopoverOpen: false, newPopoverOpen: false });
   };
 
-  handleEditorChange = () => {}
-
   render() {
     return (
       <div className="col-10 mt-2">
         <Loader loaded={this.props.loaded}>
-          {this.props.thread.map((email, index) => {
-            return <div key={email.emailId}>
+          {this.props.thread.map((email, index) => (
+            <div key={email.emailId}>
               <div className="d-flex justify-content-between">
                 <div>
                   <p><b>Sender:</b> {email.sender}</p>
                   {index ? '' : <p><b>Subject:</b> {email.subject}</p>}
                   <p><b>Date:</b> {email.date}</p>
                 </div>
-                <div >
-                  {email.status ?(
-                      <div>
+                <div key={email.emailId+email.threadId}>
+                  {email.status ? (
+                      <div key={email.emailId}>
                         <label htmlFor="selectStatus"><b>Change Status</b></label>
                         <select className="form-control" id="selectStatus" onChange={this.changeStatus} data-id={email.emailId}  value={email.status}>
                           {this.props.statuses.map(status =>
@@ -143,15 +144,16 @@ class Email extends Component {
                 </div>
               </div>
               <hr />
-              <div>
+              <div key={email.emailId}>
                 {
                   email.attachments ?
-                  email.attachments.map((attachment, index) => (
-                    <div>
+                  email.attachments.map((attachment, i) => (
+                    <div key={attachment.attachmentId}>
                       <a
-                        key={attachment.attachmentId} href={this.props.url[index]}
+                        key={attachment.attachmentId} href={this.props.url[i]}
                         download={attachment.attachmentName}
-                        >{attachment.attachmentName}<i className="fa fa-download" />
+                      >
+                        {attachment.attachmentName}<i className="fa fa-download" />
                       </a>
                       <br />
                     </div>
@@ -175,7 +177,7 @@ class Email extends Component {
               }
               <hr />
             </div>
-          })}
+          ))}
           <hr />
           <div className="btn-group" role="group">
             <Button id="replyButton" onClick={this.handleReplyPopover} className="btn bg-light-blue rounded shineBtn">

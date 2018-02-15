@@ -3,9 +3,9 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import _ from 'lodash';
-import { isChecked, asyncGetEmails, asyncGetSentEmails } from '../../redux/reducers/emailsReducer';
+import { isChecked, asyncGetEmails, asyncGetSentEmails, asyncGetFolderEmails } from '../../redux/reducers/emailsReducer';
 import { asyncGetEmailFromDb, asyncGetThreadFromDb, setEmailId, setThreadId } from '../../redux/reducers/emailReducer';
-import { asyncGetFolders } from '../../redux/reducers/folderReducer';
+import { asyncGetFolders, isActive } from '../../redux/reducers/folderReducer';
 
 const Loader = require('react-loader');
 
@@ -23,10 +23,17 @@ class Emails extends Component {
     };
   }
   componentWillMount = () => {
-    if (window.location.href === 'http://localhost:8080/' ||
-        window.location.href === 'http://localhost:8080' ||
-        window.location.href === 'http://localhost:8080/#') {
+    const url = window.location.pathname;
+    if (url === 'http://localhost:8080/' ||
+        url === 'http://localhost:8080' ||
+        url === 'http://localhost:8080/#') {
       this.props.getEmails();
+    }
+
+    const urlParts = url.split('/');
+    const folderId = urlParts[urlParts.length - 1];
+    if (folderId) {
+      this.props.getFolderEmails(folderId);
     }
   };
   componentWillReceiveProps(nextProps) {
@@ -39,6 +46,20 @@ class Emails extends Component {
     if (!_.isEqual(watchProps, nextWatchProps)) {
       console.log('get folders from Emails.jsx');
       this.props.getFolders();
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const url = window.location.pathname;
+    if (nextProps.folders.length !== this.props.folders.length) {
+      const urlParts = window.location.pathname.split('/');
+      const folderId = urlParts[urlParts.length - 1];
+      if (folderId) {
+        this.props.isActive({ _id: folderId });
+      }
+    }
+    if (url === '/' && this.props.folders[0] && !this.props.folders[0].isActive) {
+      this.props.isActive({ _id: 'allEmails' });
     }
   }
 
@@ -257,12 +278,16 @@ Emails.propTypes = {
   setThreadId: PropTypes.func.isRequired,
   getSentEmails: PropTypes.func.isRequired,
   getThreadFromDb: PropTypes.func.isRequired,
+  getFolderEmails: PropTypes.func.isRequired,
+  isActive: PropTypes.func.isRequired,
+  folders: PropTypes.array.isRequired,
 };
 
 function mapStateToProps(state) {
   return {
     emails: state.emails.emails,
     loaded: state.emails.loaded,
+    folders: state.folders.folders,
   };
 }
 
@@ -276,6 +301,8 @@ function mapDispatchToProps(dispatch) {
     setEmailId: emailId => dispatch(setEmailId(emailId)),
     setThreadId: threadId => dispatch(setThreadId(threadId)),
     getFolders: () => dispatch(asyncGetFolders()),
+    getFolderEmails: folderId => dispatch(asyncGetFolderEmails(folderId)),
+    isActive: item => dispatch(isActive(item)),
   };
 }
 

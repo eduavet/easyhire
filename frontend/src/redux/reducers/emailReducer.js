@@ -20,7 +20,7 @@ const initialState = {
   loading: true,
   loaded: false,
   url: [],
-  template: '',
+  templateContent: '',
   composeWindowClassName: 'compose',
   composeWindowHeaderText: 'Compose',
   btnName: '',
@@ -155,7 +155,7 @@ function getTemplate(result) {
   return {
     type: GET_TEMPLATE,
     payload: {
-      template: result.template.content,
+      templateContent: result.template.content,
       errors: result.errors,
       responseMsgs: result.responseMsgs,
     },
@@ -640,7 +640,7 @@ export default function emailsReducer(state = initialState, action) {
     case GET_TEMPLATE:
       return {
         ...state,
-        template: payload.template,
+        templateContent: payload.templateContent,
         errors: payload.errors
           .map(error => Object.assign({}, error, { clearFunction: 'clearEmailError' })),
         responseMsgs: payload.responseMsgs

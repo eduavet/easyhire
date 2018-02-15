@@ -23,7 +23,7 @@ class Compose extends Component {
     }
     this._receiver.value = this.props.receiver;
     const receiver = this.props.receiver.slice(0, this.props.receiver.indexOf(' ')).replace('"', '');
-    const finalTemplate = nextProps.template.replace('FIRST_NAME', receiver);
+    const finalTemplate = nextProps.templateContent.replace('FIRST_NAME', receiver);
     this._editor.editor.setContent(decodeURIComponent(`${finalTemplate} \r\n ${nextProps.signature}`));
     if (nextProps.btnName === 'reply') {
       this._subject.value = this.props.subject;
@@ -96,7 +96,7 @@ class Compose extends Component {
                 <Editor
                   ref={(editor) => { this._editor = editor; }}
                   initialValue=""
-                  content={this.props.template}
+                  content={this.props.templateContent}
                   init={{
                     plugins: 'link image code',
                     toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code',
@@ -134,7 +134,7 @@ Compose.propTypes = {
   getSignature: PropTypes.func.isRequired,
   composeWindowClassName: PropTypes.string.isRequired,
   composeWindowHeaderText: PropTypes.string.isRequired,
-  template: PropTypes.string.isRequired,
+  templateContent: PropTypes.string,
   sendNewEmail: PropTypes.func,
   btnName: PropTypes.string,
   emailId: PropTypes.string,
@@ -148,7 +148,7 @@ function mapStateToProps(state) {
   return {
     composeWindowClassName: state.email.composeWindowClassName,
     composeWindowHeaderText: state.email.composeWindowHeaderText,
-    template: state.email.template,
+    templateContent: state.email.templateContent,
     signature: state.emails.signature,
     messageSent: state.email.messageSent,
     btnName: state.email.btnName,
