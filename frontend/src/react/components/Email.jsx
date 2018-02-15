@@ -67,7 +67,7 @@ class Email extends Component {
   sendNoteInfo = { time: 0 };
   changeStatus = (evt) => {
     const statusId = evt.target.value;
-    const emailId = this.props.email.emailId;
+    const emailId = evt.target.dataset.id;
     this.props.changeEmailStatus(emailId, statusId);
   };
 
@@ -110,7 +110,7 @@ class Email extends Component {
 
   render() {
     return (
-      <div className="col-10 mt-4">
+      <div className="col-10 mt-2">
         <Loader loaded={this.props.loaded}>
           {this.props.thread.map((email, index) => {
             return <div key={email.emailId}>
@@ -122,7 +122,7 @@ class Email extends Component {
                 </div>
                 <div >
                   <label htmlFor="selectStatus"><b>Change Status</b></label>
-                  <select className="form-control" id="selectStatus" onChange={this.changeStatus} value={email.status}>
+                  <select className="form-control" id="selectStatus" onChange={this.changeStatus} data-id={email.emailId}  value={email.status}>
                     {this.props.statuses
                       .map(status =>
                         <option key={status._id} value={status._id}>{status.name}</option>)}
