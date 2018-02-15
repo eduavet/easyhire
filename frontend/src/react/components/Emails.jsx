@@ -24,9 +24,9 @@ class Emails extends Component {
   }
   componentWillMount = () => {
     const url = window.location.pathname;
-    if (url === 'http://localhost:8080/' ||
-        url === 'http://localhost:8080' ||
-        url === 'http://localhost:8080/#') {
+    if (url === '/' ||
+        url === '' ||
+        url === '/#') {
       this.props.getEmails();
     }
 
