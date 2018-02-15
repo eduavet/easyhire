@@ -112,7 +112,7 @@ class Template extends Component {
             </div>
           </div>
         </div>
-        <button onClick={this.saveTemplate} className="btn btn-success">Save!</button>
+        <button onClick={this.saveTemplate} className="btn btn-info shineBtn">Save!</button>
       </form>
     );
   }
