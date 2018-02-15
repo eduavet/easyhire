@@ -21,6 +21,7 @@ module.exports = {
     'import/no-named-as-default': 0,
     'linebreak-style': 0,
     'no-underscore-dangle': 0,
+    'react/jsx-wrap-multilines': 0,
     'react/forbid-prop-types': ['any'],
     'react/no-unescaped-entities': [0],
     'react/no-string-refs': [0],

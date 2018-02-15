@@ -73,7 +73,8 @@ class Email extends Component {
     if (!_.isEqual(watchProps, nextWatchProps)) {
       nextProps.thread.forEach((email) => {
         if (email.attachments && email.attachments.length > 0) {
-          email.attachments.forEach(attachment => this.props.getAttachmentFromGapi(email.emailId, attachment));
+          email.attachments.forEach(attachment =>
+            this.props.getAttachmentFromGapi(email.emailId, attachment));
         }
       });
     }
@@ -118,14 +119,12 @@ class Email extends Component {
     this.setState({ replyPopoverOpen: false, newPopoverOpen: false });
   };
 
-  handleEditorChange = () => {}
-
   render() {
     return (
       <div className="col-10 mt-2">
         <Loader loaded={this.props.loaded}>
-          {this.props.thread.map((email, index) => {
-            return <div key={email.emailId}>
+          {this.props.thread.map((email, index) => (
+            <div key={email.emailId}>
               <div className="d-flex justify-content-between">
                 <div>
                   <p><b>Sender:</b> {email.sender}</p>
@@ -148,12 +147,13 @@ class Email extends Component {
               <div key={email.emailId}>
                 {
                   email.attachments ?
-                  email.attachments.map((attachment, index) => (
+                  email.attachments.map((attachment, i) => (
                     <div key={attachment.attachmentId}>
                       <a
-                        key={attachment.attachmentId} href={this.props.url[index]}
+                        key={attachment.attachmentId} href={this.props.url[i]}
                         download={attachment.attachmentName}
-                        >{attachment.attachmentName}<i className="fa fa-download" />
+                      >
+                        {attachment.attachmentName}<i className="fa fa-download" />
                       </a>
                       <br />
                     </div>
@@ -177,7 +177,7 @@ class Email extends Component {
               }
               <hr />
             </div>
-          })}
+          ))}
           <hr />
           <div className="btn-group" role="group">
             <Button id="replyButton" onClick={this.handleReplyPopover} className="btn bg-light-blue rounded shineBtn">
