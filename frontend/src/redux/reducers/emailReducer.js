@@ -14,7 +14,7 @@ const initialState = {
     isPlainText: false,
     attachments: [],
   },
-  thread : [],
+  thread: [],
   noteStatus: 'noteSaveStatus',
   note: { content: '' },
   loading: true,
