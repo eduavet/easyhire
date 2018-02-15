@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Button, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
-import { asyncGetTemplate, toggleButtonName } from '../../redux/reducers/emailReducer';
+import { asyncGetTemplate, toggleButtonName, clearEmail } from '../../redux/reducers/emailReducer';
 import { asyncGetSignature } from '../../redux/reducers/emailsReducer';
 import { asyncGetTemplates } from '../../redux/reducers/settingsReducer';
+
 
 class ComposeButton extends Component {
   constructor(...args) {
@@ -19,6 +20,7 @@ class ComposeButton extends Component {
   handleComposePopover = () => {
     this.props.getSignature();
     this.setState({ composePopoverOpen: !this.state.composePopoverOpen });
+    this.props.clearEmail();
   };
   selectedNewTemplate = (e) => {
     const templateId = e.target.value;
@@ -55,6 +57,7 @@ ComposeButton.propTypes = {
   toggleButtonName: PropTypes.func.isRequired,
   getSignature: PropTypes.func.isRequired,
   templates: PropTypes.array.isRequired,
+  clearEmail: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -69,6 +72,7 @@ function mapDispatchToProps(dispatch) {
     getTemplates: () => dispatch(asyncGetTemplates()),
     getTemplate: templateId => dispatch(asyncGetTemplate(templateId)),
     toggleButtonName: btnName => dispatch(toggleButtonName(btnName)),
+    clearEmail: () => dispatch(clearEmail(dispatch)),
   };
 }
 
