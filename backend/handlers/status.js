@@ -124,7 +124,7 @@ statusHandlers.deleteStatus = (req, res) => {
       }
       return res.json({ errors: [{ msg: 'Main statuses "Approved", "Rejected", "Interview Scheduled" and "Not Reviewed" cannot be deleted' }], responseMsgs: [], deletedStatusID: '' });
     })
-    .catch(err => res.json({ errors: err, deletedStatusID: '', responseMsgs: [] }));
+    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], deletedStatusID: '', responseMsgs: [] }));
 };
 
 // Get status emails
@@ -160,7 +160,7 @@ statusHandlers.getEmails = (req, res) => {
           res.json({ emailsToSend: result, errors: [], responseMsgs: [] });
         });
     })
-    .catch((err) => {
-      res.json({ emailsToSend: [], errors: [{ msg: 'smth went wrong while getting emails of specified status' }, err], responseMsgs: [] });
+    .catch(() => {
+      res.json({ emailsToSend: [], errors: [{ msg: 'smth went wrong while getting emails of specified status' }], responseMsgs: [] });
     });
 };

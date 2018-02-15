@@ -30,7 +30,7 @@ templateHandlers.getTemplate = (req, res) => {
   }
   return TemplatesModel.findOne({ _id: templateId, userId })
     .then(template => res.json({ template, errors: [], responseMsgs: [] }))
-    .catch(() => res.json({ template: {}, errors: [{ msg: 'Something went wrong' }] }));
+    .catch(() => res.json({ template: {}, errors: [{ msg: 'Something went wrong' }], responseMsgs: [] }));
 };
 // Add new template
 templateHandlers.addTemplate = (req, res) => {

@@ -17,6 +17,7 @@ class Compose extends Component {
   componentWillReceiveProps(nextProps) {
     this._receiver.value = this.props.receiver;
     const receiver = this.props.receiver.slice(0, this.props.receiver.indexOf(' ')).replace('"', '');
+    console.log('receiver',receiver)
     const finalTemplate = nextProps.template.replace('FIRST_NAME', receiver);
     this._editor.editor.setContent(decodeURIComponent(`${finalTemplate} \r\n ${nextProps.signature}`));
     if (nextProps.btnName === 'reply') {
@@ -100,7 +101,7 @@ class Compose extends Component {
               </div>
             </div>
             <div className="modal-footer">
-              <button type="submit" id="send-button" onClick={this.onClickSend} className="btn bg-light-blue">Send</button>
+              <button type="submit" id="send-button" onClick={this.onClickSend} className="btn bg-light-blue shineBtn">Send</button>
             </div>
           </form>
         </div>

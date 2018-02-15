@@ -161,7 +161,7 @@ class Email extends Component {
           })}
           <hr />
           <div className="btn-group" role="group">
-            <Button id="replyButton" onClick={this.handleReplyPopover} className="btn bg-light-blue rounded">
+            <Button id="replyButton" onClick={this.handleReplyPopover} className="btn bg-light-blue rounded shineBtn">
             Reply
             </Button>
             <Popover placement="bottom" isOpen={this.state.replyPopoverOpen} target="replyButton" toggle={this.handleReplyPopover}>
@@ -176,7 +176,7 @@ class Email extends Component {
               </PopoverBody>
             </Popover>
 
-            <Button id="newEmailButton" onClick={this.handleNewPopover} className="btn btn-success rounded">
+            <Button id="newEmailButton" onClick={this.handleNewPopover} className="btn btn-success rounded shineBtn">
             New Email
             </Button>
             <Popover placement="bottom" isOpen={this.state.newPopoverOpen} target="newEmailButton" toggle={this.handleNewPopover}>
