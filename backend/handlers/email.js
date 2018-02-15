@@ -366,11 +366,20 @@ emailHandlers.getEmailFromDb = (req, res) => {
   }
   return EmailsModel.findOne({ emailId, userId })
     .then((email) => {
-      email.isRead = true;
-      return email.save()
-        .then((response) => {
-          res.json({ email: response, errors: [], responseMsgs: [] });
-        });
+      if (email) {
+        email.isRead = true;
+        return email.save()
+          .then((response) => {
+            res.json({ email: response, errors: [], responseMsgs: [] });
+          });
+      } else {
+        return SentEmailsModel.findOne({ emailId, userId })
+          .then(sentEmail => (
+            sentEmail.save()
+              .then((response) => {
+                res.json({ email: response, errors: [], responseMsgs: [] });
+              })));
+      }
     })
     .catch((err) => {
       res.json({ email: [], errors: [{ msg: 'Something went wrong', err }], responseMsgs: [] });
