@@ -377,23 +377,28 @@ export default function emailsReducer(state = initialState, action) {
 
   switch (type) {
     case GET_EMAILS:
+    {
+      const allEmails = payload.emails;
+      const allEmailsSoretedByDate = allEmails
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
       return {
         ...state,
-        emails: [
-          ...payload.emails
+        emails:
+          allEmailsSoretedByDate
             .map(email => Object.assign({}, email, {
               isChecked: !!email.isChecked,
               folderName: email.folder.name,
               folderId: email.folder._id,
               statusName: email.status ? email.status.name : '',
               statusId: email.status ? email.status._id : null,
-            }))],
+            })),
         errors: payload.errors
           .map(error => Object.assign({}, error, { clearFunction: 'clearEmailsError' })),
         responseMsgs: payload.responseMsgs
           .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailsResponseMsg' })),
         loaded: true,
       };
+    }
     case GET_SENT:
       return {
         ...state,
@@ -518,16 +523,19 @@ export default function emailsReducer(state = initialState, action) {
       };
     }
     case EMAIL_REFRESH:
+    {
+      const newEmails = payload.emails
+        .map(email => Object.assign({}, email, { isChecked: !!email.isChecked }));
       return {
         ...state,
-        emails: payload.emails
-          .map(email => Object.assign({}, email, { isChecked: !!email.isChecked })),
+        emails: [...newEmails, ...state.emails],
         errors: payload.errors
           .map(error => Object.assign({}, error, { clearFunction: 'clearEmailsError' })),
         responseMsgs: payload.responseMsgs
           .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailsResponseMsg' })),
         loaded: true,
       };
+    }
     case MARK:
     {
       const updatedEmails = state.emails.map((email) => {

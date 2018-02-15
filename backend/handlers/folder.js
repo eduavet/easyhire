@@ -60,7 +60,7 @@ folderHandlers.createFolder = (req, res) => {
   req.checkBody('folderName').notEmpty().withMessage('Folder name is required');
   const errors = req.validationErrors();
   if (errors) {
-    return res.json({ errors, createdFolder: {} });
+    return res.json({ errors, createdFolder: {}, responseMsgs: [] });
   }
   const userId = req.session.userID;
   const name = req.body.folderName;
@@ -89,7 +89,7 @@ folderHandlers.updateFolder = (req, res) => {
   req.checkBody('folderName').notEmpty().withMessage('Folder name is required');
   const errors = req.validationErrors();
   if (errors) {
-    return res.json({ errors, updatedFolder: {} });
+    return res.json({ errors, updatedFolder: {}, responseMsgs: [] });
   }
   const folderId = req.params.ID ? req.params.ID : '';
   const folderNewName = req.body.folderName;

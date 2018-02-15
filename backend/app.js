@@ -18,7 +18,7 @@ require('./config/passport');
 const app = express();
 
 // app.use(morgan('combined'));
-app.use(':method :url :status - :response-time ms');
+app.use(require('morgan')(':method :url :status - :response-time ms'));
 app.use(express.static(path.join(__dirname, 'attachments')));
 app.use(cors({
   origin: process.env.HOMEPAGE,

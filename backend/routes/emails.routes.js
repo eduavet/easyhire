@@ -4,7 +4,7 @@ const emailHandlers = require('../handlers/email');
 const emailRoutes = Router();
 
 emailRoutes.get('/', emailHandlers.getEmailsFromDb);
-emailRoutes.get('/refresh', emailHandlers.emails);
+emailRoutes.get('/refresh', emailHandlers.syncEmails);
 emailRoutes.get('/sent', emailHandlers.emailsSent);
 emailRoutes.delete('/:ID', emailHandlers.deleteEmails);
 emailRoutes.post('/move', emailHandlers.emailsMoveToFolder);
