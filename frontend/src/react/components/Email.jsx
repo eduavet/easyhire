@@ -121,12 +121,15 @@ class Email extends Component {
                   <p><b>Date:</b> {email.date}</p>
                 </div>
                 <div >
-                  <label htmlFor="selectStatus"><b>Change Status</b></label>
-                  <select className="form-control" id="selectStatus" onChange={this.changeStatus} data-id={email.emailId}  value={email.status}>
-                    {this.props.statuses
-                      .map(status =>
-                        <option key={status._id} value={status._id}>{status.name}</option>)}
-                  </select>
+                  {email.status ?(
+                      <div>
+                        <label htmlFor="selectStatus"><b>Change Status</b></label>
+                        <select className="form-control" id="selectStatus" onChange={this.changeStatus} data-id={email.emailId}  value={email.status}>
+                          {this.props.statuses.map(status =>
+                            <option key={status._id} value={status._id}>{status.name}</option>)}
+                        </select>
+                      </div>) : ''
+                  }
                 </div>
               </div>
               <hr />

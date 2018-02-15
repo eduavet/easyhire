@@ -111,7 +111,7 @@ class Toolbar extends Component {
             <DropdownMenu>
               {
                 this.props.folders.map((folder) => {
-                  if (folder.name !== 'Inbox') {
+                  if (folder.name !== 'Inbox' && !(folder.userId === null && folder.name === 'Sent')) {
                     return (
                       <DropdownItem key={folder._id}>
                         <div onClick={() => this.moveToFolder(folder._id)}>{folder.name}</div>

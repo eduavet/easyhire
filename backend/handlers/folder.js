@@ -25,6 +25,14 @@ folderHandlers.getFolders = (req, response) => {
           },
         },
         {
+          $lookup: {
+            from: 'sentemails',
+            localField: '_id',
+            foreignField: 'folder',
+            as: 'emails',
+          },
+        },
+        {
           $addFields: {
             count: {
               $size: {

@@ -8,6 +8,9 @@ const config = {
   output: {
     path: path.join(__dirname, './build'),
     filename: 'index.js',
+    chunkFilename: '[name].[chunkhash].js',
+    publicPath: '/',
+
   },
   devServer: {
     inline: true,
@@ -21,7 +24,6 @@ const config = {
       // rewrites: [
       //     { from: /^\/tacos/, to: '/index.html' },
       // ],
-      index: '/404.html',
     },
   },
   module: {
