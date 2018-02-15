@@ -201,6 +201,7 @@ function changeEmailStatus(result) {
       emailNewStatus: result.status,
       errors: result.errors,
       responseMsgs: result.responseMsgs,
+      emailId: result.emailId,
     },
   };
 }
@@ -540,6 +541,12 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         email: Object.assign({}, state.email, { status: emailNewStatus }),
+        thread: state.thread.map(email => {
+          if (email.emailId===payload.emailId) {
+            email.status = emailNewStatus
+          }
+          return email;
+        }),
         errors: payload.errors
           .map(error => Object.assign({}, error, { clearFunction: 'clearEmailError' })),
         responseMsgs: payload.responseMsgs
