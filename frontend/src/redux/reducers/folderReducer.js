@@ -249,6 +249,7 @@ export default function folderReducer(state = initialState, action) {
             icon: 'fa-inbox',
             isActive: true,
             count: payload.inboxCount,
+            sentCount: 0,
             user_id: null,
           },
           ...payload.folders

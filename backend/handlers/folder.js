@@ -103,6 +103,7 @@ folderHandlers.createFolder = (req, res) => {
         _id: createdFolder._id,
         name: createdFolder.name,
         count: 0,
+        sentCount: 0,
         icon: createdFolder.icon,
         userId: createdFolder.userId,
         isActive: false,
