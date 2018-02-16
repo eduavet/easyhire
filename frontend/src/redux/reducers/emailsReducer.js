@@ -376,12 +376,12 @@ export function asyncMark(emailIds, isRead) {
   };
 }
 
-export function asyncSearch(text, folderId) {
+export function asyncSearch(text, folderId, searchType = '') {
   return function asyncSearchInner(dispatch) {
     dispatch(loading());
     fetch('http://localhost:3000/api/emails/search', {
       method: 'POST',
-      body: JSON.stringify({ text, folderId }),
+      body: JSON.stringify({ text, folderId, searchType }),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -444,8 +444,10 @@ export default function emailsReducer(state = initialState, action) {
     case GET_SENT_GAPI:
       return {
         ...state,
-        sentEmails: payload.emails
+        emails: [
+          ...payload.emails
             .map(email => Object.assign({}, email, { isChecked: !!email.isChecked })),
+          ...state.emails,],
         errors: payload.errors
           .map(error => Object.assign({}, error, { clearFunction: 'clearEmailsError' })),
         responseMsgs: payload.responseMsgs

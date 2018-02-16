@@ -25,6 +25,6 @@ export default class ModalDeleteEmails extends Component {
 ModalDeleteEmails.propTypes = {
   isOpenDelete: PropTypes.bool.isRequired,
   count: PropTypes.number.isRequired,
-  toggleDeleteModal: PropTypes.func.isRequired,
-  deleteEmail: PropTypes.func.isRequired,
+  toggleDeleteModal: PropTypes.func,
+  deleteEmail: PropTypes.func,
 };
