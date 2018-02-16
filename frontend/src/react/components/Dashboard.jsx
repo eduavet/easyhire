@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
-import { Route, BrowserRouter } from 'react-router-dom';
+import { Route, BrowserRouter, Switch  } from 'react-router-dom';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { notify } from 'react-notify-toast';
 import Header from './Header.jsx';
 import Toolbar from './Toolbar.jsx';
+import SentToolbar from './SentToolbar.jsx';
 import Sidebar from './Sidebar.jsx';
 import Emails from './Emails.jsx';
+import SentEmails from './SentEmails.jsx';
 import Refresh from './Refresh.jsx';
 import Email from './Email.jsx';
 import Compose from './Compose.jsx';
@@ -74,6 +76,8 @@ export class Dashboard extends Component {
                 <Route exact path="/" component={Toolbar} />
                 <Route exact path="/folder/:id" component={Refresh} />
                 <Route exact path="/folder/:id" component={Toolbar} />
+                <Route exact path="/folder/sent/:id" component={Refresh} />
+                <Route exact path="/folder/sent/:id" component={SentToolbar} />
               </div>
               <div className="row">
                 <div className="col-2 mt-2">
@@ -82,10 +86,15 @@ export class Dashboard extends Component {
                   <Route exact path="/folder/:id" component={ComposeButton} />
                   <Route exact path="/folder/:id" component={Sidebar} />
                   <Route exact path="/email/:id" component={Sidebar} />
+                  <Route exact path="/folder/sent/:id" component={ComposeButton} />
+                  <Route exact path="/folder/sent/:id" component={Sidebar} />
                 </div>
                 <Route exact path="/" component={Emails} />
                 <Route exact path="/email/:id" component={Email} />
-                <Route exact path="/folder/:id" component={Emails} />
+                <Switch>
+                  <Route exact path="/folder/sent/:id" component={SentEmails} />
+                  <Route exact path="/folder/:id" component={Emails} />
+                </Switch>
               </div>
               <Compose />
             </div>
