@@ -136,7 +136,7 @@ class Compose extends Component {
                       + 'media nonbreaking save table contextmenu directionality,'
                       + 'emoticons template paste textcolor colorpicker textpattern',
                       toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent',
-                      toolbar2: 'Datepicker | print preview media | forecolor backcolor emoticons' +
+                      toolbar2: 'Datepicker | print preview | forecolor backcolor emoticons' +
                       ' | insertdatetime',
                       relative_urls: false,
                       remove_script_host: false,
