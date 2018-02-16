@@ -376,12 +376,12 @@ export function asyncMark(emailIds, isRead) {
   };
 }
 
-export function asyncSearch(text, folderId) {
+export function asyncSearch(text, folderId, searchType = '') {
   return function asyncSearchInner(dispatch) {
     dispatch(loading());
     fetch('http://localhost:3000/api/emails/search', {
       method: 'POST',
-      body: JSON.stringify({ text, folderId }),
+      body: JSON.stringify({ text, folderId, searchType }),
       headers: {
         'Content-Type': 'application/json',
       },

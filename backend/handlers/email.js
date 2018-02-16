@@ -233,6 +233,7 @@ emailHandlers.emailsSent = (req, response) => {
     .then((account) => {
       const { messages } = account;
       const promises = [];
+      if (!messages) return;
       for (let i = 0; i < messages.length; i += 1) {
         if (!messages) break;
         const { id } = messages[i];
@@ -281,7 +282,8 @@ emailHandlers.emailsSent = (req, response) => {
           response.json(packed);
         });
     })
-    .catch(() => {
+    .catch((err) => {
+      console.error(err);
       response.json({
         name: '',
         emailsToSend: [],
@@ -389,7 +391,7 @@ emailHandlers.getEmailFromDb = (req, res) => {
 emailHandlers.getThreadFromDb = (req, res) => {
   req.checkParams('threadId').notEmpty().withMessage('Thread id is required');
   const userId = req.session.userID;
-  const threadId = req.params.threadId;
+  const { threadId } = req.params;
   const errors = req.validationErrors();
   if (errors) {
     return res.json({ errors, responseMsgs: [] });
@@ -534,7 +536,7 @@ emailHandlers.changeEmailStatus = (req, res) => {
 
 // Search query to google API
 emailHandlers.search = (req, res) => {
-  const { text, folderId } = req.body;
+  const { text, folderId, searchType } = req.body;
   const userId = req.session.userID;
   const { accessToken } = req.session;
   const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
@@ -542,10 +544,14 @@ emailHandlers.search = (req, res) => {
   let emailsToSend = [];
   req.checkBody('text').notEmpty().withMessage('Search field is required');
   const errors = req.validationErrors();
+
   // If search field is empty
   if (errors) {
     if (folderId === 'allEmails') {
       return emailHandlers.emails(req, res);
+    }
+    if (searchType === 'sent') {
+      return emailHandlers.emailsSent(req, res);
     }
     return EmailsModel.find({ userId, folder: folderId, deleted: false })
       .then((messages) => {
@@ -564,14 +570,25 @@ emailHandlers.search = (req, res) => {
       if (!messages) return res.json({ emailsToSend, errors: [], responseMsgs: [] });
       for (let i = 0; i < messages.length; i += 1) {
         const { id } = messages[i];
-        promises.push(EmailsModel.findOne({ emailId: id, deleted: false })
-          .populate('folder')
-          .populate('status')
-          .then((group) => {
-            if (group) {
-              emailsToSend[i] = helper.groupExtract(group);
-            }
+        if (searchType === 'sent') {
+          promises.push(SentEmailsModel.findOne({ emailId: id })
+            .populate('folder')
+            .populate('status')
+            .then((group) => {
+              if (group) {
+                emailsToSend[i] = helper.groupExtract(group);
+              }
+            }));
+        } else {
+          promises.push(EmailsModel.findOne({ emailId: id, deleted: false })
+            .populate('folder')
+            .populate('status')
+            .then((group) => {
+              if (group) {
+                emailsToSend[i] = helper.groupExtract(group);
+              }
           }));
+        }
       }
 
       return Promise.all(promises)
