@@ -3,7 +3,8 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Button, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
-import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetThreadFromGapi, asyncGetAttachmentFromGapi, asyncGetNote, asyncSendNote, changeNoteStatus, asyncGetTemplate, toggleButtonName, refreshSetEmailId, refreshSetThreadId, asyncGetEmailFromDb, asyncGetThreadFromDb } from '../../redux/reducers/emailReducer';
+import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetThreadFromGapi, asyncGetAttachmentFromGapi, asyncGetNote, asyncSendNote, changeNoteStatus,
+  asyncGetTemplate, toggleButtonName, refreshSetEmailId, refreshSetThreadId, asyncGetEmailFromDb, asyncGetThreadFromDb, clearEmail } from '../../redux/reducers/emailReducer';
 import { asyncGetTemplates } from '../../redux/reducers/settingsReducer';
 
 const Loader = require('react-loader');
@@ -35,12 +36,6 @@ class Email extends Component {
     const threadId = this.props.threadId ? this.props.threadId : threadIdFromUrl;
     this.props.getThreadFromGapi(threadId);
     this.props.getTemplates();
-    if (!!this.props.email.sender) {
-      this.props.getNote(this.props.email.sender);
-    }
-    if (!!this.props.note) {
-      this.setState({ noteContent: this.props.note.content });
-    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -51,6 +46,10 @@ class Email extends Component {
     if (nextProps.email.sender !== this.props.email.sender) {
       const sender = nextProps.email.sender;
       this.props.getNote(sender);
+    }
+    if (nextProps.email.receiver !== this.props.email.receiver) {
+      const receiver = nextProps.email.receiver;
+      this.props.getNote(receiver);
     }
 
     if (nextProps.note !== null && nextProps.note !== this.props.note) {
@@ -117,6 +116,9 @@ class Email extends Component {
     this.props.getTemplate(templateId);
     this.setState({ replyPopoverOpen: false, newPopoverOpen: false });
   };
+  componentWillUnmount(){
+    this.props.clearEmail();
+  }
 
   render() {
     return (
@@ -258,6 +260,7 @@ Email.propTypes = {
   loaded: PropTypes.bool,
   getThreadFromGapi: PropTypes.func,
   threadId: PropTypes.string,
+  clearEmail: PropTypes.func,
 };
 
 Email.defaultProps = {
@@ -304,6 +307,7 @@ function mapDispatchToProps(dispatch) {
     getEmailFromDb: emailId => dispatch(asyncGetEmailFromDb(emailId)),
     refreshSetThreadId: threadId => dispatch(refreshSetThreadId(threadId)),
     getThreadFromDb: threadId => dispatch(asyncGetThreadFromDb(threadId)),
+    clearEmail: () => dispatch(clearEmail()),
   };
 }
 
