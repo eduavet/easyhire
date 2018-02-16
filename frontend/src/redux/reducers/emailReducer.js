@@ -392,11 +392,11 @@ export function asyncSendNote(sender, emailId, note, noteId) {
   };
 }
 
-export function asyncSendNewEmail(emailId, subject, messageBody) {
+export function asyncSendNewEmail(receiver, subject, messageBody) {
   return function asyncSendNewEmailInner(dispatch) {
-    fetch(`http://localhost:3000/api/emails/${emailId}/sendNew/`, {
+    fetch('http://localhost:3000/api/emails/sendNew/', {
       method: 'POST',
-      body: JSON.stringify({ subject, messageBody }),
+      body: JSON.stringify({ receiver, subject, messageBody }),
       headers: {
         Origin: '', 'Content-Type': 'application/json',
       },

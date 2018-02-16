@@ -36,20 +36,11 @@ class Emails extends Component {
       this.props.getFolderEmails(folderId);
     }
   };
+
   componentWillReceiveProps(nextProps) {
     if (nextProps === this.props) {
       return;
     }
-    const watchProps = _.pick(this.props, ['emails']);
-    const nextWatchProps = _.pick(nextProps, ['emails']);
-
-    if (!_.isEqual(watchProps, nextWatchProps)) {
-      console.log('get folders from Emails.jsx');
-      this.props.getFolders();
-    }
-  }
-
-  componentWillReceiveProps(nextProps) {
     const url = window.location.pathname;
     if (nextProps.folders.length !== this.props.folders.length) {
       const urlParts = window.location.pathname.split('/');
@@ -60,6 +51,12 @@ class Emails extends Component {
     }
     if (url === '/' && this.props.folders[0] && !this.props.folders[0].isActive) {
       this.props.isActive({ _id: 'allEmails' });
+    }
+    const watchProps = _.pick(this.props, ['emails']);
+    const nextWatchProps = _.pick(nextProps, ['emails']);
+
+    if (!_.isEqual(watchProps, nextWatchProps)) {
+      this.props.getFolders();
     }
   }
 

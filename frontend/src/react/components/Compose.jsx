@@ -40,7 +40,8 @@ class Compose extends Component {
     const messageBody = this._editor.editor.getContent();
     if (this.props.btnName === 'send new') {
       const subject = this._subject.value;
-      this.props.sendNewEmail(emailId, subject, messageBody);
+      const receiver = this._receiver.value;
+      this.props.sendNewEmail(receiver, subject, messageBody);
     } else if (this.props.btnName === 'reply') {
       this._subject.value = this.props.subject;
       this.props.reply(emailId, messageBody);
@@ -160,8 +161,8 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     toggleComposeWindow: param => dispatch(toggleComposeWindow(param)),
-    sendNewEmail: (emailId, subject, messageBody) =>
-      dispatch(asyncSendNewEmail(emailId, subject, messageBody)),
+    sendNewEmail: (receiver, subject, messageBody) =>
+      dispatch(asyncSendNewEmail(receiver, subject, messageBody)),
     reply: (emailId, content) => dispatch(asyncReply(emailId, content)),
     getSignature: () => dispatch(asyncGetSignature()),
   };
