@@ -444,8 +444,10 @@ export default function emailsReducer(state = initialState, action) {
     case GET_SENT_GAPI:
       return {
         ...state,
-        sentEmails: payload.emails
+        emails: [
+          ...payload.emails
             .map(email => Object.assign({}, email, { isChecked: !!email.isChecked })),
+          ...state.emails,],
         errors: payload.errors
           .map(error => Object.assign({}, error, { clearFunction: 'clearEmailsError' })),
         responseMsgs: payload.responseMsgs

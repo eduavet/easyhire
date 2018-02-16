@@ -24,44 +24,57 @@ import { clearError as clearStatusError, clearResponseMsg as clearStatusResponse
 
 export class Dashboard extends Component {
   componentWillMount() {
-    this.props.responseMsgs.map((responseMsg) => {
+    this.props.responseMsgs.forEach((responseMsg, index) => {
       const msgToShow = responseMsg.msg;
       const msgType = responseMsg.type;
       const clearFunctionName = responseMsg.clearFunction;
-      notify.show(msgToShow, msgType, 1500);
-      this.props[clearFunctionName](msgToShow);
+      const delay = index ? 3000 : 0;
+      setTimeout(() => {
+        this.showNotifyActionThenDelete(msgToShow, msgType, clearFunctionName);
+      }, delay);
     });
-    this.props.errors.map((error) => {
+    this.props.errors.forEach((error, index) => {
       const msgToShow = error.msg;
       const msgType = 'error';
       const clearFunctionName = error.clearFunction;
-      notify.show(msgToShow, msgType, 1500);
-      this.props[clearFunctionName](msgToShow);
+      const delay = index ? 3000 : 0;
+      setTimeout(() => {
+        this.showNotifyActionThenDelete(msgToShow, msgType, clearFunctionName);
+      }, delay);
     });
   }
+
   componentWillReceiveProps(nextProps) {
     if (nextProps === this.props) {
       return;
     }
     if (nextProps.responseMsgs !== this.props.responseMsgs) {
-      nextProps.responseMsgs.map((responseMsg) => {
+      nextProps.responseMsgs.forEach((responseMsg, index) => {
         const msgToShow = responseMsg.msg;
         const msgType = responseMsg.type;
         const clearFunctionName = responseMsg.clearFunction;
-        notify.show(msgToShow, msgType, 1500);
-        this.props[clearFunctionName](msgToShow);
+        const delay = index ? 3000 : 0;
+        setTimeout(() => {
+          this.showNotifyActionThenDelete(msgToShow, msgType, clearFunctionName);
+        }, delay);
       });
     }
     if (nextProps.errors !== this.props.errors) {
-      nextProps.errors.map((error) => {
+      nextProps.errors.forEach((error, index) => {
         const msgToShow = error.msg;
         const msgType = 'error';
         const clearFunctionName = error.clearFunction;
-        notify.show(msgToShow, msgType, 1500);
-        this.props[clearFunctionName](msgToShow);
+        const delay = index ? 3000 : 0;
+        setTimeout(() => {
+          this.showNotifyActionThenDelete(msgToShow, msgType, clearFunctionName);
+        }, delay);
       });
     }
   }
+  showNotifyActionThenDelete = (msgToShow, msgType, clearFunctionName) => {
+    notify.show(msgToShow, msgType, 1500);
+    this.props[clearFunctionName](msgToShow);
+  };
   render() {
     return (
       <BrowserRouter>
