@@ -156,7 +156,7 @@ class Email extends Component {
                   email.attachments.map((attachment, i) => (
                     <div key={attachment.attachmentId}>
                       <a
-                        key={attachment.attachmentId} href={this.props.url[i]}
+                        key={attachment.attachmentId} href={this.props.url[attachment.attachmentId]}
                         download={attachment.attachmentName}
                       >
                         {attachment.attachmentName}<i className="fa fa-download" />
@@ -258,7 +258,7 @@ Email.propTypes = {
   getTemplate: PropTypes.func.isRequired,
   sendNote: PropTypes.func.isRequired,
   noteStatus: PropTypes.string,
-  url: PropTypes.array,
+  url: PropTypes.object,
   changeNoteStatus: PropTypes.func.isRequired,
   toggleButtonName: PropTypes.func,
   loaded: PropTypes.bool,

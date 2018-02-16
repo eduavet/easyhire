@@ -19,7 +19,7 @@ const initialState = {
   note: { content: '' },
   loading: true,
   loaded: false,
-  url: [],
+  url: {},
   templateContent: '',
   composeWindowClassName: 'compose',
   composeWindowHeaderText: 'Compose',
@@ -140,11 +140,13 @@ function getThreadFromGapi(result) {
   };
 }
 
-function getAttachmentFromGapi(result) {
+function getAttachmentFromGapi(result, emailId, attachment) {
   return {
     type: GET_ATTACHMENT_FROM_GAPI,
     payload: {
       url: result,
+      emailId: emailId,
+      attachmentId: attachment.attachmentId,
       errors: result.errors ? result.errors : [],
       responseMsgs: [],
     },
@@ -338,7 +340,7 @@ export function asyncGetAttachmentFromGapi(emailId, attachment) {
       .then(res => res.blob())
       .then((result) => {
         const objectURL = URL.createObjectURL(result);
-        dispatch(getAttachmentFromGapi(objectURL));
+        dispatch(getAttachmentFromGapi(objectURL, emailId, attachment));
       })
       .catch(() => {});
   };
@@ -480,7 +482,7 @@ export default function emailsReducer(state = initialState, action) {
       return {
         ...state,
         email: Object.assign({}, payload.email, { htmlBody: checkHtmlBody }),
-        url: [],
+        url: {url: {}},
         errors: payload.errors
           .map(error => Object.assign({}, error, { clearFunction: 'clearEmailError' })),
         responseMsgs: payload.responseMsgs
@@ -498,7 +500,7 @@ export default function emailsReducer(state = initialState, action) {
           const checkHtmlBody = email.htmlBody ? email.htmlBody : '';
           return Object.assign({}, email, { htmlBody: checkHtmlBody });
         }),
-        url: [],
+        url: {},
         loaded: true,
         errors: payload.errors
           .map(error => Object.assign({}, error, { clearFunction: 'clearEmailError' })),
@@ -535,22 +537,25 @@ export default function emailsReducer(state = initialState, action) {
               isPlainText: payload.isPlainText[email.emailId].value,
             },
           )),
-        url: [],
+        url: {},
         loaded: true,
         errors: payload.errors
           .map(error => Object.assign({}, error, { clearFunction: 'clearEmailError' })),
         responseMsgs: payload.responseMsgs
           .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailResponseMsg' })),
       };
-    case GET_ATTACHMENT_FROM_GAPI:
+    case GET_ATTACHMENT_FROM_GAPI: {
+      const url = state.url;
+      url[payload.attachmentId] = payload.url;
       return {
         ...state,
-        url: [...state.url, payload.url],
+        url: url,
         errors: payload.errors
-          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailError' })),
+          .map(error => Object.assign({}, error, {clearFunction: 'clearEmailError'})),
         responseMsgs: payload.responseMsgs
-          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailResponseMsg' })),
+          .map(responseMsg => Object.assign({}, responseMsg, {clearFunction: 'clearEmailResponseMsg'})),
       };
+    }
     case SEND_NEW_EMAIL: {
       return {
         ...state,
@@ -678,7 +683,7 @@ export default function emailsReducer(state = initialState, action) {
         note: { content: '' },
         loading: true,
         loaded: false,
-        url: [],
+        url: {},
         templateContent: '',
         composeWindowClassName: 'compose',
         composeWindowHeaderText: 'Compose',
