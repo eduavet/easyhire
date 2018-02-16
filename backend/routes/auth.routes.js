@@ -8,11 +8,10 @@ authRoutes.get('/google', passport.authenticate(
   'google',
   {
     scope:
-      ['https://mail.google.com/',
-        // 'https://www.googleapis.com/auth/gmail.modify',
-        // 'https://www.googleapis.com/auth/gmail.readonly',
-        // 'https://www.googleapis.com/auth/gmail.metadata',
-        'profile', 'email', 'openid'],
+      [
+        'https://mail.google.com/',
+        'profile', 'email', 'openid',
+      ],
   },
 ));
 

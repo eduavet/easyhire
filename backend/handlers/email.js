@@ -54,14 +54,7 @@ emailHandlers.emails = (req, response) => {
                 if (!upperEmail.payload.headers.find(item => item.name === 'To').value.includes(req.session.email)) {
                   return null;
                 }
-                // const isRecieved = upperEmail.payload.headers
-                //   .find((item) => {
-                //     const itemValue = item.name === 'To' ? item.value : '';
-                //     return itemValue !== req.session.email;
-                //   });
-                // if (!isRecieved) {
-                //   return null;
-                // }
+
                 const newEmail = helper.buildNewEmailModel(
                   userId,
                   upperEmail,
@@ -94,7 +87,6 @@ emailHandlers.emails = (req, response) => {
       });
     });
 };
-
 // Sync
 emailHandlers.syncEmails = (req, response) => {
   const userId = req.session.userID;
@@ -114,8 +106,7 @@ emailHandlers.syncEmails = (req, response) => {
           return response.json({
             emailsToSend,
             errors: [{
-              msg: 'Log out and log in' +
-            ' to see emails',
+              msg: 'Log out and log in to see emails',
             }],
             responseMsgs: [],
           });
@@ -125,9 +116,7 @@ emailHandlers.syncEmails = (req, response) => {
         let upperFolder = '';
         promises.push(EmailsModel.findOne({ emailId: id })
           .then((emailDb) => {
-            if (emailDb) {
-              return;
-            }
+            if (emailDb) return;
             return fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`)
               .then(email => email.json())
               .then((email) => {
@@ -173,10 +162,7 @@ emailHandlers.syncEmails = (req, response) => {
       });
     });
 };
-
-
 // Get emails from db
-
 emailHandlers.getEmailsFromDb = (req, res) => {
   const userId = req.session.userID;
   const emailsToSend = [];
@@ -218,7 +204,6 @@ emailHandlers.getSentEmailsFromDb = (req, res) => {
       responseMsgs: [],
     }));
 };
-
 // Get sent emails from gmail
 emailHandlers.emailsSent = (req, response) => {
   const userId = req.session.userID;
@@ -288,7 +273,7 @@ emailHandlers.emailsSent = (req, response) => {
           response.json(packed);
         });
     })
-    .catch((err) => {
+    .catch(() => {
       response.json({
         name: '',
         emailsToSend: [],
@@ -318,7 +303,6 @@ emailHandlers.emailsMoveToFolder = (req, res) => {
       errors: [{ msg: 'Something went wrong' }], emailsToMove: [], originalFolder: [], responseMsgs: [],
     }));
 };
-
 // Marks emails 'read' or 'unread'
 emailHandlers.mark = (req, res) => {
   const emailsToMark = req.body.emailIds;
@@ -336,7 +320,6 @@ emailHandlers.mark = (req, res) => {
       responseMsgs: [],
     }));
 };
-
 // Delete specified email(s) but only from db NOT from gmail
 emailHandlers.deleteEmails = (req, res) => {
   const emailsToDelete = req.params.ID.split(',');
@@ -361,7 +344,6 @@ emailHandlers.deleteEmails = (req, res) => {
       responseMsgs: [],
     }));
 };
-
 // Get specified email data from database
 emailHandlers.getEmailFromDb = (req, res) => {
   req.checkParams('id').notEmpty().withMessage('Email id is required');
@@ -434,7 +416,10 @@ emailHandlers.getEmailFromGapi = (req, res) => {
       if (emailParts.findHtml.mimeType !== 'text/html' && response.payload.parts) {
         emailParts.findHtml = response.payload.parts.find(item => item.mimeType === 'text/html');
         if (!emailParts.findHtml) {
-          emailParts.findHtmlPartCountainer = response.payload.parts.find(item => item.mimeType === 'multipart/alternative') ? response.payload.parts.find(item => item.mimeType === 'multipart/alternative') : { parts: [] };
+          emailParts.findHtmlPartCountainer = response.payload.parts.find(item =>
+            item.mimeType === 'multipart/alternative') ?
+            response.payload.parts.find(item => item.mimeType === 'multipart/alternative') :
+            { parts: [] };
           emailParts.findHtml = emailParts.findHtmlPartCountainer.parts.find(item => item.mimeType === 'text/html');
         }
       }
@@ -459,7 +444,7 @@ emailHandlers.getEmailFromGapi = (req, res) => {
 emailHandlers.getThreadFromGapi = (req, res) => {
   req.checkParams('threadId').notEmpty().withMessage('Thread id is required');
   const userId = req.session.userID;
-  const threadId = req.params.threadId;
+  const { threadId } = req.params;
   const { accessToken } = req.session;
   const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
   const errors = req.validationErrors();
@@ -472,7 +457,10 @@ emailHandlers.getThreadFromGapi = (req, res) => {
   }
   return fetch(`${fetchUrl}${userId}/threads/${threadId}?access_token=${accessToken}`)
     .then(response => response.json())
-    .then(response => response.messages.map((message) => { threadEmails.push(message.id); return message; }))
+    .then(response => response.messages.map((message) => {
+      threadEmails.push(message.id);
+      return message;
+    }))
     .then(() => (
       threadEmails.map(emailId => promises.push(fetch(`${fetchUrl}${userId}/messages/${emailId}?access_token=${accessToken}`)
         .then(response => response.json())
@@ -483,7 +471,10 @@ emailHandlers.getThreadFromGapi = (req, res) => {
           if (emailParts.findHtml.mimeType !== 'text/html' && response.payload.parts) {
             emailParts.findHtml = response.payload.parts.find(item => item.mimeType === 'text/html');
             if (!emailParts.findHtml) {
-              emailParts.findHtmlPartCountainer = response.payload.parts.find(item => item.mimeType === 'multipart/alternative') ? response.payload.parts.find(item => item.mimeType === 'multipart/alternative') : { parts: [] };
+              emailParts.findHtmlPartCountainer = response.payload.parts.find(item =>
+                item.mimeType === 'multipart/alternative') ?
+                response.payload.parts.find(item => item.mimeType === 'multipart/alternative') :
+                { parts: [] };
               emailParts.findHtml = emailParts.findHtmlPartCountainer.parts.find(item => item.mimeType === 'text/html');
             }
           }
@@ -506,7 +497,6 @@ emailHandlers.getThreadFromGapi = (req, res) => {
       });
     });
 };
-
 // Change Email Status
 emailHandlers.changeEmailStatus = (req, res) => {
   req.checkParams('emailId').notEmpty().withMessage('Email id is required');
@@ -537,7 +527,6 @@ emailHandlers.changeEmailStatus = (req, res) => {
       });
     });
 };
-
 // Search query to google API
 emailHandlers.search = (req, res) => {
   const { text, folderId, searchType } = req.body;
@@ -552,10 +541,10 @@ emailHandlers.search = (req, res) => {
   // If search field is empty
   if (errors) {
     if (folderId === 'allEmails') {
-      return emailHandlers.emails(req, res);
+      return emailHandlers.getEmailsFromDb(req, res);
     }
     if (searchType === 'sent') {
-      return emailHandlers.emailsSent(req, res);
+      return emailHandlers.getSentEmailsFromDb(req, res);
     }
     return EmailsModel.find({ userId, folder: folderId, deleted: false })
       .then((messages) => {
@@ -610,7 +599,6 @@ emailHandlers.search = (req, res) => {
     })
     .catch();
 };
-
 // Get email attachment data from gmail such as attachment body
 emailHandlers.getAttachmentFromGapi = (req, res) => {
   req.checkParams('emailId').notEmpty().withMessage('Email id is required');
@@ -652,7 +640,6 @@ emailHandlers.getAttachmentFromGapi = (req, res) => {
       res.json({ errors: [{ msg: 'Something went wrong' }], responseMsgs: [] });
     });
 };
-
 // Reply
 emailHandlers.reply = (req, res) => {
   req.checkParams('emailId').notEmpty().withMessage('Email id id is required');
@@ -727,6 +714,7 @@ emailHandlers.reply = (req, res) => {
       responseMsgs: [],
     }));
 };
+
 emailHandlers.sendNewEmail = (req, res) => {
   req.checkBody('receiver').notEmpty().withMessage('Receiver id is required');
   const userId = req.session.userID;
@@ -761,8 +749,8 @@ emailHandlers.sendNewEmail = (req, res) => {
       },
     }))
     .then((resp) => {
-      const respMsg = resp.ok ? 'Email has been sent' : "Couldn't send" +
-          ' email.Please try again';
+      const respMsg = resp.ok ? 'Email has been sent' :
+        "Couldn't send email.Please try again";
       const respType = resp.ok ? 'success' : 'error';
       res.json({
         ok: resp.ok,
@@ -775,21 +763,21 @@ emailHandlers.sendNewEmail = (req, res) => {
       ok: false,
       status: null,
       errors: [{
-        msg: "Couldn't send email.Please" +
-        ' try again',
+        msg: "Couldn't send email. Please try again",
       }],
       responseMsgs: [],
     }));
 };
-// console.log(util.inspect(res, { depth: 8 }));
+
 emailHandlers.getSignature = (req, res) => {
   const userId = req.session.userID;
   const { accessToken } = req.session;
   const sender = {};
+  const url = 'https://www.googleapis.com/gmail/v1/users/';
   return UsersModel.findOne({ googleID: userId }, { email: true, name: true, _id: false })
     .then((user) => { sender.address = user.email; sender.name = user.name; })
-    .then(() => fetch(`https://www.googleapis.com/gmail/v1/users/${userId}/settings/sendAs/${sender.address}?access_token=${accessToken}`))
+    .then(() => fetch(`${url}${userId}/settings/sendAs/${sender.address}?access_token=${accessToken}`))
     .then(result => result.json())
     .then(result => res.json({ result, errors: [], responseMsgs: [] }))
-    .catch(() => res.json({ errors: [{ msg: "Couldn't send email.Please try again" }], responseMsgs: [] }));
+    .catch(() => res.json({ errors: [{ msg: "Couldn't send email. Please try again" }], responseMsgs: [] }));
 };

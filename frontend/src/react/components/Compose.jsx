@@ -21,7 +21,8 @@ class Compose extends Component {
     if (!nextProps.signature || !nextProps.templateContent) {
       return;
     }
-    const receiver = this.props.email.receiver ? this.props.email.receiver: this.props.email.sender
+    const receiver = this.props.email.receiver ? this.props.email.receiver
+      : this.props.email.sender;
     this._receiver.value = receiver;
     const receiverName = receiver.slice(0, receiver.indexOf(' ')).replace('"', '');
     const finalTemplate = nextProps.templateContent.replace('FIRST_NAME', receiverName);
@@ -87,11 +88,27 @@ class Compose extends Component {
           <form>
             <div className="modal-body">
               <div className="form-group">
-                <input type="text" className="form-control" disabled={this.state.disabled} id="compose-to" ref={(to) => { this._receiver = to; }} placeholder="To" required />
+                <input
+                  type="text"
+                  className="form-control"
+                  disabled={this.state.disabled}
+                  id="compose-to"
+                  ref={(to) => { this._receiver = to; }}
+                  placeholder="To"
+                  required
+                />
               </div>
 
               <div className="form-group">
-                <input type="text" className="form-control" disabled={this.state.disabled} id="compose-subject" ref={(sub) => { this._subject = sub; }} placeholder="Subject" required />
+                <input
+                  type="text"
+                  className="form-control"
+                  disabled={this.state.disabled}
+                  id="compose-subject"
+                  ref={(sub) => { this._subject = sub; }}
+                  placeholder="Subject"
+                  required
+                />
               </div>
 
               <div className="form-group">
@@ -108,7 +125,14 @@ class Compose extends Component {
               </div>
             </div>
             <div className="modal-footer">
-              <button type="submit" id="send-button" onClick={this.onClickSend} className="btn bg-light-blue shineBtn">Send</button>
+              <button
+                type="submit"
+                id="send-button"
+                onClick={this.onClickSend}
+                className="btn bg-light-blue shineBtn"
+              >
+              Send
+              </button>
             </div>
           </form>
         </div>

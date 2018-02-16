@@ -35,7 +35,6 @@ statusHandlers.getStatuses = (req, response) => {
             icon: { $first: '$icon' },
             userId: { $first: '$userId' },
             emails: { $push: '$emails' },
-            // count: {  $sum: 1}
           },
         },
         {
@@ -136,8 +135,6 @@ statusHandlers.getEmails = (req, res) => {
   }
   const userId = req.session.userID;
   const { statusId, folderId } = req.params;
-  // const { accessToken } = req.session;
-  // const emailsToSend = [];
   const promises = [];
   if (folderId === 'allEmails') {
     return EmailsModel.find({ status: statusId, userId })

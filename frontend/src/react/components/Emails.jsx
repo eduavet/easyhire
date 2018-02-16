@@ -271,12 +271,9 @@ Emails.propTypes = {
   getFolders: PropTypes.func.isRequired,
   loaded: PropTypes.bool.isRequired,
   emails: PropTypes.array.isRequired,
-  getEmailFromDb: PropTypes.func.isRequired,
   getEmails: PropTypes.func.isRequired,
   setEmailId: PropTypes.func.isRequired,
   setThreadId: PropTypes.func.isRequired,
-  getSentEmails: PropTypes.func.isRequired,
-  getThreadFromDb: PropTypes.func.isRequired,
   getFolderEmails: PropTypes.func.isRequired,
   isActive: PropTypes.func.isRequired,
   folders: PropTypes.array.isRequired,
@@ -293,10 +290,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     isChecked: item => dispatch(isChecked(item)),
-    getEmailFromDb: item => dispatch(asyncGetEmailFromDb(item)),
     getEmails: () => dispatch(asyncGetEmails()),
-    getSentEmails: () => dispatch(asyncGetSentEmails()),
-    getThreadFromDb: threadId => dispatch(asyncGetThreadFromDb(threadId)),
     setEmailId: emailId => dispatch(setEmailId(emailId)),
     setThreadId: threadId => dispatch(setThreadId(threadId)),
     getFolders: () => dispatch(asyncGetFolders()),
