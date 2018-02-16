@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import _ from 'lodash';
-import { isChecked, asyncGetEmails, asyncGetSentEmails, asyncGetFolderEmails } from '../../redux/reducers/emailsReducer';
-import { asyncGetEmailFromDb, asyncGetThreadFromDb, setEmailId, setThreadId } from '../../redux/reducers/emailReducer';
+import { isChecked, asyncGetEmails, asyncGetFolderEmails } from '../../redux/reducers/emailsReducer';
+import { setEmailId, setThreadId } from '../../redux/reducers/emailReducer';
 import { asyncGetFolders, isActive } from '../../redux/reducers/folderReducer';
 
 const Loader = require('react-loader');
@@ -177,13 +177,14 @@ class Emails extends Component {
   render() {
     const pages = [];
     for (let i = 1; i <= Math.ceil(this.props.emails.length / this.state.emailsPerPage); i += 1) {
-      pages.push(<li
-        key={i}
-        className={this.state.pageActive[i] ? 'page-item active' : 'page-item'}
-        onClick={this.openPage}
-      >
-        <a className="page-link paging" href="#top">{i}</a>
-                 </li>);
+      pages.push(
+        <li
+          key={i}
+          className={this.state.pageActive[i] ? 'page-item active' : 'page-item'}
+          onClick={this.openPage}
+        >
+          <a className="page-link paging" href="#top">{i}</a>
+        </li>);
     }
     return (
       <div className="col-10 mt-2">
