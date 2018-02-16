@@ -105,7 +105,7 @@ function Folder(props) {
   const isDeletable = props.folder.userId;
   return (
     <Link
-      to={`/folder/${props.folder._id}`}
+      to={props.folder.sentCount ? `/folder/sent/${props.folder._id}` : `/folder/${props.folder._id}`}
       className={`list-group-item list-group-item-action folder ${folderIsActive}`}
       onClick={() => {
         props.folderToggler(props.folder);
