@@ -541,10 +541,10 @@ emailHandlers.search = (req, res) => {
   // If search field is empty
   if (errors) {
     if (folderId === 'allEmails') {
-      return emailHandlers.emails(req, res);
+      return emailHandlers.getEmailsFromDb(req, res);
     }
     if (searchType === 'sent') {
-      return emailHandlers.emailsSent(req, res);
+      return emailHandlers.getSentEmailsFromDb(req, res);
     }
     return EmailsModel.find({ userId, folder: folderId, deleted: false })
       .then((messages) => {
