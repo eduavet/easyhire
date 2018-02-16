@@ -137,7 +137,7 @@ statusHandlers.getEmails = (req, res) => {
   const { statusId, folderId } = req.params;
   const promises = [];
   if (folderId === 'allEmails') {
-    return EmailsModel.find({ status: statusId, userId })
+    return EmailsModel.find({ status: statusId, userId, deleted: false })
       .populate('status folder')
       .then((result) => {
         Promise.all(promises)
@@ -149,7 +149,12 @@ statusHandlers.getEmails = (req, res) => {
         res.json({ emailsToSend: [], errors: [{ msg: 'smth went wrong while getting emails of specified status' }, err], responseMsgs: [] });
       });
   }
-  return EmailsModel.find({ status: statusId, userId, folder: folderId })
+  return EmailsModel.find({
+    status: statusId,
+    userId,
+    folder: folderId,
+    deleted: false,
+  })
     .populate('status folder')
     .then((result) => {
       Promise.all(promises)
