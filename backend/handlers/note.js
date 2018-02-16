@@ -21,7 +21,7 @@ noteHandlers.getNote = (req, res) => {
 noteHandlers.addNote = (req, res) => {
   req.checkParams('sender').notEmpty().withMessage('Sender is required');
   req.checkBody('emailId').notEmpty().withMessage('Email id is required');
-  req.checkBody('content').notEmpty().withMessage('Note content is required');
+  req.checkBody('content').withMessage('Note content is required');
   const errors = req.validationErrors();
   if (errors) {
     return res.json({ errors, note: {}, responseMsgs: [] });
@@ -46,7 +46,7 @@ noteHandlers.addNote = (req, res) => {
 // Update existing note
 noteHandlers.updateNote = (req, res) => {
   req.checkParams('id').notEmpty().withMessage('Note id is required');
-  req.checkBody('content').notEmpty().withMessage('Note content is required');
+  req.checkBody('content').withMessage('Note content is required');
   const errors = req.validationErrors();
   if (errors) {
     return res.json({ errors, note: {}, responseMsgs: [] });
