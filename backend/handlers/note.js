@@ -15,7 +15,7 @@ noteHandlers.getNote = (req, res) => {
   const { sender } = req.params;
   return NotesModel.findOne({ userId, sender })
     .then(note => res.json({ note, errors: [], responseMsgs: [] }))
-    .catch(() => res.json({ note: {}, errors: [{ msg: 'Something went wrong' }], responseMsgs: [] }));
+    .catch(() => res.json({ note: {}, errors: [{ msg: 'ErrorCode: 3.0 | Something went wrong' }], responseMsgs: [] }));
 };
 // Add new note
 noteHandlers.addNote = (req, res) => {
@@ -40,7 +40,7 @@ noteHandlers.addNote = (req, res) => {
   });
   return newNote.save()
     .then(note => res.json({ note, errors: [], responseMsgs: [] }))
-    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], note: {}, responseMsgs: [] }));
+    .catch(() => res.json({ errors: [{ msg: 'ErrorCode: 3.1 | Something went wrong' }], note: {}, responseMsgs: [] }));
 };
 
 // Update existing note
@@ -60,5 +60,5 @@ noteHandlers.updateNote = (req, res) => {
       return note.save()
         .then(updatedNote => res.json({ note: updatedNote, errors: [], responseMsgs: [] }));
     })
-    .catch(() => res.json({ note: {}, errors: [{ msg: 'Something went wrong' }], responseMsgs: [] }));
+    .catch(() => res.json({ note: {}, errors: [{ msg: 'ErrorCode: 3.2 | Something went wrong' }], responseMsgs: [] }));
 };

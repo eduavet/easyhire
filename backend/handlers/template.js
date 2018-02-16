@@ -8,7 +8,8 @@ templateHandlers.getTemplates = (req, res) => {
   const userId = req.session.userID;
   return TemplatesModel.find({ userId })
     .then(templates => res.json({ templates, errors: [], responseMsgs: [] }))
-    .catch(() => res.json({ templates: [], errors: [{ msg: 'Something went wrong' }], responseMsgs: [] }));
+    .catch(() => res.json({ templates: [], errors: [{ msg: 'ErrorCode: 5.0 | Something went' +
+        ' wrong' }], responseMsgs: [] }));
 };
 // Get template
 templateHandlers.getTemplate = (req, res) => {
@@ -30,7 +31,7 @@ templateHandlers.getTemplate = (req, res) => {
   }
   return TemplatesModel.findOne({ _id: templateId, userId })
     .then(template => res.json({ template, errors: [], responseMsgs: [] }))
-    .catch(() => res.json({ template: {}, errors: [{ msg: 'Something went wrong' }], responseMsgs: [] }));
+    .catch(() => res.json({ template: {}, errors: [{ msg: 'ErrorCode: 5.1 | Something went wrong' }], responseMsgs: [] }));
 };
 // Add new template
 templateHandlers.addTemplate = (req, res) => {
@@ -51,7 +52,7 @@ templateHandlers.addTemplate = (req, res) => {
   });
   return newTemplate.save()
     .then(template => res.json({ template, errors: [], responseMsgs: [{ msg: 'Template created', type: 'success' }] }))
-    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], template: {}, responseMsgs: [] }));
+    .catch(() => res.json({ errors: [{ msg: 'ErrorCode: 5.2 | Something went wrong' }], template: {}, responseMsgs: [] }));
 };
 // Update existing template
 templateHandlers.updateTemplate = (req, res) => {
@@ -71,7 +72,7 @@ templateHandlers.updateTemplate = (req, res) => {
       template.save()
         .then(updatedTemplate => res.json({ template: updatedTemplate, errors: [], responseMsgs: [{ msg: 'Template updated', type: 'success' }] }));
     })
-    .catch(() => res.json({ template: {}, errors: ['Something went wrong'], responseMsgs: [] }));
+    .catch(() => res.json({ template: {}, errors: ['ErrorCode: 5.3 | Something went wrong'], responseMsgs: [] }));
 };
 
 // Delete template
@@ -85,5 +86,5 @@ templateHandlers.deleteTemplate = (req, res) => {
   const userId = req.session.userID;
   return TemplatesModel.remove({ _id: templateId, userId })
     .then(() => res.json({ _id: templateId, errors: [], responseMsgs: [{ msg: 'Template deleted', type: 'success' }] }))
-    .catch(err => res.json({ _id: '', errors: ['Something went wrong', err], responseMsgs: [] }));
+    .catch(err => res.json({ _id: '', errors: ['ErrorCode: 5.4 | Something went wrong', err], responseMsgs: [] }));
 };

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Route, BrowserRouter, Switch } from 'react-router-dom';
+import _ from 'lodash';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { notify } from 'react-notify-toast';
@@ -25,6 +26,7 @@ import { clearError as clearStatusError, clearResponseMsg as clearStatusResponse
 export class Dashboard extends Component {
   componentWillMount() {
     this.props.responseMsgs.forEach((responseMsg, index) => {
+      console.log('Dashboard componentWillMount')
       const msgToShow = responseMsg.msg;
       const msgType = responseMsg.type;
       const clearFunctionName = responseMsg.clearFunction;
@@ -48,7 +50,9 @@ export class Dashboard extends Component {
     if (nextProps === this.props) {
       return;
     }
-    if (nextProps.responseMsgs !== this.props.responseMsgs) {
+    const watchResponseMsgsProps = _.pick(this.props, ['responseMsgs']);
+    const nextResponseMsgsProps = _.pick(nextProps, ['responseMsgs']);
+    if (nextResponseMsgsProps !== watchResponseMsgsProps) {
       nextProps.responseMsgs.forEach((responseMsg, index) => {
         const msgToShow = responseMsg.msg;
         const msgType = responseMsg.type;
@@ -65,6 +69,7 @@ export class Dashboard extends Component {
         const msgType = 'error';
         const clearFunctionName = error.clearFunction;
         const delay = index ? 3000 : 0;
+        this.props[clearFunctionName](msgToShow);
         setTimeout(() => {
           this.showNotifyActionThenDelete(msgToShow, msgType, clearFunctionName);
         }, delay);

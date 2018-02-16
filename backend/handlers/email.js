@@ -20,7 +20,7 @@ emailHandlers.emails = (req, response) => {
   const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
   const emailsToSend = [];
   if (!userId) {
-    return response.json({ emailsToSend, errors: [{ msg: 'Log in to see emails' }], responseMsgs: [] });
+    return response.json({ emailsToSend, errors: [{ msg: 'ErrorCode: 1.0 | Log in to see emails' }], responseMsgs: [] });
   }
   return fetch(`${fetchUrl}${userId}/messages?access_token=${accessToken}&maxResults=10000`)
     .then(account => account.json())
@@ -83,7 +83,7 @@ emailHandlers.emails = (req, response) => {
     })
     .catch(() => {
       response.json({
-        name: '', emailsToSend: [], errors: [{ msg: 'Something went wrong' }], responseMsgs: [],
+        name: '', emailsToSend: [], errors: [{ msg: 'ErrorCode: 1.1 | Something went wrong' }], responseMsgs: [],
       });
     });
 };
@@ -94,7 +94,7 @@ emailHandlers.syncEmails = (req, response) => {
   const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
   const emailsToSend = [];
   if (!userId) {
-    return response.json({ emailsToSend, errors: [{ msg: 'Log in to see emails' }], responseMsgs: [] });
+    return response.json({ emailsToSend, errors: [{ msg: 'ErrorCode: 1.2 | Log in to see emails' }], responseMsgs: [] });
   }
   return fetch(`${fetchUrl}${userId}/messages?access_token=${accessToken}&maxResults=10000`)
     .then(account => account.json())
@@ -106,7 +106,7 @@ emailHandlers.syncEmails = (req, response) => {
           return response.json({
             emailsToSend,
             errors: [{
-              msg: 'Log out and log in to see emails',
+              msg: 'ErrorCode: 1.3 | Log out and log in to see emails',
             }],
             responseMsgs: [],
           });
@@ -128,8 +128,11 @@ emailHandlers.syncEmails = (req, response) => {
                 return StatusesModel.findOne({ name: 'Not Reviewed' }, '_id');
               })
               .then((status) => {
-                if (!upperEmail.payload.headers.find(item => item.name === 'To').value.includes(req.session.email)) {
+                const toContainer = upperEmail.payload.headers.find(item => item.name === 'To');
+                if (!toContainer) {
                   return null;
+                }
+                if (!toContainer.value.includes(req.session.email)) {
                 }
                 const newEmail = helper.buildNewEmailModel(
                   userId,
@@ -158,7 +161,7 @@ emailHandlers.syncEmails = (req, response) => {
     })
     .catch((err) => {
       response.json({
-        name: '', emailsToSend: [], errors: [{ msg: 'Something went wrong' }], responseMsgs: [],
+        name: '', emailsToSend: [], errors: [{ msg: 'ErrorCode: 1.4 | Something went wrong' }], responseMsgs: [],
       });
     });
 };
@@ -168,7 +171,7 @@ emailHandlers.getEmailsFromDb = (req, res) => {
   const emailsToSend = [];
   const promises = [];
   if (!userId) {
-    return res.json({ emailsToSend, errors: [{ msg: 'Log in to see emails' }], responseMsgs: [] });
+    return res.json({ emailsToSend, errors: [{ msg: 'ErrorCode: 1.5 | Log in to see emails' }], responseMsgs: [] });
   }
   return EmailsModel.find({ userId, deleted: false })
     .populate('folder status')
@@ -179,7 +182,10 @@ emailHandlers.getEmailsFromDb = (req, res) => {
         }))
     .catch(err => res.json({
       emailsToSend: [],
-      errors: [{ msg: 'something went wrong when getting emails of specified folder' }, err],
+      errors: [{
+        msg: 'ErrorCode: 1.6 | something went wrong when getting emails of specified' +
+        ' folder',
+      }, err],
       responseMsgs: [],
     }));
 };
@@ -189,7 +195,7 @@ emailHandlers.getSentEmailsFromDb = (req, res) => {
   const emailsToSend = [];
   const promises = [];
   if (!userId) {
-    return res.json({ emailsToSend, errors: [{ msg: 'Log in to see emails' }], responseMsgs: [] });
+    return res.json({ emailsToSend, errors: [{ msg: 'ErrorCode: 1.7 | Log in to see emails' }], responseMsgs: [] });
   }
   return SentEmailsModel.find({ userId, deleted: false })
     .populate('folder status')
@@ -200,7 +206,10 @@ emailHandlers.getSentEmailsFromDb = (req, res) => {
         }))
     .catch(err => res.json({
       emailsToSend: [],
-      errors: [{ msg: 'something went wrong when getting emails of specified folder' }, err],
+      errors: [{
+        msg: 'ErrorCode: 1.8 | something went wrong when getting emails of specified' +
+        ' folder',
+      }, err],
       responseMsgs: [],
     }));
 };
@@ -211,7 +220,7 @@ emailHandlers.emailsSent = (req, response) => {
   const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
   const emailsToSend = [];
   if (!userId) {
-    return response.json({ emailsToSend, errors: [{ msg: 'Log in to continue' }], responseMsgs: [] });
+    return response.json({ emailsToSend, errors: [{ msg: 'ErrorCode: 1.9 | Log in to continue' }], responseMsgs: [] });
   }
   return fetch(`${fetchUrl}${userId}/messages?access_token=${accessToken}&maxResults=10000`)
     .then(account => account.json())
@@ -223,7 +232,7 @@ emailHandlers.emailsSent = (req, response) => {
           return response.json({
             emailsToSend,
             errors: [{
-              msg: 'Log out and log in' +
+              msg: 'ErrorCode: 1.10 | Log out and log in' +
               ' to see emails',
             }],
             responseMsgs: [],
@@ -277,7 +286,7 @@ emailHandlers.emailsSent = (req, response) => {
       response.json({
         name: '',
         emailsToSend: [],
-        errors: [{ msg: 'Something went wrong' }],
+        errors: [{ msg: 'ErrorCode: 1.11 | Something went wrong' }],
         responseMsgs: [],
       });
     });
@@ -300,7 +309,7 @@ emailHandlers.emailsMoveToFolder = (req, res) => {
         errors: [], emailsToMove: result, originalFolder, responseMsgs: [{ msg: 'Emails(s) moved!', type: 'success' }],
       })))
     .catch(() => res.json({
-      errors: [{ msg: 'Something went wrong' }], emailsToMove: [], originalFolder: [], responseMsgs: [],
+      errors: [{ msg: 'ErrorCode: 1.12 | Something went wrong' }], emailsToMove: [], originalFolder: [], responseMsgs: [],
     }));
 };
 // Marks emails 'read' or 'unread'
@@ -315,7 +324,7 @@ emailHandlers.mark = (req, res) => {
       emailsToMark: [],
       newValue: null,
       errors: [{
-        msg: 'Something went wrong',
+        msg: 'ErrorCode: 1.13 | Something went wrong',
       }],
       responseMsgs: [],
     }));
@@ -337,7 +346,7 @@ emailHandlers.deleteEmails = (req, res) => {
     }))
     .catch(() => res.json({
       errors: [{
-        msg: 'Something went wrong',
+        msg: 'ErrorCode: 1.14 | Something went wrong',
       }],
       emailsToDelete: [],
       originalFolder: [],
@@ -370,7 +379,7 @@ emailHandlers.getEmailFromDb = (req, res) => {
             })));
     })
     .catch((err) => {
-      res.json({ email: [], errors: [{ msg: 'Something went wrong', err }], responseMsgs: [] });
+      res.json({ email: [], errors: [{ msg: 'ErrorCode: 1.15 | Something went wrong', err }], responseMsgs: [] });
     });
 };
 
@@ -390,7 +399,7 @@ emailHandlers.getThreadFromDb = (req, res) => {
         })))
       .catch((err) => {
         res.json({
-          emails: [], sentEmails: [], errors: [{ msg: 'Something went wrong', err }], responseMsgs: [],
+          emails: [], sentEmails: [], errors: [{ msg: 'ErrorCode: 1.16 | Something went wrong', err }], responseMsgs: [],
         });
       })));
 };
@@ -433,7 +442,7 @@ emailHandlers.getEmailFromGapi = (req, res) => {
     .catch(() => {
       res.json({
         errors: [{
-          msg: 'Something went wrong',
+          msg: 'ErrorCode: 1.17 | Something went wrong',
         }],
         isPlainText: { value: false },
         responseMsgs: [],
@@ -490,7 +499,7 @@ emailHandlers.getThreadFromGapi = (req, res) => {
       res.json({
         emails: {},
         errors: [{
-          msg: 'Something went wrong',
+          msg: 'ErrorCode: 1.18 | Something went wrong',
         }],
         isPlainText: { value: false },
         responseMsgs: [],
@@ -523,7 +532,7 @@ emailHandlers.changeEmailStatus = (req, res) => {
     })
     .catch(() => {
       res.json({
-        errors: [{ msg: 'Something went wrong' }], status: '', emailId: '', responseMsgs: [],
+        errors: [{ msg: 'ErrorCode: 1.19 | Something went wrong' }], status: '', emailId: '', responseMsgs: [],
       });
     });
 };
@@ -580,7 +589,7 @@ emailHandlers.search = (req, res) => {
               if (group) {
                 emailsToSend[i] = helper.groupExtract(group);
               }
-          }));
+            }));
         }
       }
 
@@ -637,7 +646,7 @@ emailHandlers.getAttachmentFromGapi = (req, res) => {
       request(fullpath).pipe(res);
     })
     .catch(() => {
-      res.json({ errors: [{ msg: 'Something went wrong' }], responseMsgs: [] });
+      res.json({ errors: [{ msg: 'ErrorCode: 1.20 | Something went wrong' }], responseMsgs: [] });
     });
 };
 // Reply
@@ -708,7 +717,7 @@ emailHandlers.reply = (req, res) => {
       ok: false,
       status: 700,
       errors: [{
-        msg: "Couldn't send" +
+        msg: "ErrorCode: 1.21 | Couldn't send" +
         ' email.Please try again',
       }],
       responseMsgs: [],
@@ -763,7 +772,7 @@ emailHandlers.sendNewEmail = (req, res) => {
       ok: false,
       status: null,
       errors: [{
-        msg: "Couldn't send email. Please try again",
+        msg: "ErrorCode: 1.22 | Couldn't send email. Please try again",
       }],
       responseMsgs: [],
     }));
@@ -779,5 +788,11 @@ emailHandlers.getSignature = (req, res) => {
     .then(() => fetch(`${url}${userId}/settings/sendAs/${sender.address}?access_token=${accessToken}`))
     .then(result => result.json())
     .then(result => res.json({ result, errors: [], responseMsgs: [] }))
-    .catch(() => res.json({ errors: [{ msg: "Couldn't send email. Please try again" }], responseMsgs: [] }));
+    .catch(() => res.json({
+      errors: [{
+        msg: "ErrorCode: 1.23 | Couldn't send email. Please try" +
+        ' again',
+      }],
+      responseMsgs: [],
+    }));
 };

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import DateTime from 'react-datetime';
 import { Editor } from '@tinymce/tinymce-react';
 import { toggleComposeWindow, asyncSendNewEmail, asyncReply } from '../../redux/reducers/emailReducer';
 import { asyncGetSignature } from '../../redux/reducers/emailsReducer';
@@ -12,8 +13,20 @@ class Compose extends Component {
       minimize: false,
       maximize: false,
       disabled: false,
+      datepickerStyle: 'hideDatetimepicker',
+      dateTime: '',
+      dateTimeContainerClass: 'dateTimePickerClosed',
     };
   }
+  changeDatepicker = (moment) => {
+    const dateTime = moment.format('DD/MM/YYYY, HH:mm');
+    this.setState({ dateTime });
+  };
+  closeDateTimepicker = () => {
+    const insertValue = this.state.dateTime ? `&nbsp;${this.state.dateTime}&nbsp;` : '';
+    this.setState({ datepickerStyle: 'hideDatetimepicker', dateTimeContainerClass: 'dateTimePickerClosed', dateTime: '' });
+    this._editor.editor.insertContent(insertValue);
+  };
   componentWillMount() {
     this.props.getSignature();
   }
@@ -112,16 +125,52 @@ class Compose extends Component {
               </div>
 
               <div className="form-group">
-                <Editor
-                  ref={(editor) => { this._editor = editor; }}
-                  initialValue=""
-                  content={this.props.templateContent}
-                  init={{
-                    plugins: 'link image code',
-                    toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code',
-                    height: '220',
-                  }}
-                />
+                <div className="editorDateTimePickerContainer">
+                  <Editor
+                    ref={(editor) => { this._editor = editor; }}
+                    initialValue=""
+                    content={this.props.templateContent}
+                    init={{
+                      plugins: 'link image code insertdatetime advlist autolink lists charmap print preview hr anchor pagebreak,'
+                      + 'searchreplace wordcount visualblocks visualchars fullscreen,'
+                      + 'media nonbreaking save table contextmenu directionality,'
+                      + 'emoticons template paste textcolor colorpicker textpattern',
+                      toolbar1: 'insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent',
+                      toolbar2: 'Datepicker | print preview media | forecolor backcolor emoticons' +
+                      ' | insertdatetime',
+                      relative_urls: false,
+                      remove_script_host: false,
+                      image_advtab: true,
+                      height: '320',
+                      setup: (editor) => {
+                        editor.addButton('Datepicker', {
+                          text: 'DateTimepicker',
+                          icon: 'insertdatetime',
+                          onclick: () => {
+                            const toggleClass = this.state.datepickerStyle ? '' : 'hideDatetimepicker';
+                            const toggleContainerClass = this.state.datepickerStyle ? '' : 'dateTimePickerClosed';
+                            const insertValue = this.state.datepickerStyle ? '' : `&nbsp;${this.state.dateTime}&nbsp;`;
+                            this.setState({
+                              datepickerStyle: toggleClass,
+                              dateTimeContainerClass: toggleContainerClass,
+                              dateTime: '',
+                            });
+                            this._editor.editor.insertContent(insertValue);
+                          },
+                        });
+                      },
+                    }}
+                  />
+                  <div className={`dateTimeContainer ${this.state.dateTimeContainerClass}`}>
+                    <button type="button" className="btn btn-close-datepicker" onClick={this.closeDateTimepicker}>&times;</button>
+                    <DateTime
+                      className={this.state.datepickerStyle}
+                      onChange={moment => this.changeDatepicker(moment)}
+                      ref={(picker) => { this._datepicker = picker; }}
+                      input={false}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
             <div className="modal-footer">

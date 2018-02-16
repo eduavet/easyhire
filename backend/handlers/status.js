@@ -7,7 +7,7 @@ module.exports = statusHandlers;
 statusHandlers.getStatuses = (req, response) => {
   const userId = req.session.userID;
   if (!userId) {
-    return response.json({ statuses: [], errors: [{ msg: 'user not found' }], responseMsgs: [] });
+    return response.json({ statuses: [], errors: [{ msg: 'ErrorCode: 4.0 | user not found' }], responseMsgs: [] });
   }
   return EmailsModel.count({ userId })
     .then(inboxCount => StatusesModel
@@ -53,7 +53,13 @@ statusHandlers.getStatuses = (req, response) => {
           statuses, inboxCount, errors: [], responseMsgs: [],
         });
       })).catch({
-      statuses: [], inboxCount: 0, errors: [{ msg: 'something went wrong while getting statuses' }], responseMsgs: [],
+      statuses: [],
+      inboxCount: 0,
+      errors: [{
+        msg: 'ErrorCode: 4.1 | something went wrong while' +
+        ' getting statuses',
+      }],
+      responseMsgs: [],
     });
 };
 
@@ -80,7 +86,7 @@ statusHandlers.createStatus = (req, res) => {
       };
       return res.json({ createdStatus: createdStatusToSend, errors: [], responseMsgs: [{ msg: 'status created', type: 'success' }] });
     })
-    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], createdStatus: {}, responseMsgs: [] }));
+    .catch(() => res.json({ errors: [{ msg: 'ErrorCode: 4.2 | Something went wrong' }], createdStatus: {}, responseMsgs: [] }));
 };
 
 // Update existing status
@@ -96,7 +102,7 @@ statusHandlers.updateStatus = (req, res) => {
     .then((status) => {
       res.json({ updatedStatus: status, errors: [], responseMsgs: [{ msg: 'status updated', type: 'success' }] });
     })
-    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], updatedStatus: {}, responseMsgs: [] }));
+    .catch(() => res.json({ errors: [{ msg: 'ErrorCode: 4.3 | Something went wrong' }], updatedStatus: {}, responseMsgs: [] }));
 };
 
 // Delete status
@@ -121,9 +127,9 @@ statusHandlers.deleteStatus = (req, res) => {
             }
           });
       }
-      return res.json({ errors: [{ msg: 'Main statuses "Approved", "Rejected", "Interview Scheduled" and "Not Reviewed" cannot be deleted' }], responseMsgs: [], deletedStatusID: '' });
+      return res.json({ errors: [{ msg: 'ErrorCode: 4.4 | Main statuses "Approved", "Rejected", "Interview Scheduled" and "Not Reviewed" cannot be deleted' }], responseMsgs: [], deletedStatusID: '' });
     })
-    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], deletedStatusID: '', responseMsgs: [] }));
+    .catch(() => res.json({ errors: [{ msg: 'ErrorCode: 4.5 | Something went wrong' }], deletedStatusID: '', responseMsgs: [] }));
 };
 
 // Get status emails
@@ -146,7 +152,14 @@ statusHandlers.getEmails = (req, res) => {
           });
       })
       .catch((err) => {
-        res.json({ emailsToSend: [], errors: [{ msg: 'smth went wrong while getting emails of specified status' }, err], responseMsgs: [] });
+        res.json({
+          emailsToSend: [],
+          errors: [{
+            msg: 'ErrorCode: 4.6 | smth went wrong while' +
+            ' getting emails of specified status',
+          }, err],
+          responseMsgs: [],
+        });
       });
   }
   return EmailsModel.find({ status: statusId, userId, folder: folderId })
@@ -158,6 +171,13 @@ statusHandlers.getEmails = (req, res) => {
         });
     })
     .catch(() => {
-      res.json({ emailsToSend: [], errors: [{ msg: 'smth went wrong while getting emails of specified status' }], responseMsgs: [] });
+      res.json({
+        emailsToSend: [],
+        errors: [{
+          msg: 'ErrorCode: 4.7 | smth went wrong while' +
+          ' getting emails of specified status',
+        }],
+        responseMsgs: [],
+      });
     });
 };

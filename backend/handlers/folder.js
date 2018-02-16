@@ -10,7 +10,7 @@ folderHandlers.getFolders = (req, response) => {
   const userId = req.session.userID;
 
   if (!userId) {
-    return response.json({ folders: [], errors: [{ msg: 'user not found' }], responseMsgs: [] });
+    return response.json({ folders: [], errors: [{ msg: 'ErrorCode: 2.0 | user not found' }], responseMsgs: [] });
   }
   return EmailsModel.count({ userId, deleted: false })
     .then(inboxCount => FoldersModel
@@ -78,7 +78,7 @@ folderHandlers.getFolders = (req, response) => {
       })).catch({
       folders: [],
       inboxCount: 0,
-      errors: [{ msg: 'Something went wrong, when getting folders' }],
+      errors: [{ msg: 'ErrorCode: 2.1 | Something went wrong, when getting folders' }],
       responseMsgs: [],
     });
 };
@@ -109,7 +109,7 @@ folderHandlers.createFolder = (req, res) => {
       };
       return res.json({ createdFolder: createdFolderToSend, errors: [], responseMsgs: [{ msg: 'Folder created', type: 'success' }] });
     })
-    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], createdFolder: {}, responseMsgs: [] }));
+    .catch(() => res.json({ errors: [{ msg: 'ErrorCode: 2.2 | Something went wrong' }], createdFolder: {}, responseMsgs: [] }));
 };
 // Update existing folder
 folderHandlers.updateFolder = (req, res) => {
@@ -124,7 +124,7 @@ folderHandlers.updateFolder = (req, res) => {
     .then((folder) => {
       res.json({ updatedFolder: folder, errors: [], responseMsgs: [{ msg: 'Folder successfully updated', type: 'success' }] });
     })
-    .catch(() => res.json({ errors: [{ msg: 'Something went wrong' }], updatedFolder: {}, responseMsgs: [] }));
+    .catch(() => res.json({ errors: [{ msg: 'ErrorCode: 2.3 | Something went wrong' }], updatedFolder: {}, responseMsgs: [] }));
 };
 // Delete folder
 // Cannot delete default folders and folders which contain emails.
@@ -137,7 +137,7 @@ folderHandlers.deleteFolder = (req, res) => {
           .then((emails) => {
             if (emails.length > 0) {
               res.json({
-                errors: [{ msg: 'Folder contains emails and cannot be deleted' }],
+                errors: [{ msg: 'ErrorCode: 2.4 | Folder contains emails and cannot be deleted' }],
                 deletedFolderID: '',
                 responseMsgs: [],
               });
@@ -148,9 +148,9 @@ folderHandlers.deleteFolder = (req, res) => {
             }
           });
       }
-      return res.json({ errors: [{ msg: 'Main folders "Inbox" and "Uncategorized" cannot be deleted' }], deletedFolderID: '', responseMsgs: [] });
+      return res.json({ errors: [{ msg: 'ErrorCode: 2.5 | Main folders "Inbox" and "Uncategorized" cannot be deleted' }], deletedFolderID: '', responseMsgs: [] });
     })
-    .catch(err => res.json({ errors: [{ msg: 'Something went wrong' }, err], deletedFolderID: '', responseMsgs: [] }));
+    .catch(err => res.json({ errors: [{ msg: 'ErrorCode: 2.6 | Something went wrong' }, err], deletedFolderID: '', responseMsgs: [] }));
 };
 // Get folder emails
 folderHandlers.getEmails = (req, res) => {
@@ -174,7 +174,10 @@ folderHandlers.getEmails = (req, res) => {
           }))
         .catch(err => res.json({
           emailsToSend: [],
-          errors: [{ msg: 'something went wrong when getting emails of specified folder' }, err],
+          errors: [{
+            msg: 'ErrorCode: 2.7 | something went wrong when getting emails of' +
+            ' specified folder',
+          }, err],
           responseMsgs: [],
         }));
     }
@@ -188,7 +191,10 @@ folderHandlers.getEmails = (req, res) => {
             }))
         .catch(err => res.json({
           emailsToSend: [],
-          errors: [{ msg: 'something went wrong when getting emails of specified folder' }, err],
+          errors: [{
+            msg: 'ErrorCode: 2.8 | something went wrong when getting emails of' +
+            ' specified folder',
+          }, err],
           responseMsgs: [],
         }));
     }
@@ -201,7 +207,10 @@ folderHandlers.getEmails = (req, res) => {
           }))
       .catch(err => res.json({
         emailsToSend: [],
-        errors: [{ msg: 'something went wrong when getting emails of specified folder' }, err],
+        errors: [{
+          msg: 'ErrorCode: 2.9 | something went wrong when getting emails of specified' +
+          ' folder',
+        }, err],
         responseMsgs: [],
       }));
   });
