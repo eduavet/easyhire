@@ -16,7 +16,7 @@ class SentEmails extends Component {
       pageActive: Object.assign([], new Array(10).fill(false), { 1: true }),
       currentPage: 1,
       emailsPerPage: 15,
-      sortedSender: false,
+      sortedReceiver: false,
       sortedSubject: false,
       sortedStatus: false,
       sortedDate: false,
@@ -101,21 +101,21 @@ class SentEmails extends Component {
     this.props.setThreadId(threadId);
   };
 
-  sortBySender = () => {
-    if (!this.state.sortedSender) {
+  sortByReceiver = () => {
+    if (!this.state.sortedReceiver) {
       this.props.emails.sort((a, b) => {
-        const nameA = a.sender.toUpperCase(); // ignore upper and lowercase
-        const nameB = b.sender.toUpperCase(); // ignore upper and lowercase
+        const nameA = a.receiver.toUpperCase(); // ignore upper and lowercase
+        const nameB = b.receiver.toUpperCase(); // ignore upper and lowercase
         return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
       });
-      this.setState({ sortedSender: !this.state.sortedSender });
+      this.setState({ sortedReceiver: !this.state.sortedReceiver });
     } else {
       this.props.emails.sort((a, b) => {
-        const nameA = a.sender.toUpperCase(); // ignore upper and lowercase
-        const nameB = b.sender.toUpperCase(); // ignore upper and lowercase
+        const nameA = a.receiver.toUpperCase(); // ignore upper and lowercase
+        const nameB = b.receiver.toUpperCase(); // ignore upper and lowercase
         return nameA < nameB ? 1 : nameA > nameB ? -1 : 0;
       });
-      this.setState({ sortedSender: !this.state.sortedSender });
+      this.setState({ sortedReceiver: !this.state.sortedReceiver });
     }
   };
 
@@ -183,7 +183,7 @@ class SentEmails extends Component {
           <table className="table-sm emailsTable w-100" data-toggle="table">
             <thead>
               <tr>
-                <th>Receiver<div className="btn" onClick={this.sortBySender}><i className="fa fa-fw fa-sort" /></div></th>
+                <th>Receiver<div className="btn" onClick={this.sortByReceiver}><i className="fa fa-fw fa-sort" /></div></th>
                 <th>Subject<div className="btn" onClick={this.sortBySubject}><i className="fa fa-fw fa-sort" /></div></th>
                 <th />
                 <th>Date<div className="btn" onClick={this.sortByDate}><i className="fa fa-fw fa-sort" /></div></th>
@@ -205,7 +205,7 @@ class SentEmails extends Component {
                         data-threadid={item.threadId}
                         onClick={this.openEmail}
                       >
-                        {item.sender}
+                        {item.receiver}
                       </Link>
                     </td>
                     <td>

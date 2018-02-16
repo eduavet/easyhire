@@ -7,6 +7,7 @@ const sentEmailsSchema = new Schema({
   emailId: String,
   folder: { type: Schema.Types.ObjectId, ref: 'folders', default: null },
   sender: String,
+  receiver: String,
   subject: String,
   snippet: String,
   date: String,

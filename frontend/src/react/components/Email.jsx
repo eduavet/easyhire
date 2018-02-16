@@ -128,6 +128,7 @@ class Email extends Component {
               <div className="d-flex justify-content-between">
                 <div>
                   <p><b>Sender:</b> {email.sender}</p>
+                  {email.receiver ? <p><b>Receiver:</b> {email.receiver}</p>: ''}
                   {index ? '' : <p><b>Subject:</b> {email.subject}</p>}
                   <p><b>Date:</b> {email.date}</p>
                 </div>
