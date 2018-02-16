@@ -133,6 +133,7 @@ emailHandlers.syncEmails = (req, response) => {
                   return null;
                 }
                 if (!toContainer.value.includes(req.session.email)) {
+                  return null;
                 }
                 const newEmail = helper.buildNewEmailModel(
                   userId,

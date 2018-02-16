@@ -133,7 +133,7 @@ folderHandlers.deleteFolder = (req, res) => {
   FoldersModel.findOne({ userId: req.session.userID, _id: req.params.ID })
     .then((folder) => {
       if (folder) {
-        return EmailsModel.find({ folder: folder.id })
+        return EmailsModel.find({ folder: folder.id, deleted: false })
           .then((emails) => {
             if (emails.length > 0) {
               res.json({
