@@ -3,8 +3,10 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Button, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
-import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetThreadFromGapi, asyncGetAttachmentFromGapi, asyncGetNote, asyncSendNote, changeNoteStatus,
-  asyncGetTemplate, toggleButtonName, refreshSetEmailId, refreshSetThreadId, asyncGetEmailFromDb, asyncGetThreadFromDb, clearEmail } from '../../redux/reducers/emailReducer';
+import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetThreadFromGapi,
+  asyncGetAttachmentFromGapi, asyncGetNote, asyncSendNote, changeNoteStatus,
+  asyncGetTemplate, toggleButtonName, refreshSetEmailId, refreshSetThreadId,
+  asyncGetEmailFromDb, asyncGetThreadFromDb, clearEmail } from '../../redux/reducers/emailReducer';
 import { asyncGetTemplates } from '../../redux/reducers/settingsReducer';
 
 const Loader = require('react-loader');
@@ -77,6 +79,11 @@ class Email extends Component {
       });
     }
   }
+
+  componentWillUnmount() {
+    this.props.clearEmail();
+  }
+
   sendNoteInfo = { time: 0 };
   changeStatus = (evt) => {
     const statusId = evt.target.value;
@@ -116,9 +123,6 @@ class Email extends Component {
     this.props.getTemplate(templateId);
     this.setState({ replyPopoverOpen: false, newPopoverOpen: false });
   };
-  componentWillUnmount(){
-    this.props.clearEmail();
-  }
 
   render() {
     return (
