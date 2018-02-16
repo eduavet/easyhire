@@ -26,7 +26,7 @@ emailHelpers.groupExtract = (group) => {
   const {
     emailId, sender, subject, date, isRead, attachments, threadId,
   } = group;
-  const receiver = group.receiver ? group.receiver: '';
+  const receiver = group.receiver ? group.receiver : '';
   const folderId = group.folder._id;
   const folderName = group.folder.name;
   const statusId = group.status ? group.status._id : null;

@@ -50,7 +50,6 @@ function mapStateToProps(state) {
     username: state.emails.name,
     loading: state.emails.loading,
     loaded: state.emails.loaded,
-
   };
 }
 
