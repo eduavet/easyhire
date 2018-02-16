@@ -21,9 +21,10 @@ class Compose extends Component {
     if (!nextProps.signature || !nextProps.templateContent) {
       return;
     }
-    this._receiver.value = this.props.receiver;
-    const receiver = this.props.receiver.slice(0, this.props.receiver.indexOf(' ')).replace('"', '');
-    const finalTemplate = nextProps.templateContent.replace('FIRST_NAME', receiver);
+    const receiver = this.props.email.receiver ? this.props.email.receiver: this.props.email.sender
+    this._receiver.value = receiver;
+    const receiverName = receiver.slice(0, receiver.indexOf(' ')).replace('"', '');
+    const finalTemplate = nextProps.templateContent.replace('FIRST_NAME', receiverName);
     this._editor.editor.setContent(decodeURIComponent(`${finalTemplate} \r\n ${nextProps.signature}`));
     if (nextProps.btnName === 'reply') {
       this._subject.value = this.props.subject;
@@ -139,7 +140,7 @@ Compose.propTypes = {
   btnName: PropTypes.string,
   emailId: PropTypes.string,
   reply: PropTypes.func,
-  receiver: PropTypes.string,
+  email: PropTypes.object,
   subject: PropTypes.string,
   signature: PropTypes.string,
 };
@@ -153,7 +154,7 @@ function mapStateToProps(state) {
     messageSent: state.email.messageSent,
     btnName: state.email.btnName,
     emailId: state.email.email.emailId,
-    receiver: state.email.email.sender,
+    email: state.email.email,
     subject: state.email.email.subject,
   };
 }
