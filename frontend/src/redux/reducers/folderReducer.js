@@ -226,12 +226,6 @@ export function asyncRefreshFolders() {
   };
 }
 
-// export function setSettings() {
-//   return function setSettingsInner(dispatch) {
-//     dispatch(refresh(result));
-//   };
-// }
-
 export function updateCount() {
   asyncGetFolders();
   return {

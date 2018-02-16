@@ -458,7 +458,7 @@ export default function emailsReducer(state = initialState, action) {
       const checkedEmailId = state.email.emailId ? state.email.emailId : payload.emailId;
       return {
         ...state,
-        email: Object.assign({}, state.email, { emailId: checkedEmailId}),
+        email: Object.assign({}, state.email, { emailId: checkedEmailId }),
       };
     }
     case REFRESH_SET_THREAD_ID:

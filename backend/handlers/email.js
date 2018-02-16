@@ -768,7 +768,7 @@ emailHandlers.sendNewEmail = (req, res) => {
       responseMsgs: [],
     }));
 };
-// console.log(util.inspect(res, { depth: 8 }));
+
 emailHandlers.getSignature = (req, res) => {
   const userId = req.session.userID;
   const { accessToken } = req.session;

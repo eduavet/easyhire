@@ -54,14 +54,12 @@ class SentToolbar extends Component {
 }
 
 SentToolbar.propTypes = {
-  emails: PropTypes.array.isRequired,
   folders: PropTypes.array.isRequired,
   asyncSearch: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
   return {
-    emails: state.emails.emails,
     folders: state.folders.folders,
     statuses: state.statuses.statuses,
   };

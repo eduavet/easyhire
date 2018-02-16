@@ -3,8 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Button, Popover, PopoverHeader, PopoverBody } from 'reactstrap';
-import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetThreadFromGapi, asyncGetAttachmentFromGapi, asyncGetNote, asyncSendNote, changeNoteStatus, asyncGetTemplate, changeComposeWindowHeaderText, toggleButtonName, refreshSetEmailId, refreshSetThreadId, asyncGetEmailFromDb, asyncGetThreadFromDb } from '../../redux/reducers/emailReducer';
-import { asyncGetSignature } from '../../redux/reducers/emailsReducer';
+import { asyncChangeEmailStatus, asyncGetEmailFromGapi, asyncGetThreadFromGapi, asyncGetAttachmentFromGapi, asyncGetNote, asyncSendNote, changeNoteStatus, asyncGetTemplate, toggleButtonName, refreshSetEmailId, refreshSetThreadId, asyncGetEmailFromDb, asyncGetThreadFromDb } from '../../redux/reducers/emailReducer';
 import { asyncGetTemplates } from '../../redux/reducers/settingsReducer';
 
 const Loader = require('react-loader');
@@ -128,19 +127,19 @@ class Email extends Component {
               <div className="d-flex justify-content-between">
                 <div>
                   <p><b>Sender:</b> {email.sender}</p>
-                  {email.receiver ? <p><b>Receiver:</b> {email.receiver}</p>: ''}
+                  {email.receiver ? <p><b>Receiver:</b> {email.receiver}</p> : ''}
                   {index ? '' : <p><b>Subject:</b> {email.subject}</p>}
                   <p><b>Date:</b> {email.date}</p>
                 </div>
-                <div key={email.emailId+email.threadId}>
+                <div key={email.emailId + email.threadId}>
                   {email.status ? (
-                      <div key={email.emailId}>
-                        <label htmlFor="selectStatus"><b>Change Status</b></label>
-                        <select className="form-control" id="selectStatus" onChange={this.changeStatus} data-id={email.emailId}  value={email.status}>
-                          {this.props.statuses.map(status =>
-                            <option key={status._id} value={status._id}>{status.name}</option>)}
-                        </select>
-                      </div>) : ''
+                    <div key={email.emailId}>
+                      <label htmlFor="selectStatus"><b>Change Status</b></label>
+                      <select className="form-control" id="selectStatus" onChange={this.changeStatus} data-id={email.emailId} value={email.status}>
+                        {this.props.statuses.map(status =>
+                          <option key={status._id} value={status._id}>{status.name}</option>)}
+                      </select>
+                    </div>) : ''
                   }
                 </div>
               </div>
@@ -243,7 +242,6 @@ Email.propTypes = {
   statuses: PropTypes.array.isRequired,
   templates: PropTypes.array.isRequired,
   changeEmailStatus: PropTypes.func.isRequired,
-  changeComposeWindowHeaderText: PropTypes.func.isRequired,
   refreshSetEmailId: PropTypes.func.isRequired,
   refreshSetThreadId: PropTypes.func.isRequired,
   getEmailFromDb: PropTypes.func.isRequired,
@@ -258,7 +256,6 @@ Email.propTypes = {
   changeNoteStatus: PropTypes.func.isRequired,
   toggleButtonName: PropTypes.func,
   loaded: PropTypes.bool,
-  getSignature: PropTypes.func,
   getThreadFromGapi: PropTypes.func,
   threadId: PropTypes.string,
 };
@@ -301,9 +298,7 @@ function mapDispatchToProps(dispatch) {
     ) => dispatch(asyncSendNote(sender, emailId, note, noteId)),
     changeNoteStatus: status => dispatch(changeNoteStatus(status)),
     getTemplate: templateId => dispatch(asyncGetTemplate(templateId)),
-    changeComposeWindowHeaderText: text => dispatch(changeComposeWindowHeaderText(text)),
     toggleButtonName: btnName => dispatch(toggleButtonName(btnName)),
-    getSignature: () => dispatch(asyncGetSignature()),
     getTemplates: () => dispatch(asyncGetTemplates()),
     refreshSetEmailId: emailId => dispatch(refreshSetEmailId(emailId)),
     getEmailFromDb: emailId => dispatch(asyncGetEmailFromDb(emailId)),

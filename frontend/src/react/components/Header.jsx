@@ -67,10 +67,8 @@ function mapStateToProps(state) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    setPage: value => dispatch(setPage(dispatch, value)),
-  };
+function mapDispatchToProps() {
+  return {};
 }
 
 export default connect(
