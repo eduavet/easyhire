@@ -35,7 +35,9 @@ class SentEmails extends Component {
       return;
     }
     const url = window.location.pathname;
-    if (nextProps.folders.length !== this.props.folders.length) {
+    const watchFoldersProps = _.pick(this.props, ['folders']);
+    const nextWatchFoldersProps = _.pick(nextProps, ['folders']);
+    if (!_.isEqual(watchFoldersProps, nextWatchFoldersProps)) {
       const urlParts = window.location.pathname.split('/');
       const folderId = urlParts[urlParts.length - 1];
       if (folderId) {

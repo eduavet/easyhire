@@ -72,7 +72,6 @@ folderHandlers.getFolders = (req, response) => {
         { $sort: { userId: 1, name: 1 } },
       ])
       .then((folders) => {
-        console.log(folders)
         response.json({
           folders, inboxCount, errors: [], responseMsgs: [],
         });

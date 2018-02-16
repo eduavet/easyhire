@@ -167,7 +167,7 @@ emailHandlers.syncEmails = (req, response) => {
           response.json(packed);
         });
     })
-    .catch(() => {
+    .catch((err) => {
       response.json({
         name: '', emailsToSend: [], errors: [{ msg: 'Something went wrong' }], responseMsgs: [],
       });
@@ -233,18 +233,24 @@ emailHandlers.emailsSent = (req, response) => {
     .then((account) => {
       const { messages } = account;
       const promises = [];
-      if (!messages) return;
       for (let i = 0; i < messages.length; i += 1) {
-        if (!messages) break;
+        if (!messages) {
+          return response.json({
+            emailsToSend,
+            errors: [{
+              msg: 'Log out and log in' +
+              ' to see emails',
+            }],
+            responseMsgs: [],
+          });
+        }
         const { id } = messages[i];
         let upperEmail = '';
         let upperFolder = '';
         promises.push(SentEmailsModel.findOne({ emailId: id })
-          .populate('folder')
-          .then((group) => {
-            if (group) {
-              if (!group.deleted) emailsToSend[i] = helper.groupExtract(group);
-              return '';
+          .then((emailDb) => {
+            if (emailDb) {
+              return;
             }
             return fetch(`${fetchUrl}${userId}/messages/${id}?access_token=${accessToken}`)
               .then(email => email.json())
@@ -283,7 +289,6 @@ emailHandlers.emailsSent = (req, response) => {
         });
     })
     .catch((err) => {
-      console.error(err);
       response.json({
         name: '',
         emailsToSend: [],
