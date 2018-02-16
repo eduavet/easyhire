@@ -17,7 +17,7 @@ templateHandlers.getTemplate = (req, res) => {
   if (errors) {
     return res.json({ errors, responseMsgs: [] });
   }
-  const templateId = req.params.templateId;
+  const { templateId } = req.params;
   const userId = req.session.userID;
   if (templateId === 'noTemplate') {
     return res.json({

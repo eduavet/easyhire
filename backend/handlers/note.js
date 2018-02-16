@@ -1,6 +1,4 @@
 const mongoose = require('mongoose');
-// const fetch = require('node-fetch');
-// const EmailsModel = require('../models/EmailsModel.js');
 const NotesModel = require('../models/NotesModel.js');
 
 const noteHandlers = {};

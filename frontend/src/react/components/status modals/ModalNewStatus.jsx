@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Button, Modal, ModalHeader, ModalBody } from 'reactstrap';
-import { notify } from 'react-notify-toast';
 import PropTypes from 'prop-types';
 import { asyncCreateStatus } from '../../../redux/reducers/statusReducer';
 
@@ -40,12 +39,25 @@ class ModalNewStatus extends Component {
             <form onSubmit={this.createStatus}>
               <div className="form-group">
                 <label htmlFor="statusName">Status Name</label>
-                <input type="text" ref="createStatus" className="form-control" id="statusName" placeholder="Enter status name" onChange={this.handleChange} />
+                <input
+                  type="text"
+                  ref="createStatus"
+                  className="form-control"
+                  id="statusName"
+                  placeholder="Enter status name"
+                  onChange={this.handleChange}
+                />
               </div>
               <hr className="mt-4" />
               <div className="form-group">
                 <Button color="secondary float-right" onClick={this.toggle}>Cancel</Button>
-                <Button className="btn bg-light-blue float-right mr-2" onClick={this.createStatus} disabled={!this.state.input}>Create</Button>
+                <Button
+                  className="btn bg-light-blue float-right mr-2"
+                  onClick={this.createStatus}
+                  disabled={!this.state.input}
+                >
+                  Create
+                </Button>
               </div>
             </form>
           </ModalBody>
