@@ -290,10 +290,8 @@ export default function folderReducer(state = initialState, action) {
       return {
         ...state,
         folders: foldersAfterMove,
-        errors: payload.errors
-          .map(error => Object.assign({}, error, { clearFunction: 'clearFolderError' })),
-        responseMsgs: payload.responseMsgs
-          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearFolderResponseMsg' })),
+        errors: [],
+        responseMsgs: [],
       };
     }
     case DELETE_EMAILS: {
@@ -311,10 +309,8 @@ export default function folderReducer(state = initialState, action) {
       return {
         ...state,
         folders: afterDelete,
-        errors: payload.errors
-          .map(error => Object.assign({}, error, { clearFunction: 'clearFolderError' })),
-        responseMsgs: payload.responseMsgs
-          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearFolderResponseMsg' })),
+        errors: [],
+        responseMsgs: [],
       };
     }
     case CREATE_FOLDER: {
