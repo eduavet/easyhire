@@ -264,9 +264,9 @@ function loading() {
 }
 
 export function clearEmail(dispatch) {
-  return dispatch({
+  return {
     type: CLEAR_EMAIL,
-  });
+  };
 }
 
 export function asyncGetEmailFromDb(id) {
@@ -673,6 +673,19 @@ export default function emailsReducer(state = initialState, action) {
           isPlainText: false,
           attachments: [],
         },
+        thread: [],
+        noteStatus: 'noteSaveStatus',
+        note: { content: '' },
+        loading: true,
+        loaded: false,
+        url: [],
+        templateContent: '',
+        composeWindowClassName: 'compose',
+        composeWindowHeaderText: 'Compose',
+        btnName: '',
+        errors: [],
+        responseMsgs: [],
+
       };
     default:
       return state;
