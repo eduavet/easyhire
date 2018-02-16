@@ -441,18 +441,22 @@ export default function emailsReducer(state = initialState, action) {
           .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailsResponseMsg' })),
         loaded: true,
       };
-    case GET_SENT_GAPI:
+    case GET_SENT_GAPI: {
+      const sentEmails = payload.emails;
+      const sentEmailsSoretedByDate = [
+        ...sentEmails
+          .map(email => Object.assign({}, email, {isChecked: !!email.isChecked})),
+        ...state.emails]
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
       return {
         ...state,
-        emails: [
-          ...payload.emails
-            .map(email => Object.assign({}, email, { isChecked: !!email.isChecked })),
-          ...state.emails,],
+        emails: sentEmailsSoretedByDate,
         errors: payload.errors
-          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailsError' })),
+          .map(error => Object.assign({}, error, {clearFunction: 'clearEmailsError'})),
         responseMsgs: payload.responseMsgs
-          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailsResponseMsg' })),
+          .map(responseMsg => Object.assign({}, responseMsg, {clearFunction: 'clearEmailsResponseMsg'})),
       };
+    }
     case GET_USERNAME:
       return {
         ...state,
@@ -599,16 +603,20 @@ export default function emailsReducer(state = initialState, action) {
           .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailsResponseMsg' })),
       };
     }
-    case SEARCH:
+    case SEARCH: {
+      const searchedEmails = payload.emails;
+      const searchedEmailsSoretedByDate = searchedEmails
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
       return {
         ...state,
-        emails: payload.emails,
+        emails: searchedEmailsSoretedByDate,
         errors: payload.errors
-          .map(error => Object.assign({}, error, { clearFunction: 'clearEmailsError' })),
+          .map(error => Object.assign({}, error, {clearFunction: 'clearEmailsError'})),
         responseMsgs: payload.responseMsgs
-          .map(responseMsg => Object.assign({}, responseMsg, { clearFunction: 'clearEmailsResponseMsg' })),
+          .map(responseMsg => Object.assign({}, responseMsg, {clearFunction: 'clearEmailsResponseMsg'})),
         loaded: true,
       };
+    }
     case LOADING:
       return {
         ...state, loaded: false,
