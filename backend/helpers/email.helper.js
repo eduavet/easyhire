@@ -26,6 +26,7 @@ emailHelpers.groupExtract = (group) => {
   const {
     emailId, sender, subject, date, isRead, attachments, threadId,
   } = group;
+  const receiver = group.receiver ? group.receiver: '';
   const folderId = group.folder._id;
   const folderName = group.folder.name;
   const statusId = group.status ? group.status._id : null;
@@ -35,6 +36,7 @@ emailHelpers.groupExtract = (group) => {
     emailId,
     threadId,
     sender,
+    receiver,
     subject,
     snippet,
     date,
@@ -91,7 +93,8 @@ emailHelpers.buildSentEmailModel = (userId, email, folder) => {
   }
   const emailId = email.id;
   const { threadId } = email;
-  const sender = email.payload.headers.find(item => item.name === 'To').value;
+  const sender = email.payload.headers.find(item => item.name === 'From').value;
+  const receiver = email.payload.headers.find(item => item.name === 'To').value;
   const subject = email.payload.headers.find(item => item.name === 'Subject') ?
     email.payload.headers.find(item => item.name === 'Subject').value : '';
   const snippet = entities.decode(email.snippet);
@@ -101,6 +104,7 @@ emailHelpers.buildSentEmailModel = (userId, email, folder) => {
     emailId,
     threadId,
     sender,
+    receiver,
     subject,
     snippet,
     date: date.toString(),

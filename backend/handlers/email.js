@@ -374,14 +374,13 @@ emailHandlers.getEmailFromDb = (req, res) => {
           .then((response) => {
             res.json({ email: response, errors: [], responseMsgs: [] });
           });
-      } else {
-        return SentEmailsModel.findOne({ emailId, userId })
-          .then(sentEmail => (
-            sentEmail.save()
-              .then((response) => {
-                res.json({ email: response, errors: [], responseMsgs: [] });
-              })));
       }
+      return SentEmailsModel.findOne({ emailId, userId })
+        .then(sentEmail => (
+          sentEmail.save()
+            .then((response) => {
+              res.json({ email: response, errors: [], responseMsgs: [] });
+            })));
     })
     .catch((err) => {
       res.json({ email: [], errors: [{ msg: 'Something went wrong', err }], responseMsgs: [] });
@@ -724,15 +723,13 @@ emailHandlers.reply = (req, res) => {
     }));
 };
 emailHandlers.sendNewEmail = (req, res) => {
-  req.checkParams('emailId').notEmpty().withMessage('Email id is required');
+  req.checkBody('receiver').notEmpty().withMessage('Receiver id is required');
   const userId = req.session.userID;
   const { accessToken } = req.session;
   const fetchUrl = 'https://www.googleapis.com/gmail/v1/users/';
-  const { emailId } = req.params;
   const sender = {};
-  const { subject, messageBody } = req.body;
+  const { receiver, subject, messageBody } = req.body;
   const errors = req.validationErrors();
-  const recipient = {};
   const emailLines = [];
   const encodedEmail = {};
   if (errors) {
@@ -740,37 +737,35 @@ emailHandlers.sendNewEmail = (req, res) => {
   }
   return UsersModel.findOne({ googleID: userId }, { email: true, name: true, _id: false })
     .then((user) => { sender.address = user.email; sender.name = user.name; })
-    .then(() => EmailsModel.findOne({ emailId }, { sender: true, _id: false })
-      .then((result) => { recipient.address = result.sender; })
-      .then(() => {
-        emailLines.push(`From: ${sender.name} ${sender.address}`);
-        emailLines.push(`To: ${recipient.address}`);
-        emailLines.push('Content-type: text/html;charset=iso-8859-1');
-        emailLines.push('MIME-Version: 1.0');
-        emailLines.push(`Subject: ${subject}`);
-        emailLines.push('');
-        emailLines.push(`${messageBody}`);
-        const email = emailLines.join('\r\n').trim();
-        encodedEmail.body = Buffer.from(email).toString('base64').replace(/\+/g, '-').replace(/\//g, '_');
-      })
-      .then(() => fetch(`${fetchUrl}${userId}/messages/send?access_token=${accessToken}`, {
-        method: 'POST',
-        body: JSON.stringify({ raw: encodedEmail.body }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }))
-      .then((resp) => {
-        const respMsg = resp.ok ? 'Email has been sent' : "Couldn't send" +
+    .then(() => {
+      emailLines.push(`From: ${sender.name} ${sender.address}`);
+      emailLines.push(`To: ${receiver}`);
+      emailLines.push('Content-type: text/html;charset=iso-8859-1');
+      emailLines.push('MIME-Version: 1.0');
+      emailLines.push(`Subject: ${subject}`);
+      emailLines.push('');
+      emailLines.push(`${messageBody}`);
+      const email = emailLines.join('\r\n').trim();
+      encodedEmail.body = Buffer.from(email).toString('base64').replace(/\+/g, '-').replace(/\//g, '_');
+    })
+    .then(() => fetch(`${fetchUrl}${userId}/messages/send?access_token=${accessToken}`, {
+      method: 'POST',
+      body: JSON.stringify({ raw: encodedEmail.body }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }))
+    .then((resp) => {
+      const respMsg = resp.ok ? 'Email has been sent' : "Couldn't send" +
           ' email.Please try again';
-        const respType = resp.ok ? 'success' : 'error';
-        res.json({
-          ok: resp.ok,
-          status: resp.status,
-          errors: [],
-          responseMsgs: [{ msg: respMsg, type: respType }],
-        });
-      }))
+      const respType = resp.ok ? 'success' : 'error';
+      res.json({
+        ok: resp.ok,
+        status: resp.status,
+        errors: [],
+        responseMsgs: [{ msg: respMsg, type: respType }],
+      });
+    })
     .catch(() => res.json({
       ok: false,
       status: null,

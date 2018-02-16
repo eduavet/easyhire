@@ -19,6 +19,6 @@ emailRoutes.get('/:emailId/status/:statusId', emailHandlers.changeEmailStatus);
 emailRoutes.post('/:emailId/attachment/gapi', emailHandlers.getAttachmentFromGapi);
 emailRoutes.post('/search', emailHandlers.search);
 emailRoutes.post('/reply/:emailId', emailHandlers.reply);
-emailRoutes.post('/:emailId/sendNew', emailHandlers.sendNewEmail);
+emailRoutes.post('/sendNew', emailHandlers.sendNewEmail);
 
 module.exports = emailRoutes;

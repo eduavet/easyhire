@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import _ from 'lodash';
-import { isChecked, asyncGetEmails, asyncGetSentEmails, asyncGetFolderEmails } from '../../redux/reducers/emailsReducer';
-import { asyncGetEmailFromDb, asyncGetThreadFromDb, setEmailId, setThreadId } from '../../redux/reducers/emailReducer';
+import { isChecked, asyncGetFolderEmails } from '../../redux/reducers/emailsReducer';
+import { setEmailId, setThreadId } from '../../redux/reducers/emailReducer';
 import { asyncGetFolders, isActive } from '../../redux/reducers/folderReducer';
 
 const Loader = require('react-loader');
@@ -16,7 +16,7 @@ class SentEmails extends Component {
       pageActive: Object.assign([], new Array(10).fill(false), { 1: true }),
       currentPage: 1,
       emailsPerPage: 15,
-      sortedSender: false,
+      sortedReceiver: false,
       sortedSubject: false,
       sortedStatus: false,
       sortedDate: false,
@@ -34,16 +34,6 @@ class SentEmails extends Component {
     if (nextProps === this.props) {
       return;
     }
-    const watchProps = _.pick(this.props, ['emails']);
-    const nextWatchProps = _.pick(nextProps, ['emails']);
-
-    if (!_.isEqual(watchProps, nextWatchProps)) {
-      console.log('get folders from Emails.jsx');
-      this.props.getFolders();
-    }
-  }
-
-  componentWillReceiveProps(nextProps) {
     const url = window.location.pathname;
     if (nextProps.folders.length !== this.props.folders.length) {
       const urlParts = window.location.pathname.split('/');
@@ -54,6 +44,12 @@ class SentEmails extends Component {
     }
     if (url === '/' && this.props.folders[0] && !this.props.folders[0].isActive) {
       this.props.isActive({ _id: 'allEmails' });
+    }
+    const watchProps = _.pick(this.props, ['emails']);
+    const nextWatchProps = _.pick(nextProps, ['emails']);
+
+    if (!_.isEqual(watchProps, nextWatchProps)) {
+      this.props.getFolders();
     }
   }
 
@@ -105,21 +101,21 @@ class SentEmails extends Component {
     this.props.setThreadId(threadId);
   };
 
-  sortBySender = () => {
-    if (!this.state.sortedSender) {
+  sortByReceiver = () => {
+    if (!this.state.sortedReceiver) {
       this.props.emails.sort((a, b) => {
-        const nameA = a.sender.toUpperCase(); // ignore upper and lowercase
-        const nameB = b.sender.toUpperCase(); // ignore upper and lowercase
+        const nameA = a.receiver.toUpperCase(); // ignore upper and lowercase
+        const nameB = b.receiver.toUpperCase(); // ignore upper and lowercase
         return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
       });
-      this.setState({ sortedSender: !this.state.sortedSender });
+      this.setState({ sortedReceiver: !this.state.sortedReceiver });
     } else {
       this.props.emails.sort((a, b) => {
-        const nameA = a.sender.toUpperCase(); // ignore upper and lowercase
-        const nameB = b.sender.toUpperCase(); // ignore upper and lowercase
+        const nameA = a.receiver.toUpperCase(); // ignore upper and lowercase
+        const nameB = b.receiver.toUpperCase(); // ignore upper and lowercase
         return nameA < nameB ? 1 : nameA > nameB ? -1 : 0;
       });
-      this.setState({ sortedSender: !this.state.sortedSender });
+      this.setState({ sortedReceiver: !this.state.sortedReceiver });
     }
   };
 
@@ -184,10 +180,10 @@ class SentEmails extends Component {
       <div className="col-10 mt-2">
         <h1>SENT EMAILS</h1>
         <Loader loaded={this.props.loaded}>
-          <table size="" className="table-sm emailsTable w-100" data-toggle="table">
+          <table className="table-sm emailsTable w-100" data-toggle="table">
             <thead>
               <tr>
-                <th>Receiver<div className="btn" onClick={this.sortBySender}><i className="fa fa-fw fa-sort" /></div></th>
+                <th>Receiver<div className="btn" onClick={this.sortByReceiver}><i className="fa fa-fw fa-sort" /></div></th>
                 <th>Subject<div className="btn" onClick={this.sortBySubject}><i className="fa fa-fw fa-sort" /></div></th>
                 <th />
                 <th>Date<div className="btn" onClick={this.sortByDate}><i className="fa fa-fw fa-sort" /></div></th>
@@ -209,7 +205,7 @@ class SentEmails extends Component {
                         data-threadid={item.threadId}
                         onClick={this.openEmail}
                       >
-                        {item.sender}
+                        {item.receiver}
                       </Link>
                     </td>
                     <td>
@@ -255,12 +251,8 @@ SentEmails.propTypes = {
   getFolders: PropTypes.func.isRequired,
   loaded: PropTypes.bool.isRequired,
   emails: PropTypes.array.isRequired,
-  getEmailFromDb: PropTypes.func.isRequired,
-  getEmails: PropTypes.func.isRequired,
   setEmailId: PropTypes.func.isRequired,
   setThreadId: PropTypes.func.isRequired,
-  getSentEmails: PropTypes.func.isRequired,
-  getThreadFromDb: PropTypes.func.isRequired,
   getFolderEmails: PropTypes.func.isRequired,
   isActive: PropTypes.func.isRequired,
   folders: PropTypes.array.isRequired,
@@ -277,10 +269,6 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     isChecked: item => dispatch(isChecked(item)),
-    getEmailFromDb: item => dispatch(asyncGetEmailFromDb(item)),
-    getEmails: () => dispatch(asyncGetEmails()),
-    getSentEmails: () => dispatch(asyncGetSentEmails()),
-    getThreadFromDb: threadId => dispatch(asyncGetThreadFromDb(threadId)),
     setEmailId: emailId => dispatch(setEmailId(emailId)),
     setThreadId: threadId => dispatch(setThreadId(threadId)),
     getFolders: () => dispatch(asyncGetFolders()),
