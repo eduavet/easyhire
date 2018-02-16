@@ -143,7 +143,7 @@ statusHandlers.getEmails = (req, res) => {
   const { statusId, folderId } = req.params;
   const promises = [];
   if (folderId === 'allEmails') {
-    return EmailsModel.find({ status: statusId, userId })
+    return EmailsModel.find({ status: statusId, userId, deleted: false })
       .populate('status folder')
       .then((result) => {
         Promise.all(promises)
@@ -162,7 +162,12 @@ statusHandlers.getEmails = (req, res) => {
         });
       });
   }
-  return EmailsModel.find({ status: statusId, userId, folder: folderId })
+  return EmailsModel.find({
+    status: statusId,
+    userId,
+    folder: folderId,
+    deleted: false,
+  })
     .populate('status folder')
     .then((result) => {
       Promise.all(promises)

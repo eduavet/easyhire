@@ -305,7 +305,7 @@ emailHandlers.emailsMoveToFolder = (req, res) => {
       { $set: { folder: mongoose.Types.ObjectId(folderToMove) } },
     ))
     .then(() => EmailsModel.find({ emailId: { $in: emailsToMove } })
-      .populate('folder').then(result => res.json({
+      .populate('folder status').then(result => res.json({
         errors: [], emailsToMove: result, originalFolder, responseMsgs: [{ msg: 'Emails(s) moved!', type: 'success' }],
       })))
     .catch(() => res.json({
